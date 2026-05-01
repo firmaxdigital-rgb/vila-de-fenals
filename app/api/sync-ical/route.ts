@@ -11,7 +11,11 @@ const VRBO_ICAL_URL = 'http://www.vrbo.com/icalendar/e05e2860e5ec4787b14614afc00
 
 async function fetchAndParseIcal(url: string, platform: string) {
   const response = await fetch(url, { cache: 'no-store' });
-  const data = await response.text();
+  let data = await response.text();
+
+  // iCalendar format folds lines longer than 75 chars by adding CRLF + space. 
+  // We must unfold them first.
+  data = data.replace(/\r?\n[ \t]/g, '');
 
   const events: any[] = [];
   const lines = data.split(/\r?\n/);
