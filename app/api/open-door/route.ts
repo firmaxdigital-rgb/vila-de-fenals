@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 // Usar Service Role para no depender de RLS en la API
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const IFTTT_WEBHOOK_URL = process.env.IFTTT_WEBHOOK_URL!;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
+const IFTTT_WEBHOOK_URL = process.env.IFTTT_WEBHOOK_URL || '';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
