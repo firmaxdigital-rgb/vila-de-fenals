@@ -3,6 +3,9 @@ import OpenDoorButton from './OpenDoorButton';
 import { translations, Lang } from './i18n';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Si RLS restringe la lectura pública, usa SUPABASE_SERVICE_ROLE_KEY.
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
