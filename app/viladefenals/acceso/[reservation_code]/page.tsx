@@ -5,12 +5,16 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 // Si RLS restringe la lectura pública, usa SUPABASE_SERVICE_ROLE_KEY.
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false },
+  global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
+});
 
 // Componente para manejar la imagen de fondo con un tono estival
 function Background() {
@@ -78,6 +82,7 @@ export default async function AccesoPage({
           <div className="bg-red-500/20 border border-red-400/50 rounded-2xl p-6">
             <p className="text-red-100 text-xl font-medium">{dict.not_found_title}</p>
             <p className="text-red-50 text-sm mt-2 opacity-80">{dict.not_found_desc}</p>
+            {error && <p className="text-red-300 text-xs mt-4 font-mono break-all">{error.message} (URL: {SUPABASE_URL})</p>}
           </div>
         </div>
       </div>
