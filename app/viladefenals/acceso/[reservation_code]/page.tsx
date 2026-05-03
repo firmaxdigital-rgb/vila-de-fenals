@@ -8,8 +8,8 @@ export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
 // Si RLS restringe la lectura pública, usa SUPABASE_SERVICE_ROLE_KEY.
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://xvwvwniktgmxuooqkpdc.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2d3Z3bmlrdGdteHVvb3FrcGRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NTQ1ODcsImV4cCI6MjA5MzIzMDU4N30.D7JQHu3ky8VQh5yPLaWnTLLukoRSyX1_egEjOA1SW0M';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: false },
@@ -24,7 +24,7 @@ function Background() {
       <div className="absolute inset-0 bg-gradient-to-br from-teal-300 to-cyan-600" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
-        src="/Imágenes del Apartamento/fuente_terraza.jpg" 
+        src="/images/fuente_terraza.jpg" 
         alt="Fondo Vila de Fenals" 
         className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
       />
