@@ -24,7 +24,7 @@ function Background() {
       <div className="absolute inset-0 bg-gradient-to-br from-teal-300 to-cyan-600" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
-        src="/images/fuente_terraza.jpg" 
+        src="/images/IMG_0566.JPG" 
         alt="Fondo Vila de Fenals" 
         className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
       />
