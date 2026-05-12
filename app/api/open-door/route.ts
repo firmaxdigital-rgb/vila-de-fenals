@@ -38,9 +38,9 @@ export async function POST(request: Request) {
     const checkInDate = new Date(reservation.check_in);
     checkInDate.setHours(15, 0, 0, 0);
 
-    // Validar hora de Check-out: hasta las 11:00 del día de salida
+    // Validar hora de Check-out: hasta las 11:30 del día de salida
     const checkOutDate = new Date(reservation.check_out);
-    checkOutDate.setHours(11, 0, 0, 0);
+    checkOutDate.setHours(11, 30, 0, 0);
 
     if (now < checkInDate || now > checkOutDate) {
       return NextResponse.json({ success: false, message: 'Fuera del horario permitido' }, { status: 403 });

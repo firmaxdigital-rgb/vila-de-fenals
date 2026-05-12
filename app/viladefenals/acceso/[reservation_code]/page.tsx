@@ -94,7 +94,7 @@ export default async function AccesoPage({
   checkInDate.setHours(15, 0, 0, 0);
 
   const checkOutDate = new Date(reservation.check_out);
-  checkOutDate.setHours(11, 0, 0, 0);
+  checkOutDate.setHours(11, 30, 0, 0);
 
   const isValidTime = now >= checkInDate && now <= checkOutDate;
 
