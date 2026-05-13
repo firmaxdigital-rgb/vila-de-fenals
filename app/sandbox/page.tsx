@@ -414,6 +414,8 @@ function SandboxContent() {
             </div>
           )}
         </div>
+      </div>
+      
       {/* Image Modal */}
       {selectedImage && (
         <div 
