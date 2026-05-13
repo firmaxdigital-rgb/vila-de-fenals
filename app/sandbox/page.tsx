@@ -301,12 +301,12 @@ function SandboxContent() {
                 <h3 className="font-semibold mb-4 text-lg">{dict.neighborhood_services}</h3>
                 
                 <div className="w-full rounded-xl border border-white/10 mb-6 overflow-hidden relative shadow-lg">
-                  <div className="aspect-[4/3] w-full relative bg-gray-800">
+                  <div className="aspect-[4/3] w-full relative bg-gray-800 overflow-hidden">
                     <iframe 
                       src="https://www.google.com/maps/d/embed?mid=1Pn-oHu1aNBWlrYxbvHtwy4JC5lCIXjw" 
                       width="100%" 
-                      height="100%" 
-                      className="absolute inset-0 border-0"
+                      className="absolute left-0 border-0"
+                      style={{ top: '-56px', height: 'calc(100% + 56px)' }}
                       title="Mapa de Servicios Cercanos"
                       allowFullScreen
                       loading="lazy"
