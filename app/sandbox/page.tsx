@@ -163,6 +163,18 @@ export default function SandboxPage() {
                   ></iframe>
                 </div>
               </div>
+
+              {/* Enlace discreto a normas comunitarias */}
+              <div className="text-center mt-6">
+                <a 
+                  href="#" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="text-xs text-gray-500 hover:text-gray-300 underline underline-offset-2 transition-colors"
+                >
+                  Ver Normas Comunitarias
+                </a>
+              </div>
             </div>
           )}
 
@@ -253,6 +265,10 @@ export default function SandboxPage() {
                         <span className="font-medium text-sm">Farmacia Blanca</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=lavanderia+Av+Vila+de+Blanes+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Lavandería (Av. Vila de Blanes)</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
                     </div>
                   </div>
 
@@ -284,6 +300,14 @@ export default function SandboxPage() {
                         <span className="font-medium text-sm">Restaurante Ugolok</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=Xurreria+La+Selva+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Xurreria La Selva</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=heladeria+Fenals+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Heladería de Fenals</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
                     </div>
                   </div>
 
@@ -306,6 +330,10 @@ export default function SandboxPage() {
                       <a href="https://maps.app.goo.gl/1hN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Oficina Turismo (Estación)</span>
                         <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://www.google.com/maps/search/?api=1&query=Water+World+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Water World</span>
+                        <ExternalLink size={16} className="text-blue-400" />
                       </a>
                     </div>
                   </div>
