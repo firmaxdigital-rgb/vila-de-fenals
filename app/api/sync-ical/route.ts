@@ -82,7 +82,8 @@ async function fetchAndParseIcal(url: string, platform: string) {
       platform,
       check_in: ev.start,
       check_out: ev.end,
-      nuki_pin: null as string | null
+      nuki_pin: null as string | null,
+      summary: ev.summary as string | undefined
     };
   });
 
