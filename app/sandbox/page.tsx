@@ -30,6 +30,7 @@ function SandboxContent() {
   const [activeTab, setActiveTab] = useState('acceso');
   const [copied, setCopied] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   
   const searchParams = useSearchParams();
   const langQuery = searchParams.get('lang') || 'es';
@@ -158,6 +159,14 @@ function SandboxContent() {
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-2 text-lg">{dict.pool_title}</h3>
                 <p className="text-gray-300 text-sm mb-4">{dict.pool_desc}</p>
+                <div className="mb-4">
+                  <img 
+                    src="/images/recursos/llave-piscina.jpeg" 
+                    alt="Llave Piscina" 
+                    className="w-24 h-24 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity border border-white/10 shadow-sm"
+                    onClick={() => setSelectedImage('/images/recursos/llave-piscina.jpeg')}
+                  />
+                </div>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
@@ -174,6 +183,14 @@ function SandboxContent() {
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-2 text-lg">{dict.back_door_title}</h3>
                 <p className="text-gray-300 text-sm mb-4">{dict.back_door_desc}</p>
+                <div className="mb-4">
+                  <img 
+                    src="/images/recursos/llave-trasera.jpeg" 
+                    alt="Llave Entrada Trasera" 
+                    className="w-24 h-24 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity border border-white/10 shadow-sm"
+                    onClick={() => setSelectedImage('/images/recursos/llave-trasera.jpeg')}
+                  />
+                </div>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
@@ -219,6 +236,28 @@ function SandboxContent() {
                 <p className="text-blue-100 text-sm mb-4">
                   {dict.parking_warning}
                 </p>
+              </div>
+
+              {/* Imágenes Parking */}
+              <div className="flex gap-4 mb-2">
+                <div className="flex-1 bg-white/5 p-3 rounded-2xl border border-white/10">
+                  <p className="text-xs text-gray-300 mb-2 text-center">Acceso (Mando)</p>
+                  <img 
+                    src="/images/recursos/parking-tag.jpeg" 
+                    alt="Mando Garaje" 
+                    className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity shadow-sm"
+                    onClick={() => setSelectedImage('/images/recursos/parking-tag.jpeg')}
+                  />
+                </div>
+                <div className="flex-1 bg-white/5 p-3 rounded-2xl border border-white/10">
+                  <p className="text-xs text-gray-300 mb-2 text-center">Candado Barrera</p>
+                  <img 
+                    src="/images/recursos/parking-candado.jpeg" 
+                    alt="Candado Barrera" 
+                    className="w-full aspect-square object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity shadow-sm"
+                    onClick={() => setSelectedImage('/images/recursos/parking-candado.jpeg')}
+                  />
+                </div>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
@@ -375,7 +414,27 @@ function SandboxContent() {
             </div>
           )}
         </div>
-      </div>
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm cursor-zoom-out"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex items-center justify-center animate-in zoom-in-95 duration-200">
+            <button 
+              className="absolute -top-12 right-0 text-white/70 hover:text-white"
+              onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+            >
+              Cerrar ✕
+            </button>
+            <img 
+              src={selectedImage} 
+              alt="Ampliada" 
+              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Normas Comunitarias Modal */}
       {showRules && (
