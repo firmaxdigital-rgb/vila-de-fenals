@@ -158,12 +158,12 @@ function SandboxContent() {
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-2 text-lg">{dict.pool_title}</h3>
-                <p className="text-gray-300 text-sm mb-4">{dict.pool_desc}</p>
-                <div className="mb-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <p className="text-gray-300 text-sm flex-1">{dict.pool_desc}</p>
                   <img 
                     src="/images/recursos/llave-piscina.jpeg" 
                     alt="Llave Piscina" 
-                    className="w-24 h-24 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity border border-white/10 shadow-sm"
+                    className="w-20 h-20 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity border border-white/10 shadow-sm shrink-0"
                     onClick={() => setSelectedImage('/images/recursos/llave-piscina.jpeg')}
                   />
                 </div>
@@ -182,12 +182,12 @@ function SandboxContent() {
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-2 text-lg">{dict.back_door_title}</h3>
-                <p className="text-gray-300 text-sm mb-4">{dict.back_door_desc}</p>
-                <div className="mb-4">
+                <div className="flex items-center gap-4 mb-4">
+                  <p className="text-gray-300 text-sm flex-1">{dict.back_door_desc}</p>
                   <img 
                     src="/images/recursos/llave-trasera.jpeg" 
                     alt="Llave Entrada Trasera" 
-                    className="w-24 h-24 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity border border-white/10 shadow-sm"
+                    className="w-20 h-20 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity border border-white/10 shadow-sm shrink-0"
                     onClick={() => setSelectedImage('/images/recursos/llave-trasera.jpeg')}
                   />
                 </div>
@@ -250,7 +250,7 @@ function SandboxContent() {
                   />
                 </div>
                 <div className="flex-1 bg-white/5 p-3 rounded-2xl border border-white/10">
-                  <p className="text-xs text-gray-300 mb-2 text-center">Candado Barrera</p>
+                  <p className="text-xs text-gray-300 mb-2 text-center">Candado Barrera ( 0539 )</p>
                   <img 
                     src="/images/recursos/parking-candado.jpeg" 
                     alt="Candado Barrera" 
