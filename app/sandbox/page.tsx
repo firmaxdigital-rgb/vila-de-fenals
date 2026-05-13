@@ -270,15 +270,15 @@ function SandboxContent() {
                   <div>
                     <h4 className="text-blue-300 font-medium mb-3 flex items-center gap-2">🛒 {dict.neighborhood_health}</h4>
                     <div className="space-y-2">
-                      <a href="https://maps.app.goo.gl/3fC2ZtN4q3xKJh3s6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Supermercado+Consum+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Supermercado Consum</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/mKQ1uA5gP1k4vXQz7" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Farmacia+Fenals+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Farmacia Fenals</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/wL1y3q7N6y5YF6uP7" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Farmacia+Blanca+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Farmacia Blanca</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
@@ -293,27 +293,27 @@ function SandboxContent() {
                   <div>
                     <h4 className="text-orange-300 font-medium mb-3 flex items-center gap-2">🥘 {dict.neighborhood_eat}</h4>
                     <div className="space-y-2">
-                      <a href="https://maps.app.goo.gl/3D2bN6R2jF4A8zXv8" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=L%27Arrosseria+de+Fenals+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">L'Arrosseria de Fenals</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/zXy7sT4xY1mP8n7b7" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Restaurante+Planiol+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Restaurante Planiol</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/9tHqM2jD8qE6kXm79" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=El+Jardi+Parrilla+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">El Jardí Parrilla</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/8vNqX2L4pM7uYk9j6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Restaurante+Hay+Motivo+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Restaurante Hay Motivo</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/7jM4vK8pP2tU1n6h8" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Pizzeria+Corsaro+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Pizzería Corsaro</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/2kH7uL9nM4wY5v8f6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Restaurante+Ugolok+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Restaurante Ugolok</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
@@ -332,19 +332,19 @@ function SandboxContent() {
                   <div>
                     <h4 className="text-green-300 font-medium mb-3 flex items-center gap-2">📸 {dict.neighborhood_see}</h4>
                     <div className="space-y-2">
-                      <a href="https://maps.app.goo.gl/5qN2mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Jardines+de+Santa+Clotilde+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Jardines de Santa Clotilde</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/4kN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Cala+Boadella+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Cala Boadella</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/3jN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Castell+de+Sant+Joan+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Castell de Sant Joan</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://maps.app.goo.gl/1hN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/search/?api=1&query=Oficina+Turismo+Estacion+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Oficina Turismo (Estación)</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
