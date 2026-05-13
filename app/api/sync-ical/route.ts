@@ -131,10 +131,21 @@ export async function GET() {
         const checkOutDate = new Date(ev.check_out);
         checkOutDate.setHours(11, 30, 0, 0);
 
+        // Prepare name for Nuki (Max 32 chars). Format: "GuestName 2026"
+        const checkInYear = checkInDate.getFullYear();
+        let guestName = ev.summary ? ev.summary.replace('Reserved - ', '').replace('Reserva ', '').replace('Airbnb (Not available)', '').trim() : '';
+        if (!guestName) guestName = `R-${ev.reservation_code}`;
+        
+        // " 2026" takes 5 chars. Leave room to truncate guestName to 25 chars.
+        if (guestName.length > 25) {
+          guestName = guestName.substring(0, 25).trim();
+        }
+        const nukiName = `${guestName} ${checkInYear}`;
+
         // Provision in Nuki Web API
         try {
-          console.log(`Creating Nuki code ${newPin} for reservation ${ev.reservation_code}`);
-          await createNukiKeypadCode(`Reserva ${ev.reservation_code}`, checkInDate, checkOutDate, newPin);
+          console.log(`Creating Nuki code ${newPin} for reservation ${ev.reservation_code} as ${nukiName}`);
+          await createNukiKeypadCode(nukiName, checkInDate, checkOutDate, newPin);
         } catch (err) {
           console.error(`Failed to create Nuki code for ${ev.reservation_code}:`, err);
         }
