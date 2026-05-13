@@ -81,7 +81,8 @@ async function fetchAndParseIcal(url: string, platform: string) {
       reservation_code: code,
       platform,
       check_in: ev.start,
-      check_out: ev.end
+      check_out: ev.end,
+      nuki_pin: null as string | null
     };
   });
 
