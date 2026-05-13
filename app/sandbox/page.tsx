@@ -1,12 +1,40 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Lock, Key, Car, Map as MapIcon, Wifi, Copy, ExternalLink, ChevronDown, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { translations, Lang } from './i18n';
 
-export default function SandboxPage() {
+function LanguageSelector({ currentLang }: { currentLang: string }) {
+  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  return (
+    <div className="flex flex-wrap justify-center gap-3 mb-6 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 w-fit mx-auto">
+      {langs.map((l) => (
+        <button
+          key={l}
+          onClick={() => router.push(`${pathname}?lang=${l}`)}
+          className={`text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${currentLang === l ? 'text-white drop-shadow-md' : 'text-white/50 hover:text-white'}`}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SandboxContent() {
   const [activeTab, setActiveTab] = useState('acceso');
   const [copied, setCopied] = useState(false);
+  const [showRules, setShowRules] = useState(false);
+  
+  const searchParams = useSearchParams();
+  const langQuery = searchParams.get('lang') || 'es';
+  const lang: Lang = (['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'].includes(langQuery) ? langQuery : 'es') as Lang;
+  const dict = translations[lang];
 
   const handleCopyWifi = () => {
     navigator.clipboard.writeText('86075541');
@@ -29,9 +57,10 @@ export default function SandboxPage() {
       {/* Content */}
       <div className="relative z-20 max-w-md mx-auto pt-8 px-4">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
-          <p className="text-gray-300 text-sm">Guía del Huésped</p>
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-light tracking-wider mb-2">{dict.title}</h1>
+          <p className="text-gray-300 text-sm mb-4">{dict.subtitle}</p>
+          <LanguageSelector currentLang={lang} />
         </div>
 
         {/* Tab Navigation */}
@@ -42,7 +71,7 @@ export default function SandboxPage() {
               activeTab === 'acceso' ? 'bg-white text-gray-900 shadow-lg' : 'text-gray-400 hover:text-white'
             }`}
           >
-            <Lock size={18} /> Acceso
+            <Lock size={18} /> {dict.tab_access}
           </button>
           <button
             onClick={() => setActiveTab('llaves')}
@@ -50,7 +79,7 @@ export default function SandboxPage() {
               activeTab === 'llaves' ? 'bg-white text-gray-900 shadow-lg' : 'text-gray-400 hover:text-white'
             }`}
           >
-            <Key size={18} /> Zonas
+            <Key size={18} /> {dict.tab_zones}
           </button>
           <button
             onClick={() => setActiveTab('parking')}
@@ -58,7 +87,7 @@ export default function SandboxPage() {
               activeTab === 'parking' ? 'bg-white text-gray-900 shadow-lg' : 'text-gray-400 hover:text-white'
             }`}
           >
-            <Car size={18} /> Parking
+            <Car size={18} /> {dict.tab_parking}
           </button>
           <button
             onClick={() => setActiveTab('barrio')}
@@ -66,7 +95,7 @@ export default function SandboxPage() {
               activeTab === 'barrio' ? 'bg-white text-gray-900 shadow-lg' : 'text-gray-400 hover:text-white'
             }`}
           >
-            <MapIcon size={18} /> Barrio
+            <MapIcon size={18} /> {dict.tab_neighborhood}
           </button>
         </div>
 
@@ -76,26 +105,24 @@ export default function SandboxPage() {
           {/* ACCESO TAB */}
           {activeTab === 'acceso' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {/* Botón Principal (Mock) */}
+              {/* Botón Principal */}
               <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 mb-4 text-center">
                 <div className="w-24 h-24 mx-auto bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(34,197,94,0.3)]">
                   <Lock className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-xl font-semibold mb-1">Portal Principal</h2>
-                <p className="text-gray-300 text-sm mb-4">Pulsa aquí para abrir la puerta de la calle</p>
+                <h2 className="text-xl font-semibold mb-1">{dict.portal_title}</h2>
+                <p className="text-gray-300 text-sm mb-4">{dict.portal_desc}</p>
                 <button className="w-full bg-white text-gray-900 font-semibold py-3 rounded-xl">
-                  Abrir Portal
+                  {dict.portal_btn}
                 </button>
               </div>
 
               {/* Código Puerta */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mb-4">
                 <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <Key size={18} className="text-blue-400" /> Código del Apartamento
+                  <Key size={18} className="text-blue-400" /> {dict.code_title}
                 </h3>
-                <p className="text-gray-300 text-sm mb-3">
-                  Usa este código en el teclado numérico de la puerta. Para cerrar con pestillo por dentro, pulsa la tecla triangular.
-                </p>
+                <p className="text-gray-300 text-sm mb-3">{dict.code_desc}</p>
                 <div className="bg-black/40 text-center py-3 rounded-xl font-mono text-xl tracking-widest text-blue-300">
                   XXXXXX
                 </div>
@@ -104,20 +131,20 @@ export default function SandboxPage() {
               {/* WiFi */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-2 flex items-center gap-2">
-                  <Wifi size={18} className="text-green-400" /> WiFi del Apartamento
+                  <Wifi size={18} className="text-green-400" /> {dict.wifi_title}
                 </h3>
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-center bg-black/40 p-3 rounded-xl">
-                    <span className="text-gray-400 text-sm">Red</span>
+                    <span className="text-gray-400 text-sm">{dict.wifi_network}</span>
                     <span className="font-medium">FitelFibra_2G_4168</span>
                   </div>
                   <div className="flex justify-between items-center bg-black/40 p-3 rounded-xl">
-                    <span className="text-gray-400 text-sm">Clave</span>
+                    <span className="text-gray-400 text-sm">{dict.wifi_password}</span>
                     <button 
                       onClick={handleCopyWifi}
                       className="flex items-center gap-2 text-green-400 font-medium hover:text-green-300 transition-colors"
                     >
-                      {copied ? <><CheckCircle2 size={16} /> Copiada</> : <><Copy size={16} /> 86075541</>}
+                      {copied ? <><CheckCircle2 size={16} /> {dict.wifi_copied}</> : <><Copy size={16} /> 86075541</>}
                     </button>
                   </div>
                 </div>
@@ -129,10 +156,8 @@ export default function SandboxPage() {
           {activeTab === 'llaves' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-2 text-lg">Acceso a la Piscina</h3>
-                <p className="text-gray-300 text-sm mb-4">
-                  En la mesa encontrarás unas llaves con un llavero de Tortuga Ninja y una llave magnética azul. Úsalas como se muestra en el vídeo para entrar a la zona de la piscina.
-                </p>
+                <h3 className="font-semibold mb-2 text-lg">{dict.pool_title}</h3>
+                <p className="text-gray-300 text-sm mb-4">{dict.pool_desc}</p>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
@@ -147,10 +172,8 @@ export default function SandboxPage() {
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-2 text-lg">Entrada Trasera (Directa)</h3>
-                <p className="text-gray-300 text-sm mb-4">
-                  Las otras llaves de la mesa abren la puerta de la calle trasera. Es la forma más rápida y cómoda de entrar al edificio.
-                </p>
+                <h3 className="font-semibold mb-2 text-lg">{dict.back_door_title}</h3>
+                <p className="text-gray-300 text-sm mb-4">{dict.back_door_desc}</p>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
@@ -164,16 +187,14 @@ export default function SandboxPage() {
                 </div>
               </div>
 
-              {/* Enlace discreto a normas comunitarias */}
+              {/* Enlace a normas comunitarias */}
               <div className="text-center mt-6">
-                <a 
-                  href="#" 
-                  target="_blank" 
-                  rel="noreferrer" 
+                <button 
+                  onClick={() => setShowRules(true)}
                   className="text-xs text-gray-500 hover:text-gray-300 underline underline-offset-2 transition-colors"
                 >
-                  Ver Normas Comunitarias
-                </a>
+                  {dict.rules_link}
+                </button>
               </div>
             </div>
           )}
@@ -184,7 +205,7 @@ export default function SandboxPage() {
               <div className="bg-blue-500/20 backdrop-blur-md rounded-2xl p-5 border border-blue-500/30">
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <Car className="text-blue-400" /> Plaza 75
+                    <Car className="text-blue-400" /> {dict.parking_plaza}
                   </h3>
                   <a 
                     href="https://maps.app.goo.gl/2hpbBNMGsopa93T57?g_st=aw" 
@@ -192,19 +213,17 @@ export default function SandboxPage() {
                     rel="noreferrer"
                     className="bg-blue-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1"
                   >
-                    Navegar <ExternalLink size={14} />
+                    {dict.parking_nav} <ExternalLink size={14} />
                   </a>
                 </div>
                 <p className="text-blue-100 text-sm mb-4">
-                  ⚠️ <strong>Importante:</strong> Al salir con el coche, sube siempre la barrera con el candado para evitar que otros aparquen en tu plaza.
+                  {dict.parking_warning}
                 </p>
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-2 text-lg">Del Parking al Apartamento</h3>
-                <p className="text-gray-300 text-sm mb-4">
-                  Usa la llave azul magnética para acceder desde el garaje al interior del edificio mediante el ascensor.
-                </p>
+                <h3 className="font-semibold mb-2 text-lg">{dict.parking_to_apt_title}</h3>
+                <p className="text-gray-300 text-sm mb-4">{dict.parking_to_apt_desc}</p>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
@@ -219,10 +238,8 @@ export default function SandboxPage() {
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-2 text-lg">Acceso con el Coche</h3>
-                <p className="text-gray-300 text-sm mb-4">
-                  Usa el mando que está en el soporte rojo del parasol para abrir la puerta del garaje desde la calle.
-                </p>
+                <h3 className="font-semibold mb-2 text-lg">{dict.parking_car_access_title}</h3>
+                <p className="text-gray-300 text-sm mb-4">{dict.parking_car_access_desc}</p>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
@@ -242,16 +259,16 @@ export default function SandboxPage() {
           {activeTab === 'barrio' && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-4 text-lg">Servicios Cercanos</h3>
+                <h3 className="font-semibold mb-4 text-lg">{dict.neighborhood_services}</h3>
                 
                 <div className="w-full bg-white/5 rounded-xl border border-white/10 p-2 mb-4">
-                   <p className="text-sm text-gray-400 text-center py-8">[Aquí irá el Mapa que has enviado con las indicaciones de los Supermercados]</p>
+                   <p className="text-sm text-gray-400 text-center py-8">{dict.neighborhood_map_placeholder}</p>
                 </div>
 
                 <div className="space-y-6">
                   {/* Supermercados & Farmacias */}
                   <div>
-                    <h4 className="text-blue-300 font-medium mb-3 flex items-center gap-2">🛒 Básicos y Salud</h4>
+                    <h4 className="text-blue-300 font-medium mb-3 flex items-center gap-2">🛒 {dict.neighborhood_health}</h4>
                     <div className="space-y-2">
                       <a href="https://maps.app.goo.gl/3fC2ZtN4q3xKJh3s6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Supermercado Consum</span>
@@ -266,7 +283,7 @@ export default function SandboxPage() {
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
                       <a href="https://www.google.com/maps/search/?api=1&query=lavanderia+Av+Vila+de+Blanes+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
-                        <span className="font-medium text-sm">Lavandería (Av. Vila de Blanes)</span>
+                        <span className="font-medium text-sm">{dict.laundry}</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
                     </div>
@@ -274,7 +291,7 @@ export default function SandboxPage() {
 
                   {/* Restaurantes */}
                   <div>
-                    <h4 className="text-orange-300 font-medium mb-3 flex items-center gap-2">🥘 Dónde Comer</h4>
+                    <h4 className="text-orange-300 font-medium mb-3 flex items-center gap-2">🥘 {dict.neighborhood_eat}</h4>
                     <div className="space-y-2">
                       <a href="https://maps.app.goo.gl/3D2bN6R2jF4A8zXv8" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">L'Arrosseria de Fenals</span>
@@ -305,7 +322,7 @@ export default function SandboxPage() {
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
                       <a href="https://www.google.com/maps/search/?api=1&query=heladeria+Fenals+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
-                        <span className="font-medium text-sm">Heladería de Fenals</span>
+                        <span className="font-medium text-sm">{dict.ice_cream}</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
                     </div>
@@ -313,7 +330,7 @@ export default function SandboxPage() {
 
                   {/* Turismo */}
                   <div>
-                    <h4 className="text-green-300 font-medium mb-3 flex items-center gap-2">📸 Qué Ver y Hacer</h4>
+                    <h4 className="text-green-300 font-medium mb-3 flex items-center gap-2">📸 {dict.neighborhood_see}</h4>
                     <div className="space-y-2">
                       <a href="https://maps.app.goo.gl/5qN2mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">Jardines de Santa Clotilde</span>
@@ -344,6 +361,34 @@ export default function SandboxPage() {
           )}
         </div>
       </div>
+
+      {/* Normas Comunitarias Modal */}
+      {showRules && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-gray-900 border border-white/20 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold mb-4">{dict.rules_title}</h3>
+            <div className="overflow-y-auto pr-2 space-y-3 flex-1 text-sm text-gray-300">
+              {dict.rules_texts.map((rule, idx) => (
+                <p key={idx}>• {rule}</p>
+              ))}
+            </div>
+            <button 
+              onClick={() => setShowRules(false)}
+              className="mt-6 w-full bg-white text-gray-900 font-semibold py-3 rounded-xl transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {dict.rules_close}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function SandboxPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900" />}>
+      <SandboxContent />
+    </Suspense>
   );
 }
