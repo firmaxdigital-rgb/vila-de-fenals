@@ -261,8 +261,23 @@ function SandboxContent() {
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-4 text-lg">{dict.neighborhood_services}</h3>
                 
-                <div className="w-full bg-white/5 rounded-xl border border-white/10 p-2 mb-4">
-                   <p className="text-sm text-gray-400 text-center py-8">{dict.neighborhood_map_placeholder}</p>
+                <div className="w-full rounded-xl border border-white/10 mb-6 overflow-hidden relative group shadow-lg">
+                  <div className="aspect-[4/3] w-full relative bg-gray-800">
+                    <Image 
+                      src="/images/recursos/mapa_personalizado.png" 
+                      alt="Mapa de Servicios Cercanos"
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    {/* Overlay for text readability */}
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                    
+                    <div className="absolute bottom-3 left-3 right-3 pointer-events-none">
+                      <p className="text-xs text-white/90 font-medium text-center drop-shadow-md">
+                        {dict.neighborhood_map_placeholder}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-6">
