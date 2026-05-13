@@ -155,7 +155,7 @@ export default function SandboxPage() {
                   <iframe 
                     width="100%" 
                     height="100%" 
-                    src="https://www.youtube.com/embed/GyKgu-haTAo?rel=0" 
+                    src="https://www.youtube.com/embed/B508vUH8AbQ?rel=0" 
                     title="Direct Access"
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -189,16 +189,16 @@ export default function SandboxPage() {
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-2 text-lg">Acceso con el Coche</h3>
+                <h3 className="font-semibold mb-2 text-lg">Del Parking al Apartamento</h3>
                 <p className="text-gray-300 text-sm mb-4">
-                  Usa el mando que está en el soporte rojo del parasol para abrir la puerta del garaje.
+                  Usa la llave azul magnética para acceder desde el garaje al interior del edificio mediante el ascensor.
                 </p>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
                     height="100%" 
                     src="https://www.youtube.com/embed/bQ3bXpZAA-w?rel=0" 
-                    title="Car Access"
+                    title="Elevator Access"
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowFullScreen
@@ -207,16 +207,16 @@ export default function SandboxPage() {
               </div>
 
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-                <h3 className="font-semibold mb-2 text-lg">Del Parking al Apartamento</h3>
+                <h3 className="font-semibold mb-2 text-lg">Acceso con el Coche</h3>
                 <p className="text-gray-300 text-sm mb-4">
-                  Usa la llave azul para acceder desde el garaje al interior del edificio mediante el ascensor.
+                  Usa el mando que está en el soporte rojo del parasol para abrir la puerta del garaje desde la calle.
                 </p>
                 <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
                   <iframe 
                     width="100%" 
                     height="100%" 
                     src="https://www.youtube.com/embed/52aGzhG-6qw?rel=0" 
-                    title="Elevator Access"
+                    title="Car Access"
                     frameBorder="0" 
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowFullScreen
