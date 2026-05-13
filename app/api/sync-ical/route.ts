@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { generateMemorablePin, createNukiKeypadCode } from '../../../lib/nuki';
 
 export const dynamic = 'force-dynamic';
 
@@ -99,7 +100,51 @@ export async function GET() {
        return NextResponse.json({ success: true, message: 'No hay eventos para sincronizar.' });
     }
 
-    // Upsert a Supabase
+    // 1. Fetch current reservations from Supabase to check if they already have a PIN
+    const { data: existingReservations, error: fetchError } = await supabase
+      .from('reservations')
+      .select('reservation_code, nuki_pin');
+      
+    if (fetchError) {
+      console.error('Error fetching existing reservations:', fetchError);
+    }
+
+    const existingMap = new Map();
+    if (existingReservations) {
+      existingReservations.forEach(r => existingMap.set(r.reservation_code, r.nuki_pin));
+    }
+
+    // 2. Generate PINs and Nuki Auth for NEW reservations (or those without a PIN)
+    for (const ev of allEvents) {
+      // Check if it already exists in our DB with a PIN
+      const currentPin = existingMap.get(ev.reservation_code);
+      
+      if (!currentPin) {
+        // Generate a memorable ABC-CBA pin
+        const newPin = generateMemorablePin();
+        ev.nuki_pin = newPin; // We append it to the event so it gets saved to Supabase
+
+        // Calculate exact validity times
+        const checkInDate = new Date(ev.check_in);
+        checkInDate.setHours(15, 0, 0, 0);
+
+        const checkOutDate = new Date(ev.check_out);
+        checkOutDate.setHours(11, 30, 0, 0);
+
+        // Provision in Nuki Web API
+        try {
+          console.log(`Creating Nuki code ${newPin} for reservation ${ev.reservation_code}`);
+          await createNukiKeypadCode(`Reserva ${ev.reservation_code}`, checkInDate, checkOutDate, newPin);
+        } catch (err) {
+          console.error(`Failed to create Nuki code for ${ev.reservation_code}:`, err);
+        }
+      } else {
+        // Preserve existing pin so we don't overwrite it with null
+        ev.nuki_pin = currentPin;
+      }
+    }
+
+    // 3. Upsert a Supabase
     const { data, error } = await supabase
       .from('reservations')
       .upsert(
