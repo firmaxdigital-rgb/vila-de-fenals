@@ -232,24 +232,84 @@ export default function SandboxPage() {
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
                 <h3 className="font-semibold mb-4 text-lg">Servicios Cercanos</h3>
                 
-                {/* Ojo: Necesitaremos subir la foto a public/images */}
                 <div className="w-full bg-white/5 rounded-xl border border-white/10 p-2 mb-4">
                    <p className="text-sm text-gray-400 text-center py-8">[Aquí irá el Mapa que has enviado con las indicaciones de los Supermercados]</p>
                 </div>
 
-                <div className="space-y-3">
-                  <a href="#" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
-                    <span className="font-medium text-sm">🛒 Consum (El más cercano)</span>
-                    <ExternalLink size={16} className="text-gray-400" />
-                  </a>
-                  <a href="#" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
-                    <span className="font-medium text-sm">🚌 Estación de Autobuses</span>
-                    <ExternalLink size={16} className="text-gray-400" />
-                  </a>
-                  <a href="#" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
-                    <span className="font-medium text-sm">🏖️ Playa de Fenals</span>
-                    <ExternalLink size={16} className="text-gray-400" />
-                  </a>
+                <div className="space-y-6">
+                  {/* Supermercados & Farmacias */}
+                  <div>
+                    <h4 className="text-blue-300 font-medium mb-3 flex items-center gap-2">🛒 Básicos y Salud</h4>
+                    <div className="space-y-2">
+                      <a href="https://maps.app.goo.gl/3fC2ZtN4q3xKJh3s6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Supermercado Consum</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/mKQ1uA5gP1k4vXQz7" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Farmacia Fenals</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/wL1y3q7N6y5YF6uP7" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Farmacia Blanca</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Restaurantes */}
+                  <div>
+                    <h4 className="text-orange-300 font-medium mb-3 flex items-center gap-2">🥘 Dónde Comer</h4>
+                    <div className="space-y-2">
+                      <a href="https://maps.app.goo.gl/3D2bN6R2jF4A8zXv8" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">L'Arrosseria de Fenals</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/zXy7sT4xY1mP8n7b7" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Restaurante Planiol</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/9tHqM2jD8qE6kXm79" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">El Jardí Parrilla</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/8vNqX2L4pM7uYk9j6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Restaurante Hay Motivo</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/7jM4vK8pP2tU1n6h8" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Pizzería Corsaro</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/2kH7uL9nM4wY5v8f6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Restaurante Ugolok</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Turismo */}
+                  <div>
+                    <h4 className="text-green-300 font-medium mb-3 flex items-center gap-2">📸 Qué Ver y Hacer</h4>
+                    <div className="space-y-2">
+                      <a href="https://maps.app.goo.gl/5qN2mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Jardines de Santa Clotilde</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/4kN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Cala Boadella</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/3jN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Castell de Sant Joan</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                      <a href="https://maps.app.goo.gl/1hN7mP8kL4tY9j7b6" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                        <span className="font-medium text-sm">Oficina Turismo (Estación)</span>
+                        <ExternalLink size={16} className="text-gray-400" />
+                      </a>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
