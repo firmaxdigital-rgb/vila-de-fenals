@@ -188,10 +188,10 @@ function SandboxContent() {
               </div>
 
               {/* Enlace a normas comunitarias */}
-              <div className="text-center mt-6">
+              <div className="text-center mt-8 mb-4">
                 <button 
                   onClick={() => setShowRules(true)}
-                  className="text-xs text-gray-500 hover:text-gray-300 underline underline-offset-2 transition-colors"
+                  className="font-semibold text-lg text-blue-400 hover:text-blue-300 underline underline-offset-4 transition-colors"
                 >
                   {dict.rules_link}
                 </button>
