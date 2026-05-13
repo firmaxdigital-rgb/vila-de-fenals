@@ -303,7 +303,7 @@ function SandboxContent() {
                 <div className="w-full rounded-xl border border-white/10 mb-6 overflow-hidden relative shadow-lg">
                   <div className="aspect-[4/3] w-full relative bg-gray-800 overflow-hidden">
                     <iframe 
-                      src="https://www.google.com/maps/d/embed?mid=1Pn-oHu1aNBWlrYxbvHtwy4JC5lCIXjw" 
+                      src="https://www.google.com/maps/d/embed?mid=1RPK1nvAHLbKV5hhrm6RSG3sRt-7xJOI" 
                       width="100%" 
                       className="absolute left-0 border-0"
                       style={{ top: '-56px', height: 'calc(100% + 56px)' }}
