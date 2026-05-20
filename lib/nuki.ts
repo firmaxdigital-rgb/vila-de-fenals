@@ -44,5 +44,14 @@ export async function createNukiKeypadCode(name: string, startDate: Date, endDat
     throw new Error(`Nuki API error: ${response.status} - ${errorData}`);
   }
 
-  return response.json();
+  const responseText = await response.text();
+  if (responseText) {
+    try {
+      return JSON.parse(responseText);
+    } catch (e) {
+      console.warn("Nuki API response was not valid JSON:", responseText);
+      return { success: true, text: responseText };
+    }
+  }
+  return { success: true };
 }
