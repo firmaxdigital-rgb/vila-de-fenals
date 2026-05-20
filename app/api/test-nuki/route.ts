@@ -10,7 +10,9 @@ export async function GET() {
       return NextResponse.json({ success: false, error: "NUKI_API_TOKEN is not set in environment variables." }, { status: 400 });
     }
 
-    const response = await fetch('https://api.nuki.io/smartlock', {
+    const NUKI_SMARTLOCK_ID = process.env.NUKI_SMARTLOCK_ID || '18098245244';
+
+    const response = await fetch(`https://api.nuki.io/smartlock/${NUKI_SMARTLOCK_ID}/auth`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${NUKI_API_TOKEN}`,
@@ -23,8 +25,8 @@ export async function GET() {
       return NextResponse.json({ success: false, status: response.status, error: errorText }, { status: 500 });
     }
 
-    const devices = await response.json();
-    return NextResponse.json({ success: true, devices });
+    const authorizations = await response.json();
+    return NextResponse.json({ success: true, authorizations });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
