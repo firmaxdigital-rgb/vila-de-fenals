@@ -134,14 +134,14 @@ export async function GET() {
         const checkOutDate = new Date(ev.check_out);
         checkOutDate.setUTCHours(9, 0, 0, 0);
 
-        // Prepare name for Nuki (Max 32 chars). Format: "GuestName 2026"
+        // Prepare name for Nuki (Max 20 chars). Format: "GuestName 2026"
         const checkInYear = checkInDate.getFullYear();
         let guestName = ev.summary ? ev.summary.replace(/^Reserved$/i, '').replace('Reserved - ', '').replace('Reserva ', '').replace('Airbnb (Not available)', '').trim() : '';
         if (!guestName) guestName = `R-${ev.reservation_code}`;
         
-        // " 2026" takes 5 chars. Leave room to truncate guestName to 25 chars.
-        if (guestName.length > 25) {
-          guestName = guestName.substring(0, 25).trim();
+        // " 2026" takes 5 chars. Leave room to truncate guestName to 15 chars so total is max 20 chars.
+        if (guestName.length > 15) {
+          guestName = guestName.substring(0, 15).trim();
         }
         const nukiName = `${guestName} ${checkInYear}`;
 
