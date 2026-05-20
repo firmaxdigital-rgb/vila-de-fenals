@@ -193,6 +193,19 @@ export default async function AccesoPage({
           return (
             <div className="w-full space-y-6">
               <OpenDoorButton reservationCode={decodedCode} dict={dict} />
+              
+              {reservation.nuki_pin && (
+                <div className="mt-8 pt-6 border-t border-white/10 text-center flex flex-col items-center">
+                  <span className="text-xs text-white/50 uppercase tracking-widest font-semibold mb-2">
+                    {dict.apartment_access}
+                  </span>
+                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl py-3 px-6 shadow-inner tracking-[0.25em] font-mono text-2xl font-light text-cyan-100 flex items-center justify-center gap-1 select-all cursor-pointer hover:bg-white/10 transition-all">
+                    <span className="text-cyan-400 font-bold tracking-normal mr-1">#</span>
+                    {reservation.nuki_pin}
+                  </div>
+                </div>
+              )}
+
               <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
                 <p className="text-green-400 text-sm font-medium">✓ Check-in completado</p>
                 <p className="text-green-200/70 text-xs mt-1">Registro y tasas al día</p>

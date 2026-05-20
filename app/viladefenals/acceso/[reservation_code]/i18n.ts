@@ -10,7 +10,8 @@ export const translations = {
     connecting: "CONECTANDO...",
     opened: "¡ABIERTO!",
     error: "ERROR",
-    error_conn: "Error de conexión. Revisa tu internet."
+    error_conn: "Error de conexión. Revisa tu internet.",
+    apartment_access: "Acceso Apartamento"
   },
   en: {
     not_found_title: "Reservation not found",
@@ -23,7 +24,8 @@ export const translations = {
     connecting: "CONNECTING...",
     opened: "OPENED!",
     error: "ERROR",
-    error_conn: "Connection error. Check your internet."
+    error_conn: "Connection error. Check your internet.",
+    apartment_access: "Apartment Access"
   },
   fr: {
     not_found_title: "Réservation introuvable",
@@ -36,7 +38,8 @@ export const translations = {
     connecting: "CONNEXION...",
     opened: "OUVERT !",
     error: "ERREUR",
-    error_conn: "Erreur de connexion. Vérifiez votre internet."
+    error_conn: "Erreur de connexion. Vérifiez votre internet.",
+    apartment_access: "Accès Appartement"
   },
   de: {
     not_found_title: "Reservierung nicht gefunden",
@@ -49,7 +52,8 @@ export const translations = {
     connecting: "VERBINDEN...",
     opened: "GEÖFFNET!",
     error: "FEHLER",
-    error_conn: "Verbindungsfehler. Überprüfen Sie Ihr Internet."
+    error_conn: "Verbindungsfehler. Überprüfen Sie Ihr Internet.",
+    apartment_access: "Wohnungszugang"
   },
   pl: {
     not_found_title: "Nie znaleziono rezerwacji",
@@ -62,7 +66,8 @@ export const translations = {
     connecting: "ŁĄCZENIE...",
     opened: "OTWARTE!",
     error: "BŁĄD",
-    error_conn: "Błąd połączenia. Sprawdź swój internet."
+    error_conn: "Błąd połączenia. Sprawdź swój internet.",
+    apartment_access: "Dostęp do Apartamentu"
   },
   zh: {
     not_found_title: "未找到预订",
@@ -75,7 +80,8 @@ export const translations = {
     connecting: "连接中...",
     opened: "已打开！",
     error: "错误",
-    error_conn: "连接错误。请检查您的网络。"
+    error_conn: "连接错误。请检查您的网络。",
+    apartment_access: "公寓通道"
   },
   uk: {
     not_found_title: "Бронювання не знайдено",
@@ -88,7 +94,8 @@ export const translations = {
     connecting: "З'ЄДНАННЯ...",
     opened: "ВІДКРИТО!",
     error: "ПОМИЛКА",
-    error_conn: "Помилка з'єднання. Перевірте інтернет."
+    error_conn: "Помилка з'єднання. Перевірте інтернет.",
+    apartment_access: "Доступ до апартаментів"
   },
   ru: {
     not_found_title: "Бронирование не найдено",
@@ -101,7 +108,8 @@ export const translations = {
     connecting: "ПОДКЛЮЧЕНИЕ...",
     opened: "ОТКРЫТО!",
     error: "ОШИБКА",
-    error_conn: "Ошибка подключения. Проверьте интернет."
+    error_conn: "Ошибка подключения. Проверьте интернет.",
+    apartment_access: "Доступ в апартаменты"
   }
 };
 
