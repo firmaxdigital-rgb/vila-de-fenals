@@ -125,12 +125,14 @@ export async function GET() {
         // Generate a memorable ABC-CBA pin
         const newPin = generateMemorablePin();
 
-        // Calculate exact validity times (2h before check-in, 1h after check-out)
+        // Calculate exact validity times (1h before check-in, 1h after check-out)
+        // Spain local time: Check-in 16:00 -> 1h before is 15:00 Spain time = 13:00 UTC (May is CEST, UTC+2)
         const checkInDate = new Date(ev.check_in);
-        checkInDate.setHours(14, 0, 0, 0);
+        checkInDate.setUTCHours(13, 0, 0, 0);
 
+        // Spain local time: Check-out 10:00 -> 1h after is 11:00 Spain time = 09:00 UTC (May is CEST, UTC+2)
         const checkOutDate = new Date(ev.check_out);
-        checkOutDate.setHours(11, 0, 0, 0);
+        checkOutDate.setUTCHours(9, 0, 0, 0);
 
         // Prepare name for Nuki (Max 32 chars). Format: "GuestName 2026"
         const checkInYear = checkInDate.getFullYear();

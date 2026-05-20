@@ -22,8 +22,9 @@ export async function createNukiKeypadCode(name: string, startDate: Date, endDat
   // Type 13 = Keypad code in Nuki API
   const payload = {
     name: name,
-    allowedFromDate: startDate.toISOString(),
-    allowedUntilDate: endDate.toISOString(),
+    allowedFromDate: startDate.toISOString().split('.')[0] + 'Z',
+    allowedUntilDate: endDate.toISOString().split('.')[0] + 'Z',
+    allowedWeekDays: 127,
     type: 13,
     code: parseInt(pinCode, 10)
   };
