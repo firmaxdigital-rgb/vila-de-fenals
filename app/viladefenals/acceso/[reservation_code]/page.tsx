@@ -195,13 +195,10 @@ export default async function AccesoPage({
               <OpenDoorButton reservationCode={decodedCode} dict={dict} />
               
               {reservation.nuki_pin && (
-                <div className="mt-8 pt-6 border-t border-white/10 text-center flex flex-col items-center">
-                  <span className="text-xs text-white/50 uppercase tracking-widest font-semibold mb-2">
-                    {dict.apartment_access}
-                  </span>
-                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl py-3 px-6 shadow-inner tracking-[0.25em] font-mono text-2xl font-light text-cyan-100 flex items-center justify-center gap-1 select-all cursor-pointer hover:bg-white/10 transition-all">
-                    <span className="text-cyan-400 font-bold tracking-normal mr-1">#</span>
-                    {reservation.nuki_pin}
+                <div className="mt-8 pt-6 border-t border-white/10 text-center flex flex-col items-center w-full">
+                  <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl py-3 px-6 shadow-inner font-mono text-cyan-100 flex items-center justify-center gap-3 select-all cursor-pointer hover:bg-white/10 transition-all w-full max-w-[320px]">
+                    <span className="text-cyan-400 font-medium text-xs md:text-sm uppercase tracking-wider">{dict.apartment_access}:</span>
+                    <span className="font-bold text-white text-xl md:text-2xl tracking-[0.1em]">{reservation.nuki_pin}</span>
                   </div>
                 </div>
               )}

@@ -124,7 +124,6 @@ export async function GET() {
       if (!currentPin) {
         // Generate a memorable ABC-CBA pin
         const newPin = generateMemorablePin();
-        ev.nuki_pin = newPin; // We append it to the event so it gets saved to Supabase
 
         // Calculate exact validity times (2h before check-in, 1h after check-out)
         const checkInDate = new Date(ev.check_in);
@@ -148,8 +147,10 @@ export async function GET() {
         try {
           console.log(`Creating Nuki code ${newPin} for reservation ${ev.reservation_code} as ${nukiName}`);
           await createNukiKeypadCode(nukiName, checkInDate, checkOutDate, newPin);
+          ev.nuki_pin = newPin; // We set it only if Nuki creation succeeded!
         } catch (err) {
           console.error(`Failed to create Nuki code for ${ev.reservation_code}:`, err);
+          ev.nuki_pin = null; // Do not save PIN if Nuki creation failed
         }
       } else {
         // Preserve existing pin so we don't overwrite it with null
