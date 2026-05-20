@@ -36,7 +36,7 @@ export const translations = {
     "neighborhood_health": "Básicos y Salud",
     "neighborhood_eat": "Dónde Comer",
     "neighborhood_see": "Qué Ver y Hacer",
-    "laundry": "Lavandería (Av. Vila de Blanes)",
+    "laundry": "Lavandería 24h (go laundry)",
     "ice_cream": "Heladería de Fenals",
     "rules_texts": [
       "Queda terminantemente prohibido dejar bultos y otros objetos en el vestíbulo, portal, escaleras o pasillos, y que estos espacios se conviertan en lugares de juego para niños.",
@@ -85,7 +85,7 @@ export const translations = {
     "neighborhood_health": "Basics & Health",
     "neighborhood_eat": "Where to Eat",
     "neighborhood_see": "What to See & Do",
-    "laundry": "Laundromat (Av. Vila de Blanes)",
+    "laundry": "24h Laundromat (go laundry)",
     "ice_cream": "Fenals Ice Cream Shop",
     "rules_texts": [
       "It is strictly forbidden to leave packages and other objects of any kind both in the lobby and in the portal, stairs or corridors, and that these spaces become places of play for children.",
@@ -134,7 +134,7 @@ export const translations = {
     "neighborhood_health": "Bases & Santé",
     "neighborhood_eat": "Où Manger",
     "neighborhood_see": "Que Voir et Faire",
-    "laundry": "Laverie (Av. Vila de Blanes)",
+    "laundry": "Laverie 24h (go laundry)",
     "ice_cream": "Glacier de Fenals",
     "rules_texts": [
       "Il est strictement interdit de laisser des colis et objets dans le hall, portail, escaliers ou couloirs, et que ces espaces deviennent des aires de jeux.",
@@ -183,7 +183,7 @@ export const translations = {
     "neighborhood_health": "Grundlagen & Gesundheit",
     "neighborhood_eat": "Essen",
     "neighborhood_see": "Sehenswertes",
-    "laundry": "Waschsalon (Av. Vila de Blanes)",
+    "laundry": "24h Waschsalon (go laundry)",
     "ice_cream": "Eisdiele in Fenals",
     "rules_texts": [
       "Es ist strengstens untersagt, Pakete oder Gegenstände im Flur, auf Treppen oder in Gängen abzustellen. Diese Bereiche sind keine Spielplätze.",
@@ -232,7 +232,7 @@ export const translations = {
     "neighborhood_health": "Podstawy i Zdrowie",
     "neighborhood_eat": "Gdzie Zjeść",
     "neighborhood_see": "Co Zobaczyć",
-    "laundry": "Pralnia (Av. Vila de Blanes)",
+    "laundry": "Pralnia 24h (go laundry)",
     "ice_cream": "Lodziarnia Fenals",
     "rules_texts": [
       "Zabrania się pozostawiania paczek i przedmiotów w holu, na schodach i w korytarzach.",
@@ -281,7 +281,7 @@ export const translations = {
     "neighborhood_health": "基本与健康",
     "neighborhood_eat": "去哪里吃",
     "neighborhood_see": "看什么和做什么",
-    "laundry": "自助洗衣店 (Av. Vila de Blanes)",
+    "laundry": "24h 自助洗衣店 (go laundry)",
     "ice_cream": "Fenals 冰淇淋店",
     "rules_texts": [
       "严禁在走廊、楼梯或大厅堆放物品，这些区域也不能作为儿童的游乐区。",
@@ -330,7 +330,7 @@ export const translations = {
     "neighborhood_health": "Базове та Здоров'я",
     "neighborhood_eat": "Де Поїсти",
     "neighborhood_see": "Що Подивитися",
-    "laundry": "Пральня (Av. Vila de Blanes)",
+    "laundry": "Цілодобова пральня (go laundry)",
     "ice_cream": "Морозиво у Fenals",
     "rules_texts": [
       "Суворо заборонено залишати речі в коридорах і на сходах.",
@@ -379,7 +379,7 @@ export const translations = {
     "neighborhood_health": "Базовое и Здоровье",
     "neighborhood_eat": "Где Поесть",
     "neighborhood_see": "Что Посмотреть",
-    "laundry": "Прачечная (Av. Vila de Blanes)",
+    "laundry": "Круглосуточная прачечная (go laundry)",
     "ice_cream": "Мороженое в Fenals",
     "rules_texts": [
       "Категорически запрещено оставлять вещи в коридорах и на лестницах.",

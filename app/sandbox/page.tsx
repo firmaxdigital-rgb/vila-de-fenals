@@ -331,7 +331,7 @@ function SandboxContent() {
                         <span className="font-medium text-sm">Farmacia Blanca</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>
-                      <a href="https://www.google.com/maps/search/?api=1&query=lavanderia+Av+Vila+de+Blanes+Lloret+de+Mar" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
+                      <a href="https://www.google.com/maps/place/Lavander%C3%ADa+24h+(go+laundry)/@41.7136585,2.8309247,19.25z/data=!4m6!3m5!1s0x12bb17812675b779:0x60f19ce56eac64d4!8m2!3d41.7136398!4d2.8307474!16s%2Fg%2F11h_4s81hw?entry=ttu&g_ep=EgoyMDI2MDUxMS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" className="flex justify-between items-center bg-black/40 p-3 rounded-xl hover:bg-black/60 transition-colors">
                         <span className="font-medium text-sm">{dict.laundry}</span>
                         <ExternalLink size={16} className="text-gray-400" />
                       </a>

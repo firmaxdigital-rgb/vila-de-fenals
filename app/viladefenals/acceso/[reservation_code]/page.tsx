@@ -90,13 +90,22 @@ export default async function AccesoPage({
   }
 
   const now = new Date();
-  const checkInDate = new Date(reservation.check_in);
-  checkInDate.setHours(15, 0, 0, 0);
+  
+  // Horarios reales de la reserva (para mostrar en la UI)
+  const displayCheckIn = new Date(reservation.check_in);
+  displayCheckIn.setHours(16, 0, 0, 0);
 
-  const checkOutDate = new Date(reservation.check_out);
-  checkOutDate.setHours(11, 30, 0, 0);
+  const displayCheckOut = new Date(reservation.check_out);
+  displayCheckOut.setHours(10, 0, 0, 0);
 
-  const isValidTime = now >= checkInDate && now <= checkOutDate;
+  // Horarios de funcionamiento en programación (2h antes del check-in, 1h después del check-out)
+  const allowedCheckIn = new Date(reservation.check_in);
+  allowedCheckIn.setHours(14, 0, 0, 0);
+
+  const allowedCheckOut = new Date(reservation.check_out);
+  allowedCheckOut.setHours(11, 0, 0, 0);
+
+  const isValidTime = now >= allowedCheckIn && now <= allowedCheckOut;
 
   if (!isValidTime) {
     return (
@@ -108,8 +117,8 @@ export default async function AccesoPage({
           <div className="bg-cyan-500/20 border border-cyan-400/50 rounded-2xl p-6">
             <p className="text-cyan-100 text-lg font-medium mb-3">{dict.inactive_title}</p>
             <div className="text-cyan-50/80 text-sm space-y-2">
-              <p>Check-in: {checkInDate.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</p>
-              <p>Check-out: {checkOutDate.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</p>
+              <p>Check-in: {displayCheckIn.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</p>
+              <p>Check-out: {displayCheckOut.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</p>
             </div>
           </div>
         </div>
@@ -129,7 +138,7 @@ export default async function AccesoPage({
         {(() => {
           const isRegistered = reservation.is_registered === true;
           const isTaxPaid = reservation.is_tax_paid === true;
-          const isUnlocked = isRegistered && isTaxPaid;
+          const isUnlocked = true; // Bypass temporal: desactivamos el bloqueo para producción por ahora
 
           if (!isUnlocked) {
             return (
@@ -194,7 +203,7 @@ export default async function AccesoPage({
 
         <div className="mt-12 pt-6 border-t border-white/20 w-full flex justify-between items-center text-xs text-white/70 font-medium tracking-wide">
           <span className="uppercase">{reservation.platform}</span>
-          <span>{dict.valid_until} {checkOutDate.toLocaleTimeString(lang === 'en' ? 'en-US' : 'es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
+          <span>{dict.valid_until} {displayCheckOut.toLocaleTimeString(lang === 'en' ? 'en-US' : 'es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
         </div>
       </div>
     </div>

@@ -126,16 +126,16 @@ export async function GET() {
         const newPin = generateMemorablePin();
         ev.nuki_pin = newPin; // We append it to the event so it gets saved to Supabase
 
-        // Calculate exact validity times
+        // Calculate exact validity times (2h before check-in, 1h after check-out)
         const checkInDate = new Date(ev.check_in);
-        checkInDate.setHours(15, 0, 0, 0);
+        checkInDate.setHours(14, 0, 0, 0);
 
         const checkOutDate = new Date(ev.check_out);
-        checkOutDate.setHours(11, 30, 0, 0);
+        checkOutDate.setHours(11, 0, 0, 0);
 
         // Prepare name for Nuki (Max 32 chars). Format: "GuestName 2026"
         const checkInYear = checkInDate.getFullYear();
-        let guestName = ev.summary ? ev.summary.replace('Reserved - ', '').replace('Reserva ', '').replace('Airbnb (Not available)', '').trim() : '';
+        let guestName = ev.summary ? ev.summary.replace(/^Reserved$/i, '').replace('Reserved - ', '').replace('Reserva ', '').replace('Airbnb (Not available)', '').trim() : '';
         if (!guestName) guestName = `R-${ev.reservation_code}`;
         
         // " 2026" takes 5 chars. Leave room to truncate guestName to 25 chars.
@@ -157,11 +157,17 @@ export async function GET() {
       }
     }
 
-    // 3. Upsert a Supabase
+    // 3. Upsert a Supabase (filtrando sólo las columnas válidas de la base de datos)
     const { data, error } = await supabase
       .from('reservations')
       .upsert(
-        allEvents,
+        allEvents.map(ev => ({
+          reservation_code: ev.reservation_code,
+          platform: ev.platform,
+          check_in: ev.check_in,
+          check_out: ev.check_out,
+          nuki_pin: ev.nuki_pin
+        })),
         { onConflict: 'reservation_code' }
       );
 

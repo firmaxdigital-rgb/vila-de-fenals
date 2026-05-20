@@ -1,0 +1,7 @@
+node_modules
+.next
+.vercel
+materia_huespedes
+*.mp4
+*.zip
+*.heic

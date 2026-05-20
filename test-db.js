@@ -8,7 +8,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 async function run() {
-  const code = 'HM2BFZYBMD';
+  const code = 'HMMR92E9DJ';
   console.log("Searching for:", code);
   
   const { data: reservation, error } = await supabase

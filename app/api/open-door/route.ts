@@ -34,13 +34,13 @@ export async function POST(request: Request) {
 
     const now = new Date();
     
-    // Validar hora de Check-in: a partir de las 15:00 del día de entrada
+    // Validar hora de Check-in: 2 horas antes de la hora oficial (16:00 - 2h = 14:00)
     const checkInDate = new Date(reservation.check_in);
-    checkInDate.setHours(15, 0, 0, 0);
+    checkInDate.setHours(14, 0, 0, 0);
 
-    // Validar hora de Check-out: hasta las 11:30 del día de salida
+    // Validar hora de Check-out: 1 hora después de la hora oficial (10:00 + 1h = 11:00)
     const checkOutDate = new Date(reservation.check_out);
-    checkOutDate.setHours(11, 30, 0, 0);
+    checkOutDate.setHours(11, 0, 0, 0);
 
     if (now < checkInDate || now > checkOutDate) {
       return NextResponse.json({ success: false, message: 'Fuera del horario permitido' }, { status: 403 });

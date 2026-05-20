@@ -8,13 +8,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function run() {
   const { error } = await supabase
     .from('reservations')
-    .update({ check_in: '2026-05-12' })
-    .eq('reservation_code', 'HMWEF2NJK2');
+    .update({ check_in: '2026-05-20', nuki_pin: null })
+    .eq('reservation_code', 'HMMR92E9DJ');
 
   if (error) {
     console.error(error);
   } else {
-    console.log('Reservation HMWEF2NJK2 updated successfully to start on 2026-05-12.');
+    console.log('Reservation HMMR92E9DJ updated successfully (check_in = 2026-05-20, nuki_pin = null).');
   }
 }
 run();
