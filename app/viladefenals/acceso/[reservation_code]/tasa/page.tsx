@@ -16,16 +16,31 @@ export default async function TasaTuristicaPage({ params }: { params: Promise<{ 
   const resolvedParams = await params;
   const decodedCode = decodeURIComponent(resolvedParams.reservation_code);
 
-  const { data: reservation, error } = await supabase
+  // 1. Fetch reservation
+  const { data: reservation, error: resError } = await supabase
     .from('reservations')
     .select('*')
     .eq('reservation_code', decodedCode)
     .single();
 
-  if (error || !reservation) {
+  if (resError || !reservation) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900/50 to-cyan-900/70 p-4">
         <p className="text-white">Error al cargar la reserva.</p>
+      </div>
+    );
+  }
+
+  // 2. Fetch travelers to cross-reference their birthdates for tourist tax calculation
+  const { data: travelers, error: travError } = await supabase
+    .from('travelers')
+    .select('*')
+    .eq('reservation_code', decodedCode);
+
+  if (travError || !travelers) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900/50 to-cyan-900/70 p-4">
+        <p className="text-white">Error al cargar los datos de viajeros.</p>
       </div>
     );
   }
@@ -36,37 +51,107 @@ export default async function TasaTuristicaPage({ params }: { params: Promise<{ 
   const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
   let nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
-  if (nights > 7) nights = 7;
+  const rawNights = nights;
+  if (nights > 7) nights = 7; // Cap at 7 nights
   if (nights < 1) nights = 1;
+
+  // Calculate paying guests (aged 17 or older on check-in date)
+  let payingGuests = 0;
+  let exemptGuests = 0;
+  const payingGuestNames: string[] = [];
+  const exemptGuestNames: string[] = [];
+
+  travelers.forEach((t) => {
+    if (!t.fecha_nacimiento) {
+      payingGuests++;
+      payingGuestNames.push(`${t.nombre} ${t.apellidos}`);
+      return;
+    }
+
+    const birthDate = new Date(t.fecha_nacimiento);
+    let ageOnCheckIn = checkIn.getFullYear() - birthDate.getFullYear();
+    const m = checkIn.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && checkIn.getDate() < birthDate.getDate())) {
+      ageOnCheckIn--;
+    }
+
+    if (ageOnCheckIn >= 16) {
+      payingGuests++;
+      payingGuestNames.push(`${t.nombre} ${t.apellidos} (${ageOnCheckIn} años)`);
+    } else {
+      exemptGuests++;
+      exemptGuestNames.push(`${t.nombre} ${t.apellidos} (${ageOnCheckIn} años - Exento menor de 16)`);
+    }
+  });
+
+  const rate = 1.75;
+  const totalToPay = parseFloat((payingGuests * nights * rate).toFixed(2));
 
   return (
     <div className="min-h-screen py-12 px-4 flex flex-col items-center justify-center bg-gradient-to-br from-teal-900/40 to-cyan-900/50 relative">
-      <div className="absolute inset-0 w-full h-full -z-10 bg-gradient-to-br from-teal-300 to-cyan-600" />
+      {/* Background with Teal-Cyan Gradient Overlay */}
+      <div className="absolute inset-0 w-full h-full -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-300 to-cyan-600" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img 
+          src="/images/IMG_0566.JPG" 
+          alt="Fondo Vila de Fenals" 
+          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
+        />
+      </div>
       
-      <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-6 md:p-8">
+      <div className="relative z-10 w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-[0_16px_40px_rgba(6,182,212,0.25)] p-6 md:p-8">
         <h1 className="text-3xl font-light text-white mb-2 text-center drop-shadow-md">Tasa Turística</h1>
         <p className="text-cyan-100/90 text-sm text-center mb-8">
-          Abono del impuesto sobre estancias en establecimientos turísticos.
+          Abono obligatorio del impuesto sobre estancias en establecimientos turísticos (Generalitat de Catalunya).
         </p>
         
-        <div className="bg-black/20 border border-white/10 rounded-2xl p-5 mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-white/70 text-sm">Noches facturables</span>
-            <span className="text-white font-bold">{nights}</span>
+        {/* Breakdown Card */}
+        <div className="bg-black/30 border border-white/15 rounded-2xl p-5 mb-6 text-white space-y-3">
+          <div className="flex justify-between items-center text-sm border-b border-white/10 pb-2">
+            <span className="text-white/60">Huéspedes sujetos a tasa (≥16 años)</span>
+            <span className="font-bold text-cyan-300">{payingGuests} de {travelers.length}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-white/70 text-sm">Tarifa por noche/persona</span>
-            <span className="text-white font-bold">1.75€</span>
+          <div className="flex justify-between items-center text-sm border-b border-white/10 pb-2">
+            <span className="text-white/60">Noches de estancia (Facturables)</span>
+            <span className="font-bold text-cyan-300">{rawNights} {rawNights > 7 ? '(Capped a 7 noches)' : ''}</span>
           </div>
-          <p className="text-white/40 text-[10px] mt-3 leading-tight">
-            * La tasa está limitada a un máximo de 7 noches. Quedan exentos los menores de 17 años.
-          </p>
+          <div className="flex justify-between items-center text-sm">
+            <span className="text-white/60">Tarifa general Cataluña</span>
+            <span className="font-bold text-cyan-300">1.75€ / noche por huésped</span>
+          </div>
         </div>
 
-        <TasaForm reservationCode={decodedCode} calculatedNights={nights} />
+        {/* Dynamic breakdown detail */}
+        <div className="mb-6 space-y-2">
+          {payingGuestNames.length > 0 && (
+            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+              <p className="text-[10px] uppercase tracking-wider text-teal-300 font-bold mb-1">Huéspedes Sujetos a Pago</p>
+              <ul className="text-xs text-white/80 list-disc list-inside space-y-0.5">
+                {payingGuestNames.map((name, i) => <li key={i}>{name}</li>)}
+              </ul>
+            </div>
+          )}
+          {exemptGuestNames.length > 0 && (
+            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+              <p className="text-[10px] uppercase tracking-wider text-yellow-300 font-bold mb-1">Huéspedes Exentos</p>
+              <ul className="text-xs text-white/60 list-disc list-inside space-y-0.5">
+                {exemptGuestNames.map((name, i) => <li key={i}>{name}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* TasaForm carrying paycomet simulation details */}
+        <TasaForm 
+          reservationCode={decodedCode} 
+          payingGuests={payingGuests} 
+          nights={nights} 
+          totalAmount={totalToPay} 
+        />
 
         <div className="text-center mt-6">
-          <Link href={`/viladefenals/acceso/${decodedCode}`} className="text-white/60 text-sm hover:text-white transition-colors">
+          <Link href={`/viladefenals/acceso/${decodedCode}`} className="text-white/50 text-sm hover:text-white transition-colors">
             Volver al acceso
           </Link>
         </div>

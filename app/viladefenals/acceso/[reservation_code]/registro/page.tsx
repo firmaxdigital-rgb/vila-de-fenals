@@ -1,47 +1,324 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Camera, FileText, CheckCircle2, AlertCircle, Sparkles, Trash2, ArrowLeft } from 'lucide-react';
+import { translations, Lang } from '../i18n';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false },
+});
+
+const countries = [
+  { code: 'ES', nameEs: 'España', nameEn: 'Spain' },
+  { code: 'FR', nameEs: 'Francia', nameEn: 'France' },
+  { code: 'DE', nameEs: 'Alemania', nameEn: 'Germany' },
+  { code: 'GB', nameEs: 'Reino Unido', nameEn: 'United Kingdom' },
+  { code: 'IT', nameEs: 'Italia', nameEn: 'Italy' },
+  { code: 'US', nameEs: 'Estados Unidos', nameEn: 'United States' },
+  { code: 'PT', nameEs: 'Portugal', nameEn: 'Portugal' },
+  { code: 'BE', nameEs: 'Bélgica', nameEn: 'Belgium' },
+  { code: 'NL', nameEs: 'Países Bajos', nameEn: 'Netherlands' },
+  { code: 'CH', nameEs: 'Suiza', nameEn: 'Switzerland' },
+  { code: 'AD', nameEs: 'Andorra', nameEn: 'Andorra' },
+  { code: 'AR', nameEs: 'Argentina', nameEn: 'Argentina' },
+  { code: 'AT', nameEs: 'Austria', nameEn: 'Austria' },
+  { code: 'AU', nameEs: 'Australia', nameEn: 'Australia' },
+  { code: 'BR', nameEs: 'Brasil', nameEn: 'Brazil' },
+  { code: 'CA', nameEs: 'Canadá', nameEn: 'Canada' },
+  { code: 'CL', nameEs: 'Chile', nameEn: 'Chile' },
+  { code: 'CN', nameEs: 'China', nameEn: 'China' },
+  { code: 'CO', nameEs: 'Colombia', nameEn: 'Colombia' },
+  { code: 'DK', nameEs: 'Dinamarca', nameEn: 'Denmark' },
+  { code: 'IE', nameEs: 'Irlanda', nameEn: 'Ireland' },
+  { code: 'MX', nameEs: 'México', nameEn: 'Mexico' },
+  { code: 'NO', nameEs: 'Noruega', nameEn: 'Norway' },
+  { code: 'PL', nameEs: 'Polonia', nameEn: 'Poland' },
+  { code: 'SE', nameEs: 'Suecia', nameEn: 'Sweden' },
+  { code: 'UY', nameEs: 'Uruguay', nameEn: 'Uruguay' },
+  { code: 'VE', nameEs: 'Venezuela', nameEn: 'Venezuela' }
+].sort((a, b) => a.nameEs.localeCompare(b.nameEs));
+
+const uploadBtnTranslations: Record<string, { search: string; take: string }> = {
+  es: { search: 'Buscar Archivos', take: 'Hacer Foto' },
+  en: { search: 'Search Files', take: 'Take Photo' },
+  fr: { search: 'Chercher des fichiers', take: 'Prendre une photo' },
+  de: { search: 'Dateien durchsuchen', take: 'Foto aufnehmen' },
+  pl: { search: 'Wyszukaj pliki', take: 'Zrób zdjęcie' },
+  zh: { search: '浏览文件', take: '拍照' },
+  uk: { search: 'Шукати файли', take: 'Зробити фото' },
+  ru: { search: 'Поиск файлов', take: 'Сделать фото' }
+};
+
+function LanguageSelector({ currentLang, editId }: { currentLang: string; editId: string | null }) {
+  const router = useRouter();
+  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
+  
+  const handleLangChange = (newLang: string) => {
+    const params = new URLSearchParams();
+    params.set('lang', newLang);
+    if (editId) {
+      params.set('edit_id', editId);
+    }
+    router.push(`?${params.toString()}`);
+  };
+
+  return (
+    <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50 flex flex-wrap justify-end gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/20 shadow-lg max-w-[200px] md:max-w-none">
+      {langs.map((l) => (
+        <button 
+          key={l} 
+          type="button"
+          onClick={() => handleLangChange(l)}
+          className={`text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${currentLang === l ? 'text-cyan-300 drop-shadow-md' : 'text-white/60 hover:text-white/90'}`}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+interface AdultCandidate {
+  id: string;
+  nombre: string;
+  apellidos: string;
+}
 
 export default function RegistroViajeroPage({ params }: { params: { reservation_code: string } }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const lang = (searchParams.get('lang') || 'es') as Lang;
   const decodedCode = decodeURIComponent(params.reservation_code);
+
+  const dict = translations[lang] || translations['es'];
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  
+  // OCR processing states
+  const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+  const [ocrSuccess, setOcrSuccess] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<{ name: string; base64: string; mimeType: string }[]>([]);
 
+  // Drag and drop state
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Registered adults candidates list for minors
+  const [adultsList, setAdultsList] = useState<AdultCandidate[]>([]);
+  const [totalGuests, setTotalGuests] = useState<number>(2);
+  const timeLabels: Record<string, { checkin: string; checkout: string }> = {
+    es: { checkin: 'Hora estimada de llegada (Entrada)', checkout: 'Hora estimada de salida (Salida)' },
+    en: { checkin: 'Estimated Arrival (Check-in)', checkout: 'Estimated Departure (Check-out)' },
+    fr: { checkin: "Heure d'arrivée estimée (Check-in)", checkout: 'Heure de départ estimée (Check-out)' },
+    de: { checkin: 'Voraussichtliche Ankunftszeit (Check-in)', checkout: 'Voraussichtliche Abreisezeit (Check-out)' },
+    pl: { checkin: 'Planowana godzina przyjazdu (Check-in)', checkout: 'Planowana godzina wyjazdu (Check-out)' },
+    zh: { checkin: '预计抵达时间 (入住)', checkout: '预计离店时间 (退房)' },
+    uk: { checkin: 'Очікуваний час прибуття (Заїзд)', checkout: 'Очікуваний час виїзду (Виїзд)' },
+    ru: { checkin: 'Ожидаемое время прибытия (Заезд)', checkout: 'Ожидаемое время выезда (Выезд)' }
+  };
+  const currentLabels = timeLabels[lang] || timeLabels['es'];
+
+  // Form State
   const [formData, setFormData] = useState({
     nombre: '',
     apellidos: '',
+    segundo_apellido: '',
+    numero_soporte: '',
     tipo_documento: 'DNI',
     numero_documento: '',
     fecha_expedicion: '',
+    fecha_caducidad: '',
     fecha_nacimiento: '',
     sexo: 'M',
     nacionalidad: 'ES',
+    // Manual required fields (RD 933/2021)
+    direccion: '',
+    codigo_postal: '',
+    municipio: '',
+    provincia: '',
+    pais_residencia: 'ES',
+    telefono: '',
+    email: '',
+    // Minors fields
+    parentesco: '',
+    adulto_responsable_id: '',
+    // Extra custom fields
+    relacion_viajeros: 'Family',
+    firma_menor_16: false,
+    hora_entrada: '16:00',
+    hora_salida: '10:00',
   });
 
-  // Handle canvas drawing for signature
+  // Calculate guest age based on birthdate
+  const [age, setAge] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (formData.fecha_nacimiento) {
+      const birthDate = new Date(formData.fecha_nacimiento);
+      const today = new Date();
+      let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        calculatedAge--;
+      }
+      setAge(calculatedAge >= 0 ? calculatedAge : 0);
+    } else {
+      setAge(null);
+    }
+  }, [formData.fecha_nacimiento]);
+
+  // Automatically precheck and update firma_menor_16 for guests under 16
+  useEffect(() => {
+    if (age !== null && age < 16) {
+      setFormData(prev => ({ ...prev, firma_menor_16: true }));
+    } else {
+      setFormData(prev => ({ ...prev, firma_menor_16: false }));
+    }
+  }, [age]);
+
+  // Load existing registered adults under this reservation
+  useEffect(() => {
+    async function loadAdults() {
+      try {
+        const res = await fetch(`/api/travelers?reservation_code=${encodeURIComponent(decodedCode)}`);
+        const data = await res.json();
+        if (res.ok && data.success && data.travelers) {
+          // Filter for travelers >= 18 years old
+          const candidates = data.travelers
+            .filter((t: any) => {
+              if (!t.fecha_nacimiento) return true;
+              const birthDate = new Date(t.fecha_nacimiento);
+              const today = new Date();
+              let tAge = today.getFullYear() - birthDate.getFullYear();
+              const m = today.getMonth() - birthDate.getMonth();
+              if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                tAge--;
+              }
+              return tAge >= 18;
+            })
+            .map((t: any) => ({
+              id: t.id,
+              nombre: t.nombre,
+              apellidos: t.apellidos
+            }));
+          setAdultsList(candidates);
+        }
+      } catch (err) {
+        console.error("Error loading adult candidates:", err);
+      }
+    }
+    async function loadReservation() {
+      try {
+        const { data, error } = await supabase
+          .from('reservations')
+          .select('total_guests')
+          .eq('reservation_code', decodedCode)
+          .single();
+        if (!error && data) {
+          setTotalGuests(data.total_guests || 2);
+        }
+      } catch (err) {
+        console.error("Error loading reservation details:", err);
+      }
+    }
+    loadAdults();
+    loadReservation();
+  }, [decodedCode]);
+
+  // Load existing traveler data if in EDIT mode (edit_id query parameter is present)
+  const editId = searchParams.get('edit_id');
+
+  useEffect(() => {
+    if (!editId) return;
+
+    async function loadEditTraveler() {
+      try {
+        const res = await fetch(`/api/travelers?reservation_code=${encodeURIComponent(decodedCode)}`);
+        const data = await res.json();
+        if (res.ok && data.success && data.travelers) {
+          const traveler = data.travelers.find((t: any) => t.id === editId);
+          if (traveler) {
+            setFormData({
+              nombre: traveler.nombre || '',
+              apellidos: traveler.apellidos || '',
+              segundo_apellido: traveler.segundo_apellido || '',
+              numero_soporte: traveler.numero_soporte || '',
+              tipo_documento: traveler.tipo_documento || 'DNI',
+              numero_documento: traveler.numero_documento || '',
+              fecha_expedicion: traveler.fecha_expedicion || '',
+              fecha_caducidad: traveler.fecha_caducidad || '',
+              fecha_nacimiento: traveler.fecha_nacimiento || '',
+              sexo: traveler.sexo || 'M',
+              nacionalidad: traveler.nacionalidad || 'ES',
+              direccion: traveler.direccion || '',
+              codigo_postal: traveler.codigo_postal || '',
+              municipio: traveler.municipio || '',
+              provincia: traveler.provincia || '',
+              pais_residencia: traveler.pais_residencia || 'ES',
+              telefono: traveler.telefono || '',
+              email: traveler.email || '',
+              parentesco: traveler.parentesco || '',
+              adulto_responsable_id: traveler.adulto_responsable_id || '',
+              relacion_viajeros: traveler.relacion_viajeros || 'Family',
+              firma_menor_16: traveler.firma_menor_16 || false,
+              hora_entrada: traveler.hora_entrada || '16:00',
+              hora_salida: traveler.hora_salida || '10:00',
+            });
+
+            // Pre-load digital signature on canvas
+            if (traveler.firma && canvasRef.current) {
+              const canvas = canvasRef.current;
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                const img = new Image();
+                img.onload = () => {
+                  ctx.clearRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0);
+                };
+                img.src = traveler.firma;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error loading traveler for editing:", err);
+      }
+    }
+
+    loadEditTraveler();
+  }, [editId, decodedCode, success]);
+
+  // Setup signature canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) {
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#ffffff'; // White signature for dark theme
+        ctx.strokeStyle = '#22d3ee'; // Light cyan stroke
       }
     }
-  }, []);
+  }, [success]);
 
   const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     if ('touches' in e) {
+      if (e.touches.length === 0) return { x: 0, y: 0 };
       return {
         x: e.touches[0].clientX - rect.left,
         y: e.touches[0].clientY - rect.top
@@ -65,7 +342,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
-    e.preventDefault(); // Prevent scrolling on touch
+    e.preventDefault();
     const { x, y } = getCoordinates(e);
     const ctx = canvasRef.current?.getContext('2d');
     if (ctx) {
@@ -92,53 +369,230 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // Process files helper
+  const processFiles = (files: FileList) => {
+    if (uploadedFiles.length + files.length > 3) {
+      setError(lang === 'en' ? 'Only a maximum of 3 document images are allowed.' : 'Solo se permite subir un máximo de 3 imágenes de documentos.');
+      return;
+    }
+
+    setError('');
+    
+    Array.from(files).forEach((file) => {
+      // Validate format
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        setError(lang === 'en' ? 'Only images (PNG, JPG, JPEG) or PDF files are allowed.' : 'Solo se permiten imágenes (PNG, JPG, JPEG) o archivos PDF.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setUploadedFiles(prev => [
+          ...prev,
+          {
+            name: file.name,
+            base64: reader.result as string,
+            mimeType: file.type
+          }
+        ]);
+      };
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      processFiles(e.target.files);
+    }
+  };
+
+  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      processFiles(e.target.files);
+    }
+  };
+
+  // Drag & Drop events
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const removeUploadedFile = (idx: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  // Trigger Google Cloud Vertex AI Multimodal OCR scan
+  const handleTriggerOcr = async () => {
+    if (uploadedFiles.length === 0) {
+      setError(lang === 'en' ? 'Please upload at least one document image.' : 'Por favor, añada al menos una imagen de su documento.');
+      return;
+    }
+
+    setIsOcrProcessing(true);
+    setOcrSuccess(false);
+    setError('');
+
+    try {
+      const payloadFiles = uploadedFiles.map(f => ({
+        data: f.base64,
+        mimeType: f.mimeType
+      }));
+
+      const res = await fetch('/api/ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ files: payloadFiles })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Error al procesar el escaneo inteligente.');
+      }
+
+      const parsed = data.data;
+      
+      // Update form values with extracted details
+      setFormData(prev => ({
+        ...prev,
+        nombre: parsed.nombre || prev.nombre,
+        apellidos: parsed.apellidos || prev.apellidos,
+        segundo_apellido: parsed.segundo_apellido || prev.segundo_apellido,
+        tipo_documento: parsed.tipo_documento || prev.tipo_documento,
+        numero_documento: parsed.numero_documento || prev.numero_documento,
+        numero_soporte: parsed.numero_soporte || prev.numero_soporte,
+        fecha_expedicion: parsed.fecha_expedicion || prev.fecha_expedicion,
+        fecha_caducidad: parsed.fecha_caducidad || prev.fecha_caducidad,
+        fecha_nacimiento: parsed.fecha_nacimiento || prev.fecha_nacimiento,
+        sexo: parsed.sexo || prev.sexo,
+        nacionalidad: parsed.nacionalidad ? parsed.nacionalidad.substring(0, 2).toUpperCase() : prev.nacionalidad,
+      }));
+
+      setOcrSuccess(true);
+      setTimeout(() => setOcrSuccess(false), 5000);
+
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Error de conexión con la IA de Vertex.');
+    } finally {
+      setIsOcrProcessing(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
-    // Check if canvas is empty
+
+    // Check age logic limits
+    const isUnder14 = age !== null && age < 14;
+    const isUnder18 = age !== null && age < 18;
+
+    // Validate DNI requirement
+    if (!isUnder14 && !formData.numero_documento) {
+      setError(lang === 'en' ? 'Document number is mandatory for guests older than 14.' : 'El número de documento es obligatorio para mayores de 14 años.');
+      return;
+    }
+
+    // Validate Second Surname for DNI (mandatory if DNI)
+    if (formData.tipo_documento === 'DNI' && !isUnder14 && !formData.segundo_apellido) {
+      setError(lang === 'en' ? 'Second surname is mandatory for document type DNI/NIF.' : 'El segundo apellido es obligatorio para el tipo de documento DNI/NIF.');
+      return;
+    }
+
+    // Validate Support Number for DNI or NIE
+    if ((formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && !isUnder14 && !formData.numero_soporte) {
+      setError(lang === 'en' ? 'Document support number (NUM SOPORT) is mandatory for DNI or NIE.' : 'El número de soporte del documento (NUM SOPORT) es obligatorio para tipo DNI o NIE.');
+      return;
+    }
+
+    // Validate Minor parent links
+    if (isUnder18) {
+      if (!formData.parentesco) {
+        setError(lang === 'en' ? 'Relationship status is mandatory for guests under 18.' : 'El Grado de Parentesco es obligatorio para menores de 18 años.');
+        return;
+      }
+      if (!formData.adulto_responsable_id) {
+        setError(lang === 'en' ? 'You must select a registered adult responsible for the minor.' : 'Debe seleccionar un adulto registrado como responsable del menor.');
+        return;
+      }
+    }
+
+    // Validate residency/contact for adults
+    if (!isUnder18) {
+      if (
+        !formData.direccion || 
+        !formData.codigo_postal || 
+        !formData.municipio || 
+        !formData.pais_residencia || 
+        !formData.telefono || 
+        !formData.email
+      ) {
+        setError(lang === 'en' ? 'For adults, contact and residence address details are mandatory.' : 'Para adultos, todos los campos de dirección de contacto y residencia son obligatorios.');
+        return;
+      }
+
+      // Province validation (Mandatory for Spain residents)
+      if (formData.pais_residencia === 'ES' && !formData.provincia) {
+        setError(lang === 'en' ? 'Province is mandatory for residents in Spain.' : 'La provincia es obligatoria para residentes en España.');
+        return;
+      }
+    }
+
+    // Canvas Signature check
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
-    // A crude way to check if canvas is blank (just checking a few pixels)
     const ctx = canvas.getContext('2d');
     const pixelBuffer = new Uint32Array(ctx!.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
     const isCanvasBlank = !pixelBuffer.some(color => color !== 0);
 
     if (isCanvasBlank) {
-      setError('La firma es obligatoria.');
+      setError(lang === 'en' ? 'Traveler digital signature is strictly mandatory.' : 'La firma digital del viajero es totalmente obligatoria.');
       return;
     }
 
     setIsSubmitting(true);
-    
     const signatureBase64 = canvas.toDataURL('image/png');
 
     try {
-      const res = await fetch('/api/partee', {
+      const res = await fetch('/api/travelers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          id: editId || undefined,
           reservation_code: decodedCode,
           ...formData,
           firma: signatureBase64
         })
       });
 
-      const data = await res.json();
+      const resData = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || 'Error al enviar el registro');
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.error || 'Error al guardar el viajero.');
       }
 
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/viladefenals/acceso/${decodedCode}`);
-      }, 3000);
+        router.push(`/viladefenals/acceso/${decodedCode}?lang=${lang}`);
+        router.refresh();
+      }, 3500);
 
     } catch (err: any) {
-      setError(err.message || 'Error de conexión');
-    } finally {
+      setError(err.message || 'Error de conexión.');
       setIsSubmitting(false);
     }
   };
@@ -147,93 +601,483 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900/50 to-cyan-900/70 p-4 relative">
         <div className="absolute inset-0 w-full h-full -z-10 bg-gradient-to-br from-teal-300 to-cyan-600" />
-        <div className="relative z-10 w-full max-w-md bg-white/20 backdrop-blur-2xl border border-white/40 rounded-3xl shadow-[0_8px_32px_0_rgba(6,182,212,0.2)] p-8 text-center text-white">
-          <svg className="w-16 h-16 mx-auto text-green-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          <h2 className="text-2xl font-light mb-2">Registro Completado</h2>
-          <p className="text-white/80">Sus datos han sido enviados correctamente a las autoridades.</p>
-          <p className="text-white/60 text-sm mt-4">Redirigiendo a su acceso...</p>
+        <div className="relative z-10 w-full max-w-md bg-white/20 backdrop-blur-2xl border border-white/40 rounded-3xl shadow-[0_8px_32px_0_rgba(6,182,212,0.2)] p-8 text-center text-white space-y-4 animate-fade-in">
+          <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center">
+            <CheckCircle2 size={36} className="text-emerald-400 animate-pulse" />
+          </div>
+          <h2 className="text-2xl font-light tracking-wide">{dict.success_title}</h2>
+          <p className="text-white/80 text-sm leading-relaxed">
+            {dict.success_desc} <strong>{formData.nombre} {formData.apellidos}</strong>.
+          </p>
+          <p className="text-cyan-300 text-xs animate-pulse">
+            {dict.success_redirect}
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 flex flex-col items-center justify-center bg-gradient-to-br from-teal-900/40 to-cyan-900/50 relative">
-      <div className="absolute inset-0 w-full h-full -z-10 bg-gradient-to-br from-teal-300 to-cyan-600" />
-      
-      <div className="relative z-10 w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-6 md:p-8">
-        <h1 className="text-3xl font-light text-white mb-2 text-center drop-shadow-md">Registro de Viajero</h1>
-        <p className="text-cyan-100/90 text-sm text-center mb-8">
-          Por normativa legal, es obligatorio completar este formulario antes de acceder al alojamiento.
-        </p>
+    <div className="min-h-screen py-10 px-4 flex flex-col items-center justify-center bg-gradient-to-br from-teal-900/40 to-cyan-900/50 relative">
+      <div className="absolute inset-0 w-full h-full -z-10">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-300 to-cyan-600" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img 
+          src="/images/IMG_0566.JPG" 
+          alt="Fondo Vila de Fenals" 
+          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
+        />
+      </div>
+
+      <LanguageSelector currentLang={lang} editId={editId} />
+
+      <div className="relative z-10 w-full max-w-xl bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-6 md:p-8 animate-fade-in">
+        
+        {/* Header and Back navigation */}
+        <div className="flex items-center gap-2 mb-4">
+          <button 
+            type="button" 
+            onClick={() => router.push(`/viladefenals/acceso/${decodedCode}?lang=${lang}`)}
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all shrink-0 active:scale-95"
+          >
+            <ArrowLeft size={16} />
+          </button>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-light text-white drop-shadow-md">{dict.reg_title}</h1>
+            <p className="text-[10px] text-cyan-200 uppercase tracking-widest font-bold">
+              {dict.reg_subtitle} | {lang === 'en' ? `Total travelers: ${totalGuests}` : `Total viajeros: ${totalGuests}`}
+            </p>
+          </div>
+        </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-400/50 rounded-xl p-4 mb-6 text-red-100 text-sm">
-            {error}
+          <div className="bg-red-500/20 border border-red-400/50 rounded-xl p-4 mb-6 text-red-100 text-xs flex items-center gap-2 animate-fade-in">
+            <AlertCircle size={16} className="shrink-0 text-red-400" />
+            <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Nombre</label>
-              <input required name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" placeholder="Ej. Juan" />
+        {/* ======================================================
+            SECTION A: DRAG & DROP & MOBILE CAMERA SCANNING ZONE
+            ====================================================== */}
+        <div className="bg-gradient-to-br from-teal-500/20 to-cyan-500/10 border border-cyan-400/30 rounded-2xl p-4 mb-6 space-y-4 shadow-lg shadow-cyan-500/5">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-cyan-400/20 text-cyan-300">
+              <Sparkles size={16} className="animate-pulse" />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Apellidos</label>
-              <input required name="apellidos" value={formData.apellidos} onChange={handleChange} className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" placeholder="Ej. Pérez García" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Tipo Doc.</label>
-              <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 [&>option]:bg-gray-800">
-                <option value="DNI">DNI</option>
-                <option value="PASAPORTE">Pasaporte</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Número Doc.</label>
-              <input required name="numero_documento" value={formData.numero_documento} onChange={handleChange} className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" />
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">{dict.ocr_title}</h3>
+              <p className="text-[10px] text-cyan-100/70">{dict.ocr_desc}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">F. Expedición</label>
-              <input required type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 [color-scheme:dark]" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">F. Nacimiento</label>
-              <input required type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 [color-scheme:dark]" />
-            </div>
-          </div>
+          {/* Interactive Dotted Drag Zone */}
+          <div 
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
+              isDragging 
+                ? 'border-cyan-400 bg-cyan-400/20 scale-[1.01] shadow-[0_0_25px_rgba(34,211,238,0.25)]' 
+                : 'border-white/20 hover:border-cyan-400/40 bg-white/5 hover:bg-white/10'
+            }`}
+          >
+            <Camera size={32} className="text-white/60 mb-2.5 animate-pulse" />
+            
+            <span className="text-xs text-white/90 font-medium px-4 mb-3 leading-relaxed">
+              {dict.ocr_drop_zone}
+            </span>
+            <span className="text-[9px] text-white/40 mb-4">{dict.ocr_formats}</span>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Sexo</label>
-              <select name="sexo" value={formData.sexo} onChange={handleChange} className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 [&>option]:bg-gray-800">
-                <option value="M">Masculino</option>
-                <option value="F">Femenino</option>
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Nacionalidad</label>
-              <input required name="nacionalidad" value={formData.nacionalidad} onChange={handleChange} className="w-full bg-white/5 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50" placeholder="ES" maxLength={2} />
-            </div>
-          </div>
+            {/* Hidden native inputs */}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              multiple 
+              accept="image/*,application/pdf" 
+              onChange={handleFileChange} 
+              className="hidden" 
+            />
+            <input 
+              type="file" 
+              ref={cameraInputRef} 
+              accept="image/*" 
+              capture="environment" 
+              onChange={handleCameraCapture} 
+              className="hidden" 
+            />
 
-          <div className="space-y-2 mt-6">
-            <div className="flex justify-between items-center">
-              <label className="text-xs text-white/80 uppercase tracking-wider font-semibold">Firma del Huésped</label>
-              <button type="button" onClick={clearSignature} className="text-xs text-cyan-300 hover:text-cyan-100 transition-colors">
-                Limpiar
+            {/* Dual premium explicit action buttons */}
+            <div className="flex flex-wrap justify-center gap-3 w-full max-w-sm">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 min-w-[130px] py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 text-center"
+              >
+                📁 {uploadBtnTranslations[lang]?.search || 'Buscar Archivos'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => cameraInputRef.current?.click()}
+                className="flex-1 min-w-[130px] py-2 px-3 rounded-xl bg-cyan-400/20 hover:bg-cyan-400/35 border border-cyan-400/40 text-cyan-200 font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 text-center"
+              >
+                📸 {uploadBtnTranslations[lang]?.take || 'Hacer Foto'}
               </button>
             </div>
-            <div className="bg-black/30 border border-white/20 rounded-xl overflow-hidden touch-none relative">
+          </div>
+
+          {/* List of uploaded files to process */}
+          <div className="space-y-2">
+            {uploadedFiles.length === 0 ? (
+              <div className="py-3 flex items-center justify-center text-xs text-white/30 border border-white/5 rounded-xl bg-black/10">
+                {dict.ocr_no_files}
+              </div>
+            ) : (
+              <div className="max-h-[110px] overflow-y-auto space-y-1.5 pr-1">
+                {uploadedFiles.map((file, idx) => (
+                  <div key={idx} className="flex justify-between items-center bg-black/25 border border-white/10 rounded-xl p-2.5 text-xs text-white animate-fade-in">
+                    <span className="truncate max-w-[170px] flex items-center gap-2">
+                      <FileText size={14} className="text-cyan-300 shrink-0" />
+                      {file.name}
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={() => removeUploadedFile(idx)} 
+                      className="text-white/45 hover:text-red-400 transition-colors p-1"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Trigger Scan button */}
+          {uploadedFiles.length > 0 && (
+            <button
+              type="button"
+              onClick={handleTriggerOcr}
+              disabled={isOcrProcessing}
+              className="w-full py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-cyan-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-wait active:scale-98"
+            >
+              {isOcrProcessing ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-cyan-950" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>{dict.ocr_scanning}</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles size={14} />
+                  <span>{dict.ocr_scan_btn}</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {ocrSuccess && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5 text-emerald-300 text-[10px] text-center font-semibold animate-pulse">
+              ✓ {dict.ocr_success}
+            </div>
+          )}
+        </div>
+
+        {/* ======================================================
+            SECTION B: INDIVIDUAL REGISTRATION FORM
+            ====================================================== */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-4">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/10 pb-1.5 flex justify-between">
+              <span>{dict.form_section_doc}</span>
+              {age !== null && <span className="text-cyan-300 normal-case">{age} {lang === 'en' ? 'years old' : 'años'}</span>}
+            </h3>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_name}</label>
+                <input required name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Juan" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_surnames}</label>
+                <input required name="apellidos" value={formData.apellidos} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Pérez" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
+                  {dict.form_second_surname} {formData.tipo_documento !== 'DNI' ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
+                </label>
+                <input name="segundo_apellido" required={formData.tipo_documento === 'DNI' && (age === null || age >= 14)} value={formData.segundo_apellido} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="García" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_doc_type}</label>
+                <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800">
+                  <option value="DNI">DNI (Español)</option>
+                  <option value="PASAPORTE">Pasaporte</option>
+                  <option value="NIE">NIE / Extranjero</option>
+                  <option value="OTRO">Otro Documento</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
+                  {dict.form_doc_num} {age !== null && age < 14 ? `(${lang === 'en' ? 'Minor' : 'Menor'})` : ''}
+                </label>
+                <input 
+                  required={age === null || age >= 14} 
+                  name="numero_documento" 
+                  value={formData.numero_documento} 
+                  onChange={handleChange} 
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase tracking-wider" 
+                  placeholder="Ej. 12345678A"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
+                  {dict.form_support_number} {(formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
+                </label>
+                <input 
+                  disabled={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE'}
+                  required={(formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && (age === null || age >= 14)} 
+                  name="numero_soporte" 
+                  value={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE' ? '' : formData.numero_soporte} 
+                  onChange={handleChange} 
+                  className="w-full bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase tracking-wider" 
+                  placeholder={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE' ? 'N/A' : 'Ej. AAA123456'}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_exp_date}</label>
+                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cad_date || 'F. Caducidad'}</label>
+                <input type="date" name="fecha_caducidad" value={formData.fecha_caducidad} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_birth_date}</label>
+                <input required type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_nationality}</label>
+                <select 
+                  required 
+                  name="nacionalidad" 
+                  value={formData.nacionalidad} 
+                  onChange={handleChange} 
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                >
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {lang === 'en' ? c.nameEn : c.nameEs} ({c.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold">{dict.form_gender}</label>
+                <select name="sexo" value={formData.sexo} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800">
+                  <option value="M">{dict.form_gender_m}</option>
+                  <option value="F">{dict.form_gender_f}</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                {/* Empty slot for symmetry */}
+              </div>
+            </div>
+          </div>
+
+          {/* ======================================================
+              SECTION C-1: MINOR PARENT LINK (Conditional on minor age < 18)
+              ====================================================== */}
+          {age !== null && age < 18 && (
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 space-y-4 animate-fade-in">
+              <div className="flex items-center gap-2 text-yellow-300">
+                <AlertCircle size={14} className="shrink-0" />
+                <h4 className="text-xs font-bold uppercase tracking-wider">{dict.minor_header}</h4>
+              </div>
+              <p className="text-[10px] text-white/60 leading-relaxed">
+                {dict.minor_desc}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-yellow-100 uppercase tracking-wider font-semibold">{dict.minor_parentesco}</label>
+                  <select required name="parentesco" value={formData.parentesco} onChange={handleChange} className="w-full bg-white/5 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-800">
+                    <option value="">{dict.minor_parentesco_select}</option>
+                    <option value="Hijo/a">Hijo / Hija</option>
+                    <option value="Tutorado/a">Tutorado / Tutorada</option>
+                    <option value="Hermano/a">Hermano / Hermana</option>
+                    <option value="Otro">Otro grado familiar</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-yellow-100 uppercase tracking-wider font-semibold">{dict.minor_adult_resp}</label>
+                  <select required name="adulto_responsable_id" value={formData.adulto_responsable_id} onChange={handleChange} className="w-full bg-white/5 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-800">
+                    <option value="">{dict.minor_adult_select}</option>
+                    {adultsList.map((a) => (
+                      <option key={a.id} value={a.id}>{a.nombre} {a.apellidos}</option>
+                    ))}
+                  </select>
+                  {adultsList.length === 0 && (
+                    <p className="text-[8px] text-red-300 mt-1">
+                      {dict.minor_adult_err}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================
+              SECTION D: MANUAL REQUIRED RESIDENCY & CONTACT
+              ====================================================== */}
+          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-4">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/10 pb-1.5">
+              {dict.form_section_contact}
+            </h3>
+
+            <div className="space-y-1">
+              <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_address}</label>
+              <input required name="direccion" value={formData.direccion} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Ej. Calle Gran Vía 12, 3º B" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cp}</label>
+                <input required name="codigo_postal" value={formData.codigo_postal} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="E.g. 08001" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_city}</label>
+                <input required name="municipio" value={formData.municipio} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Ej. Barcelona" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
+                  {dict.form_province} {formData.pais_residencia !== 'ES' ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
+                </label>
+                <input 
+                  required={formData.pais_residencia === 'ES'} 
+                  name="provincia" 
+                  value={formData.provincia} 
+                  onChange={handleChange} 
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" 
+                  placeholder="Ej. Barcelona" 
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_country}</label>
+                <select 
+                  required 
+                  name="pais_residencia" 
+                  value={formData.pais_residencia} 
+                  onChange={handleChange} 
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                >
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {lang === 'en' ? c.nameEn : c.nameEs} ({c.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
+                  {lang === 'en' ? 'Kinship / Relation' : 'Relación viajeros'}
+                </label>
+                <select 
+                  required 
+                  name="relacion_viajeros" 
+                  value={formData.relacion_viajeros} 
+                  onChange={handleChange} 
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                >
+                  <option value="Family">{lang === 'en' ? 'Family' : 'Familia'}</option>
+                  <option value="Friends">{lang === 'en' ? 'Friends / Group' : 'Amigos / Grupo'}</option>
+                  <option value="Business">{lang === 'en' ? 'Business' : 'Trabajo / Empresa'}</option>
+                  <option value="Individual">{lang === 'en' ? 'Individual' : 'Individual'}</option>
+                  <option value="Other">{lang === 'en' ? 'Other' : 'Otro'}</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_phone}</label>
+                <input required name="telefono" value={formData.telefono} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Ej. +34600112233" />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_email}</label>
+              <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="ejemplo@correo.com" />
+            </div>
+          </div>
+
+          {/* ======================================================
+              SECTION E: TRAVELER TOUCH SIGNATURE
+              ====================================================== */}
+          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.sig_title}</label>
+              <button type="button" onClick={clearSignature} className="text-xs text-cyan-300 hover:text-cyan-100 transition-colors uppercase tracking-widest font-bold">
+                {dict.sig_clear}
+              </button>
+            </div>
+
+            {age !== null && age < 16 && (
+              <div className="space-y-2 mb-3">
+                <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                  <input 
+                    type="checkbox" 
+                    id="firma_menor_16" 
+                    name="firma_menor_16" 
+                    checked={formData.firma_menor_16} 
+                    onChange={(e) => setFormData(prev => ({ ...prev, firma_menor_16: e.target.checked }))}
+                    className="w-4 h-4 rounded border-white/15 text-cyan-500 focus:ring-cyan-500/50 bg-white/5 cursor-pointer shrink-0"
+                  />
+                  <label htmlFor="firma_menor_16" className="text-xs text-white/90 cursor-pointer select-none">
+                    {lang === 'en' 
+                      ? 'Signature on behalf of a minor under 16 years of age' 
+                      : 'Firma en nombre de un menor de 16 años'}
+                  </label>
+                </div>
+                
+                {formData.firma_menor_16 && (
+                  <div className="space-y-1 p-2.5 rounded-xl bg-cyan-950/20 border border-cyan-800/30 animate-fade-in">
+                    <label className="text-[10px] text-cyan-300 uppercase tracking-wider font-semibold block truncate h-4">
+                      {lang === 'en' ? 'Adult signing on behalf' : 'Adulto que firma en su nombre'}
+                    </label>
+                    <select 
+                      required={formData.firma_menor_16} 
+                      name="adulto_responsable_id" 
+                      value={formData.adulto_responsable_id} 
+                      onChange={handleChange} 
+                      className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                    >
+                      <option value="">{dict.minor_adult_select}</option>
+                      {adultsList.map((a) => (
+                        <option key={a.id} value={a.id}>{a.nombre} {a.apellidos}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="bg-black/40 border border-white/15 rounded-xl overflow-hidden touch-none relative shadow-inner">
               <canvas
                 ref={canvasRef}
                 width={400}
@@ -248,23 +1092,27 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 onTouchEnd={stopDrawing}
               />
             </div>
+            <p className="text-[9px] text-white/40 leading-tight">
+              {dict.sig_desc}
+            </p>
           </div>
 
+          {/* Submit Button */}
           <button 
             type="submit" 
-            disabled={isSubmitting}
-            className="w-full mt-8 py-3 px-6 rounded-xl bg-white text-cyan-900 font-bold text-lg hover:bg-cyan-50 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting || isOcrProcessing || (age !== null && age < 18 && adultsList.length === 0)}
+            className="w-full mt-6 py-4 px-6 rounded-xl bg-white hover:bg-cyan-50 text-cyan-900 font-bold text-base transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider active:scale-99"
           >
-            {isSubmitting ? 'Enviando...' : 'Enviar Registro'}
+            {isSubmitting ? dict.btn_submitting : dict.btn_submit}
           </button>
           
-          <div className="text-center mt-4">
+          <div className="text-center mt-3">
              <button 
               type="button" 
-              onClick={() => router.push(`/viladefenals/acceso/${decodedCode}`)}
-              className="text-white/60 text-sm hover:text-white transition-colors"
+              onClick={() => router.push(`/viladefenals/acceso/${decodedCode}?lang=${lang}`)}
+              className="text-white/40 text-xs hover:text-white transition-colors"
              >
-               Volver al acceso
+               {dict.btn_cancel}
              </button>
           </div>
         </form>

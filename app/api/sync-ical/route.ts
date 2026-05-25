@@ -77,13 +77,17 @@ async function fetchAndParseIcal(url: string, platform: string) {
       }
     }
 
+    const guestsMatch = (ev.description || '').match(/(?:Number of guests|Guests|Huéspedes|Hospedes):\s*(\d+)/i);
+    const totalGuests = guestsMatch ? parseInt(guestsMatch[1], 10) : 2;
+
     return {
       reservation_code: code,
       platform,
       check_in: ev.start,
       check_out: ev.end,
       nuki_pin: null as string | null,
-      summary: ev.summary as string | undefined
+      summary: ev.summary as string | undefined,
+      total_guests: totalGuests
     };
   });
 
@@ -169,7 +173,8 @@ export async function GET() {
           platform: ev.platform,
           check_in: ev.check_in,
           check_out: ev.check_out,
-          nuki_pin: ev.nuki_pin
+          nuki_pin: ev.nuki_pin,
+          total_guests: ev.total_guests
         })),
         { onConflict: 'reservation_code' }
       );
