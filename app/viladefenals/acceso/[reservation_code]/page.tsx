@@ -61,7 +61,7 @@ export default async function AccesoPage({
   const lang: Lang = (['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
   const paymentStatus = resolvedSearchParams?.payment_status as string;
-  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD';
+  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD' || decodedCode === 'TEST7GUESTS';
 
   console.log("Cargando reserva:", decodedCode, "TestMode:", testMode);
 
