@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
+import fs from 'fs';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,10 +26,43 @@ let ai: GoogleGenAI | null = null;
 
 try {
   console.log(`Inicializando GoogleGenAI (Vertex AI) con Proyecto: ${PROJECT_ID}, Ubicación: ${LOCATION}`);
+  
+  const authOpts: any = {};
+  let gcpCredentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+
+  // Fallback 1: Si no está configurada la variable específica de JSON, revisamos si la variable estándar contiene el JSON crudo
+  if (!gcpCredentialsJson && process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    const trimmed = process.env.GOOGLE_APPLICATION_CREDENTIALS.trim();
+    if (trimmed.startsWith('{')) {
+      gcpCredentialsJson = trimmed;
+    }
+  }
+
+  if (gcpCredentialsJson) {
+    try {
+      const credentials = JSON.parse(gcpCredentialsJson);
+      authOpts.credentials = credentials;
+      console.log("Credenciales de GCP parseadas correctamente desde variable de entorno JSON.");
+    } catch (e) {
+      console.error("Error al parsear el JSON de credenciales de GCP en Vertex AI:", e);
+    }
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    const localPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+    // Fallback 2: Solo asignamos keyFilename si el archivo realmente existe físicamente en el servidor
+    if (fs.existsSync(localPath)) {
+      authOpts.keyFilename = localPath;
+      console.log(`Usando ruta de archivo local existente para credenciales de GCP: ${localPath}`);
+    } else {
+      console.warn(`El archivo de credenciales de GCP no existe en la ruta física: ${localPath}. Se omitirá para evitar fallos catastróficos en Vercel.`);
+      console.warn("Se recurrirá a la autenticación implícita del entorno.");
+    }
+  }
+
   ai = new GoogleGenAI({
     vertexai: true,
     project: PROJECT_ID,
-    location: LOCATION
+    location: LOCATION,
+    googleAuthOptions: Object.keys(authOpts).length > 0 ? authOpts : undefined
   });
 } catch (err) {
   console.error("Error al inicializar GoogleGenAI con Vertex AI adapter:", err);

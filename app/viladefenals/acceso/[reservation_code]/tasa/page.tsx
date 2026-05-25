@@ -88,72 +88,79 @@ export default async function TasaTuristicaPage({ params }: { params: Promise<{ 
   const totalToPay = parseFloat((payingGuests * nights * rate).toFixed(2));
 
   return (
-    <div className="min-h-screen py-12 px-4 flex flex-col items-center justify-center bg-gradient-to-br from-teal-900/40 to-cyan-900/50 relative">
-      {/* Background with Teal-Cyan Gradient Overlay */}
-      <div className="absolute inset-0 w-full h-full -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-300 to-cyan-600" />
+    <div className="min-h-screen text-white font-sans relative pb-20">
+      {/* Background Image */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-black/60 z-10" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src="/images/IMG_0566.JPG" 
           alt="Fondo Vila de Fenals" 
-          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
+          className="w-full h-full object-cover"
         />
       </div>
       
-      <div className="relative z-10 w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-[0_16px_40px_rgba(6,182,212,0.25)] p-6 md:p-8">
-        <h1 className="text-3xl font-light text-white mb-2 text-center drop-shadow-md">Tasa Turística</h1>
-        <p className="text-cyan-100/90 text-sm text-center mb-8">
-          Abono obligatorio del impuesto sobre estancias en establecimientos turísticos (Generalitat de Catalunya).
-        </p>
-        
-        {/* Breakdown Card */}
-        <div className="bg-black/30 border border-white/15 rounded-2xl p-5 mb-6 text-white space-y-3">
-          <div className="flex justify-between items-center text-sm border-b border-white/10 pb-2">
-            <span className="text-white/60">Huéspedes sujetos a tasa (≥16 años)</span>
-            <span className="font-bold text-cyan-300">{payingGuests} de {travelers.length}</span>
-          </div>
-          <div className="flex justify-between items-center text-sm border-b border-white/10 pb-2">
-            <span className="text-white/60">Noches de estancia (Facturables)</span>
-            <span className="font-bold text-cyan-300">{rawNights} {rawNights > 7 ? '(Capped a 7 noches)' : ''}</span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-white/60">Tarifa general Cataluña</span>
-            <span className="font-bold text-cyan-300">1.75€ / noche por huésped</span>
-          </div>
+      <div className="relative z-20 max-w-md mx-auto pt-8 px-4">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+          <p className="text-cyan-300 text-xs tracking-[0.25em] uppercase font-bold">Tasa Turística</p>
         </div>
 
-        {/* Dynamic breakdown detail */}
-        <div className="mb-6 space-y-2">
-          {payingGuestNames.length > 0 && (
-            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-              <p className="text-[10px] uppercase tracking-wider text-teal-300 font-bold mb-1">Huéspedes Sujetos a Pago</p>
-              <ul className="text-xs text-white/80 list-disc list-inside space-y-0.5">
-                {payingGuestNames.map((name, i) => <li key={i}>{name}</li>)}
-              </ul>
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-[0_16px_40px_rgba(6,182,212,0.25)] p-6 md:p-8">
+          <p className="text-cyan-100/90 text-sm text-center mb-8">
+            Abono obligatorio del impuesto sobre estancias en establecimientos turísticos (Generalitat de Catalunya).
+          </p>
+          
+          {/* Breakdown Card */}
+          <div className="bg-black/30 border border-white/15 rounded-2xl p-5 mb-6 text-white space-y-3">
+            <div className="flex justify-between items-center text-sm border-b border-white/10 pb-2">
+              <span className="text-white/60">Huéspedes sujetos a tasa (≥16 años)</span>
+              <span className="font-bold text-cyan-300">{payingGuests} de {travelers.length}</span>
             </div>
-          )}
-          {exemptGuestNames.length > 0 && (
-            <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-              <p className="text-[10px] uppercase tracking-wider text-yellow-300 font-bold mb-1">Huéspedes Exentos</p>
-              <ul className="text-xs text-white/60 list-disc list-inside space-y-0.5">
-                {exemptGuestNames.map((name, i) => <li key={i}>{name}</li>)}
-              </ul>
+            <div className="flex justify-between items-center text-sm border-b border-white/10 pb-2">
+              <span className="text-white/60">Noches de estancia (Facturables)</span>
+              <span className="font-bold text-cyan-300">{rawNights} {rawNights > 7 ? '(Capped a 7 noches)' : ''}</span>
             </div>
-          )}
-        </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-white/60">Tarifa general Cataluña</span>
+              <span className="font-bold text-cyan-300">1.75€ / noche por huésped</span>
+            </div>
+          </div>
 
-        {/* TasaForm carrying paycomet simulation details */}
-        <TasaForm 
-          reservationCode={decodedCode} 
-          payingGuests={payingGuests} 
-          nights={nights} 
-          totalAmount={totalToPay} 
-        />
+          {/* Dynamic breakdown detail */}
+          <div className="mb-6 space-y-2">
+            {payingGuestNames.length > 0 && (
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-teal-300 font-bold mb-1">Huéspedes Sujetos a Pago</p>
+                <ul className="text-xs text-white/80 list-disc list-inside space-y-0.5">
+                  {payingGuestNames.map((name, i) => <li key={i}>{name}</li>)}
+                </ul>
+              </div>
+            )}
+            {exemptGuestNames.length > 0 && (
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-yellow-300 font-bold mb-1">Huéspedes Exentos</p>
+                <ul className="text-xs text-white/60 list-disc list-inside space-y-0.5">
+                  {exemptGuestNames.map((name, i) => <li key={i}>{name}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
 
-        <div className="text-center mt-6">
-          <Link href={`/viladefenals/acceso/${decodedCode}`} className="text-white/50 text-sm hover:text-white transition-colors">
-            Volver al acceso
-          </Link>
+          {/* TasaForm carrying paycomet simulation details */}
+          <TasaForm 
+            reservationCode={decodedCode} 
+            payingGuests={payingGuests} 
+            nights={nights} 
+            totalAmount={totalToPay} 
+          />
+
+          <div className="text-center mt-6">
+            <Link href={`/viladefenals/acceso/${decodedCode}`} className="text-white/50 text-sm hover:text-white transition-colors">
+              Volver al acceso
+            </Link>
+          </div>
         </div>
       </div>
     </div>

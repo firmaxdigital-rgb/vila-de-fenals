@@ -51,12 +51,14 @@ const uploadBtnTranslations: Record<string, { search: string; take: string }> = 
   pl: { search: 'Wyszukaj pliki', take: 'Zrób zdjęcie' },
   zh: { search: '浏览文件', take: '拍照' },
   uk: { search: 'Шукати файли', take: 'Зробити фото' },
-  ru: { search: 'Поиск файлов', take: 'Сделать фото' }
+  ru: { search: 'Поиск файлов', take: 'Сделать фото' },
+  nl: { search: 'Bestanden Zoeken', take: 'Foto Maken' },
+  ja: { search: 'ファイルを選択', take: '写真を撮影' }
 };
 
 function LanguageSelector({ currentLang, editId }: { currentLang: string; editId: string | null }) {
   const router = useRouter();
-  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
+  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'];
   
   const handleLangChange = (newLang: string) => {
     const params = new URLSearchParams();
@@ -68,13 +70,13 @@ function LanguageSelector({ currentLang, editId }: { currentLang: string; editId
   };
 
   return (
-    <div className="absolute top-4 right-4 md:top-6 md:right-6 z-50 flex flex-wrap justify-end gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/20 shadow-lg max-w-[200px] md:max-w-none">
+    <div className="flex flex-wrap justify-center gap-3 mb-6 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 w-fit mx-auto">
       {langs.map((l) => (
         <button 
           key={l} 
           type="button"
           onClick={() => handleLangChange(l)}
-          className={`text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${currentLang === l ? 'text-cyan-300 drop-shadow-md' : 'text-white/60 hover:text-white/90'}`}
+          className={`text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${currentLang === l ? 'text-white drop-shadow-md' : 'text-white/50 hover:text-white'}`}
         >
           {l}
         </button>
@@ -308,7 +310,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         ctx.lineWidth = 3;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#22d3ee'; // Light cyan stroke
+        ctx.strokeStyle = '#ffffff'; // White stroke
       }
     }
   }, [success]);
@@ -365,11 +367,53 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     }
   };
 
+  // Client-side image compression & downscaling
+  const compressImage = (file: File): Promise<{ base64: string; mimeType: string }> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onerror = (err) => reject(err);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onerror = (err) => reject(err);
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 1600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve({ base64: event.target?.result as string, mimeType: file.type });
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+          resolve({ base64: compressedBase64, mimeType: 'image/jpeg' });
+        };
+      };
+    });
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Process files helper
+  // Process files helper with compression
   const processFiles = (files: FileList) => {
     if (uploadedFiles.length + files.length > 3) {
       setError(lang === 'en' ? 'Only a maximum of 3 document images are allowed.' : 'Solo se permite subir un máximo de 3 imágenes de documentos.');
@@ -378,25 +422,54 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
 
     setError('');
     
-    Array.from(files).forEach((file) => {
+    Array.from(files).forEach(async (file) => {
       // Validate format
       if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
         setError(lang === 'en' ? 'Only images (PNG, JPG, JPEG) or PDF files are allowed.' : 'Solo se permiten imágenes (PNG, JPG, JPEG) o archivos PDF.');
         return;
       }
 
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = () => {
-        setUploadedFiles(prev => [
-          ...prev,
-          {
-            name: file.name,
-            base64: reader.result as string,
-            mimeType: file.type
-          }
-        ]);
-      };
+      if (file.type.startsWith('image/')) {
+        try {
+          const { base64, mimeType } = await compressImage(file);
+          setUploadedFiles(prev => [
+            ...prev,
+            {
+              name: file.name,
+              base64,
+              mimeType
+            }
+          ]);
+        } catch (err) {
+          console.error("Error compressing image:", err);
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onloadend = () => {
+            setUploadedFiles(prev => [
+              ...prev,
+              {
+                name: file.name,
+                base64: reader.result as string,
+                mimeType: file.type
+              }
+            ]);
+          };
+        }
+      } else {
+        // PDF fallback
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          setUploadedFiles(prev => [
+            ...prev,
+            {
+              name: file.name,
+              base64: reader.result as string,
+              mimeType: file.type
+            }
+          ]);
+        };
+      }
     });
   };
 
@@ -599,17 +672,26 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-900/50 to-cyan-900/70 p-4 relative">
-        <div className="absolute inset-0 w-full h-full -z-10 bg-gradient-to-br from-teal-300 to-cyan-600" />
-        <div className="relative z-10 w-full max-w-md bg-white/20 backdrop-blur-2xl border border-white/40 rounded-3xl shadow-[0_8px_32px_0_rgba(6,182,212,0.2)] p-8 text-center text-white space-y-4 animate-fade-in">
-          <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center">
-            <CheckCircle2 size={36} className="text-emerald-400 animate-pulse" />
+      <div className="min-h-screen flex items-center justify-center p-4 relative text-white font-sans">
+        {/* Background Image */}
+        <div className="fixed inset-0 z-0">
+          <div className="absolute inset-0 bg-black/60 z-10" />
+          <img
+            src="/images/IMG_0566.JPG"
+            alt="Background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        <div className="relative z-10 w-full max-w-md bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_16px_40px_rgba(0,0,0,0.3)] p-8 text-center text-white space-y-4 animate-fade-in">
+          <div className="mx-auto w-16 h-16 rounded-full bg-white/10 border-2 border-white/30 flex items-center justify-center">
+            <CheckCircle2 size={36} className="text-white animate-pulse" />
           </div>
           <h2 className="text-2xl font-light tracking-wide">{dict.success_title}</h2>
           <p className="text-white/80 text-sm leading-relaxed">
             {dict.success_desc} <strong>{formData.nombre} {formData.apellidos}</strong>.
           </p>
-          <p className="text-cyan-300 text-xs animate-pulse">
+          <p className="text-white/60 text-xs animate-pulse">
             {dict.success_redirect}
           </p>
         </div>
@@ -618,20 +700,25 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   }
 
   return (
-    <div className="min-h-screen py-10 px-4 flex flex-col items-center justify-center bg-gradient-to-br from-teal-900/40 to-cyan-900/50 relative">
-      <div className="absolute inset-0 w-full h-full -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-300 to-cyan-600" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img 
-          src="/images/IMG_0566.JPG" 
-          alt="Fondo Vila de Fenals" 
-          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
+    <div className="min-h-screen text-white font-sans relative pb-20">
+      {/* Background Image */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-black/60 z-10" />
+        <img
+          src="/images/IMG_0566.JPG"
+          alt="Background"
+          className="w-full h-full object-cover"
         />
       </div>
 
-      <LanguageSelector currentLang={lang} editId={editId} />
+      <div className="relative z-20 max-w-xl mx-auto pt-8 px-4">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+          <LanguageSelector currentLang={lang} editId={editId} />
+        </div>
 
-      <div className="relative z-10 w-full max-w-xl bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-6 md:p-8 animate-fade-in">
+        <div className="relative z-10 w-full max-w-xl bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-[0_16px_40px_rgba(0,0,0,0.35)] p-6 md:p-8 animate-fade-in">
         
         {/* Header and Back navigation */}
         <div className="flex items-center gap-2 mb-4">
@@ -660,14 +747,14 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         {/* ======================================================
             SECTION A: DRAG & DROP & MOBILE CAMERA SCANNING ZONE
             ====================================================== */}
-        <div className="bg-gradient-to-br from-teal-500/20 to-cyan-500/10 border border-cyan-400/30 rounded-2xl p-4 mb-6 space-y-4 shadow-lg shadow-cyan-500/5">
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 mb-6 space-y-4 shadow-lg shadow-white/5">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-cyan-400/20 text-cyan-300">
+            <div className="p-1.5 rounded-lg bg-white/10 text-white/80">
               <Sparkles size={16} className="animate-pulse" />
             </div>
             <div>
               <h3 className="text-sm font-bold text-white uppercase tracking-wider">{dict.ocr_title}</h3>
-              <p className="text-[10px] text-cyan-100/70">{dict.ocr_desc}</p>
+              <p className="text-[10px] text-white/60">{dict.ocr_desc}</p>
             </div>
           </div>
 
@@ -678,11 +765,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             onDrop={handleDrop}
             className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all duration-300 flex flex-col items-center justify-center cursor-pointer ${
               isDragging 
-                ? 'border-cyan-400 bg-cyan-400/20 scale-[1.01] shadow-[0_0_25px_rgba(34,211,238,0.25)]' 
-                : 'border-white/20 hover:border-cyan-400/40 bg-white/5 hover:bg-white/10'
+                ? 'border-white bg-white/20 scale-[1.01] shadow-[0_0_25px_rgba(255,255,255,0.15)]' 
+                : 'border-white/20 hover:border-white/45 bg-white/5 hover:bg-white/10'
             }`}
           >
-            <Camera size={32} className="text-white/60 mb-2.5 animate-pulse" />
+            <Camera size={32} className="text-white/60 mb-2.5" />
             
             <span className="text-xs text-white/90 font-medium px-4 mb-3 leading-relaxed">
               {dict.ocr_drop_zone}
@@ -712,7 +799,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 min-w-[130px] py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 text-center"
+                className="flex-1 min-w-[130px] py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 text-center"
               >
                 📁 {uploadBtnTranslations[lang]?.search || 'Buscar Archivos'}
               </button>
@@ -720,7 +807,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="flex-1 min-w-[130px] py-2 px-3 rounded-xl bg-cyan-400/20 hover:bg-cyan-400/35 border border-cyan-400/40 text-cyan-200 font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 text-center"
+                className="flex-1 min-w-[130px] py-2 px-3 rounded-xl bg-white/20 hover:bg-white/30 border border-white/25 text-white font-bold text-[10px] uppercase tracking-wider transition-all active:scale-95 text-center"
               >
                 📸 {uploadBtnTranslations[lang]?.take || 'Hacer Foto'}
               </button>
@@ -736,9 +823,9 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             ) : (
               <div className="max-h-[110px] overflow-y-auto space-y-1.5 pr-1">
                 {uploadedFiles.map((file, idx) => (
-                  <div key={idx} className="flex justify-between items-center bg-black/25 border border-white/10 rounded-xl p-2.5 text-xs text-white animate-fade-in">
+                  <div key={idx} className="flex justify-between items-center bg-black/45 border border-white/10 rounded-xl p-2.5 text-xs text-white animate-fade-in">
                     <span className="truncate max-w-[170px] flex items-center gap-2">
-                      <FileText size={14} className="text-cyan-300 shrink-0" />
+                      <FileText size={14} className="text-white/80 shrink-0" />
                       {file.name}
                     </span>
                     <button 
@@ -760,11 +847,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               type="button"
               onClick={handleTriggerOcr}
               disabled={isOcrProcessing}
-              className="w-full py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-cyan-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-wait active:scale-98"
+              className="w-full py-3 rounded-xl bg-white hover:bg-gray-100 text-gray-900 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-wait active:scale-98"
             >
               {isOcrProcessing ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-cyan-950" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4 text-gray-900" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
@@ -780,7 +867,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
           )}
 
           {ocrSuccess && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-2.5 text-emerald-300 text-[10px] text-center font-semibold animate-pulse">
+            <div className="bg-white/15 border border-white/25 rounded-xl p-2.5 text-white text-[10px] text-center font-semibold animate-pulse">
               ✓ {dict.ocr_success}
             </div>
           )}
@@ -790,33 +877,33 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             SECTION B: INDIVIDUAL REGISTRATION FORM
             ====================================================== */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-4">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 space-y-4 shadow-lg">
             <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/10 pb-1.5 flex justify-between">
               <span>{dict.form_section_doc}</span>
-              {age !== null && <span className="text-cyan-300 normal-case">{age} {lang === 'en' ? 'years old' : 'años'}</span>}
+              {age !== null && <span className="text-white/80 normal-case">{age} {lang === 'en' ? 'years old' : 'años'}</span>}
             </h3>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_name}</label>
-                <input required name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Juan" />
+                <input required name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Juan" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_surnames}</label>
-                <input required name="apellidos" value={formData.apellidos} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Pérez" />
+                <input required name="apellidos" value={formData.apellidos} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Pérez" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
                   {dict.form_second_surname} {formData.tipo_documento !== 'DNI' ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
                 </label>
-                <input name="segundo_apellido" required={formData.tipo_documento === 'DNI' && (age === null || age >= 14)} value={formData.segundo_apellido} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="García" />
+                <input name="segundo_apellido" required={formData.tipo_documento === 'DNI' && (age === null || age >= 14)} value={formData.segundo_apellido} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="García" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_doc_type}</label>
-                <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800">
+                <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900">
                   <option value="DNI">DNI (Español)</option>
                   <option value="PASAPORTE">Pasaporte</option>
                   <option value="NIE">NIE / Extranjero</option>
@@ -832,7 +919,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   name="numero_documento" 
                   value={formData.numero_documento} 
                   onChange={handleChange} 
-                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase tracking-wider" 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 uppercase tracking-wider" 
                   placeholder="Ej. 12345678A"
                 />
               </div>
@@ -846,7 +933,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   name="numero_soporte" 
                   value={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE' ? '' : formData.numero_soporte} 
                   onChange={handleChange} 
-                  className="w-full bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase tracking-wider" 
+                  className="w-full bg-black/40 disabled:opacity-40 disabled:cursor-not-allowed border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 uppercase tracking-wider" 
                   placeholder={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE' ? 'N/A' : 'Ej. AAA123456'}
                 />
               </div>
@@ -855,18 +942,18 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_exp_date}</label>
-                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]" />
+                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cad_date || 'F. Caducidad'}</label>
-                <input type="date" name="fecha_caducidad" value={formData.fecha_caducidad} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]" />
+                <input type="date" name="fecha_caducidad" value={formData.fecha_caducidad} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_birth_date}</label>
-                <input required type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [color-scheme:dark]" />
+                <input required type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_nationality}</label>
@@ -875,7 +962,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   name="nacionalidad" 
                   value={formData.nacionalidad} 
                   onChange={handleChange} 
-                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                 >
                   {countries.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -889,7 +976,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold">{dict.form_gender}</label>
-                <select name="sexo" value={formData.sexo} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800">
+                <select name="sexo" value={formData.sexo} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900">
                   <option value="M">{dict.form_gender_m}</option>
                   <option value="F">{dict.form_gender_f}</option>
                 </select>
@@ -904,7 +991,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               SECTION C-1: MINOR PARENT LINK (Conditional on minor age < 18)
               ====================================================== */}
           {age !== null && age < 18 && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-4 space-y-4 animate-fade-in">
+            <div className="bg-yellow-500/10 backdrop-blur-md border border-yellow-500/30 rounded-2xl p-5 space-y-4 animate-fade-in">
               <div className="flex items-center gap-2 text-yellow-300">
                 <AlertCircle size={14} className="shrink-0" />
                 <h4 className="text-xs font-bold uppercase tracking-wider">{dict.minor_header}</h4>
@@ -916,7 +1003,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[10px] text-yellow-100 uppercase tracking-wider font-semibold">{dict.minor_parentesco}</label>
-                  <select required name="parentesco" value={formData.parentesco} onChange={handleChange} className="w-full bg-white/5 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-800">
+                  <select required name="parentesco" value={formData.parentesco} onChange={handleChange} className="w-full bg-black/40 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-900">
                     <option value="">{dict.minor_parentesco_select}</option>
                     <option value="Hijo/a">Hijo / Hija</option>
                     <option value="Tutorado/a">Tutorado / Tutorada</option>
@@ -926,7 +1013,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] text-yellow-100 uppercase tracking-wider font-semibold">{dict.minor_adult_resp}</label>
-                  <select required name="adulto_responsable_id" value={formData.adulto_responsable_id} onChange={handleChange} className="w-full bg-white/5 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-800">
+                  <select required name="adulto_responsable_id" value={formData.adulto_responsable_id} onChange={handleChange} className="w-full bg-black/40 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-900">
                     <option value="">{dict.minor_adult_select}</option>
                     {adultsList.map((a) => (
                       <option key={a.id} value={a.id}>{a.nombre} {a.apellidos}</option>
@@ -945,24 +1032,24 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
           {/* ======================================================
               SECTION D: MANUAL REQUIRED RESIDENCY & CONTACT
               ====================================================== */}
-          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-4">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 space-y-4 shadow-lg">
             <h3 className="text-xs font-bold text-white uppercase tracking-wider border-b border-white/10 pb-1.5">
               {dict.form_section_contact}
             </h3>
 
             <div className="space-y-1">
               <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_address}</label>
-              <input required name="direccion" value={formData.direccion} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Ej. Calle Gran Vía 12, 3º B" />
+              <input required name="direccion" value={formData.direccion} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Ej. Calle Gran Vía 12, 3º B" />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cp}</label>
-                <input required name="codigo_postal" value={formData.codigo_postal} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="E.g. 08001" />
+                <input required name="codigo_postal" value={formData.codigo_postal} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="E.g. 08001" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_city}</label>
-                <input required name="municipio" value={formData.municipio} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Ej. Barcelona" />
+                <input required name="municipio" value={formData.municipio} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Ej. Barcelona" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
@@ -973,7 +1060,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   name="provincia" 
                   value={formData.provincia} 
                   onChange={handleChange} 
-                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" 
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" 
                   placeholder="Ej. Barcelona" 
                 />
               </div>
@@ -987,7 +1074,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   name="pais_residencia" 
                   value={formData.pais_residencia} 
                   onChange={handleChange} 
-                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                 >
                   {countries.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -1005,7 +1092,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   name="relacion_viajeros" 
                   value={formData.relacion_viajeros} 
                   onChange={handleChange} 
-                  className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                 >
                   <option value="Family">{lang === 'en' ? 'Family' : 'Familia'}</option>
                   <option value="Friends">{lang === 'en' ? 'Friends / Group' : 'Amigos / Grupo'}</option>
@@ -1016,37 +1103,37 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_phone}</label>
-                <input required name="telefono" value={formData.telefono} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="Ej. +34600112233" />
+                <input required name="telefono" value={formData.telefono} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Ej. +34600112233" />
               </div>
             </div>
 
             <div className="space-y-1">
               <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_email}</label>
-              <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-white/20 focus:outline-none focus:ring-1 focus:ring-cyan-500/50" placeholder="ejemplo@correo.com" />
+              <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="ejemplo@correo.com" />
             </div>
           </div>
 
           {/* ======================================================
               SECTION E: TRAVELER TOUCH SIGNATURE
               ====================================================== */}
-          <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-2">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.sig_title}</label>
-              <button type="button" onClick={clearSignature} className="text-xs text-cyan-300 hover:text-cyan-100 transition-colors uppercase tracking-widest font-bold">
+              <button type="button" onClick={clearSignature} className="text-xs text-white/60 hover:text-white transition-colors uppercase tracking-widest font-bold">
                 {dict.sig_clear}
               </button>
             </div>
 
             {age !== null && age < 16 && (
               <div className="space-y-2 mb-3">
-                <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/40 border border-white/10">
                   <input 
                     type="checkbox" 
                     id="firma_menor_16" 
                     name="firma_menor_16" 
                     checked={formData.firma_menor_16} 
                     onChange={(e) => setFormData(prev => ({ ...prev, firma_menor_16: e.target.checked }))}
-                    className="w-4 h-4 rounded border-white/15 text-cyan-500 focus:ring-cyan-500/50 bg-white/5 cursor-pointer shrink-0"
+                    className="w-4 h-4 rounded border-white/10 text-white focus:ring-white/20 bg-black/40 cursor-pointer shrink-0"
                   />
                   <label htmlFor="firma_menor_16" className="text-xs text-white/90 cursor-pointer select-none">
                     {lang === 'en' 
@@ -1056,8 +1143,8 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 </div>
                 
                 {formData.firma_menor_16 && (
-                  <div className="space-y-1 p-2.5 rounded-xl bg-cyan-950/20 border border-cyan-800/30 animate-fade-in">
-                    <label className="text-[10px] text-cyan-300 uppercase tracking-wider font-semibold block truncate h-4">
+                  <div className="space-y-1 p-2.5 rounded-xl bg-white/5 border border-white/10 animate-fade-in">
+                    <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
                       {lang === 'en' ? 'Adult signing on behalf' : 'Adulto que firma en su nombre'}
                     </label>
                     <select 
@@ -1065,7 +1152,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                       name="adulto_responsable_id" 
                       value={formData.adulto_responsable_id} 
                       onChange={handleChange} 
-                      className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50 [&>option]:bg-gray-800"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                     >
                       <option value="">{dict.minor_adult_select}</option>
                       {adultsList.map((a) => (
@@ -1077,7 +1164,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               </div>
             )}
 
-            <div className="bg-black/40 border border-white/15 rounded-xl overflow-hidden touch-none relative shadow-inner">
+            <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden touch-none relative shadow-inner">
               <canvas
                 ref={canvasRef}
                 width={400}
@@ -1101,7 +1188,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
           <button 
             type="submit" 
             disabled={isSubmitting || isOcrProcessing || (age !== null && age < 18 && adultsList.length === 0)}
-            className="w-full mt-6 py-4 px-6 rounded-xl bg-white hover:bg-cyan-50 text-cyan-900 font-bold text-base transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider active:scale-99"
+            className="w-full mt-6 py-4 px-6 rounded-xl bg-white hover:bg-gray-150 text-gray-900 font-semibold text-base transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider active:scale-99"
           >
             {isSubmitting ? dict.btn_submitting : dict.btn_submit}
           </button>
@@ -1118,5 +1205,6 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         </form>
       </div>
     </div>
+  </div>
   );
 }

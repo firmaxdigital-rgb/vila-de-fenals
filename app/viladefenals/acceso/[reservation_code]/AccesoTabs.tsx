@@ -46,7 +46,7 @@ export default function AccesoTabs({
   const [unregisteredMinorsCount, setUnregisteredMinorsCount] = useState(0);
 
   // Dynamic share URL constructed from window.location.origin to match exact environments (local, staging, prod)
-  const [shareUrl, setShareUrl] = useState(`https://fenals.activavivienda.es/viladefenals/acceso/${reservation.reservation_code}/registro?lang=${lang}${testMode ? '&micro_charge=true' : ''}`);
+  const [shareUrl, setShareUrl] = useState(`https://viladefenals.activavivienda.es/viladefenals/acceso/${reservation.reservation_code}/registro?lang=${lang}${testMode ? '&micro_charge=true' : ''}`);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {

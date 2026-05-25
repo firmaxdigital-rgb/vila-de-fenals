@@ -7,7 +7,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { translations, Lang } from './i18n';
 
 function LanguageSelector({ currentLang }: { currentLang: string }) {
-  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
+  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'];
   const router = useRouter();
   const pathname = usePathname();
   
@@ -34,7 +34,7 @@ function SandboxContent() {
   
   const searchParams = useSearchParams();
   const langQuery = searchParams.get('lang') || 'es';
-  const lang: Lang = (['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'].includes(langQuery) ? langQuery : 'es') as Lang;
+  const lang: Lang = (['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
 
   const handleCopyWifi = () => {
