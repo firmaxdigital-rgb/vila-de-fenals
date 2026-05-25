@@ -16,13 +16,13 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
   const router = useRouter();
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') || 'es';
-  const isMicroCharge = searchParams.get('test_mode') === 'true' || searchParams.get('micro_charge') === 'true' || reservationCode === 'HMMR92E9DJ';
+  const isMicroCharge = searchParams.get('test_mode') === 'true' || searchParams.get('micro_charge') === 'true' || reservationCode === 'HMMR92E9DJ' || reservationCode === 'TEST7GUESTS' || reservationCode === 'TESTPROD';
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const totalToShow = isMicroCharge ? 0.10 : totalAmount;
+  const totalToShow = reservationCode === 'TESTPROD' ? 1.00 : (isMicroCharge ? 0.10 : totalAmount);
   const formattedTotal = totalToShow.toFixed(2);
 
   const handlePaymentRedirect = async (e: React.FormEvent) => {
@@ -170,7 +170,7 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
   return (
     <div className="space-y-6">
       {error && (
-        <div className="bg-red-500/20 border border-red-400/50 rounded-xl p-4 text-red-100 text-xs flex items-center gap-2">
+        <div className="bg-red-500/20 border border-red-400/50 rounded-xl p-4 text-red-100 text-sm flex items-center gap-2">
           <AlertCircle size={16} className="shrink-0 text-red-400" />
           <span>{error}</span>
         </div>
@@ -178,8 +178,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
 
       {payingGuests === 0 ? (
         <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center space-y-3">
-          <p className="text-emerald-300 text-sm font-bold">{dict.exempt_title}</p>
-          <p className="text-white/70 text-xs">{dict.exempt_desc}</p>
+          <p className="text-emerald-300 text-base font-bold">{dict.exempt_title}</p>
+          <p className="text-white/70 text-sm">{dict.exempt_desc}</p>
           
           <button
             onClick={handlePaymentRedirect}
@@ -196,34 +196,34 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       ) : (
         <form onSubmit={handlePaymentRedirect} className="space-y-4">
           <div className="border-t border-white/20 pt-4 flex justify-between items-baseline mb-2">
-            <span className="text-sm text-white/70">{dict.total}</span>
+            <span className="text-base text-white/70">{dict.total}</span>
             <span className="text-4xl font-extralight text-white tracking-tight">{formattedTotal}€</span>
           </div>
 
           {/* Premium Informative Billing Card */}
           <div className="space-y-3 bg-black/25 rounded-2xl p-4 border border-white/10 text-white/80">
-            <div className="flex justify-between items-center text-white/50 text-[10px] uppercase font-bold tracking-wider mb-2">
+            <div className="flex justify-between items-center text-white/50 text-xs uppercase font-bold tracking-wider mb-2">
               <span className="flex items-center gap-1">💳 Pasarela de Pago</span>
               <span className="flex items-center gap-0.5"><ShieldCheck size={12} className="text-emerald-400" /> PayComet Secure</span>
             </div>
 
-            <p className="text-xs leading-relaxed text-white/70">
+            <p className="text-sm leading-relaxed text-white/70">
               {dict.reassurance}
             </p>
 
             {/* Simulated credit card logos and security indicators */}
             <div className="flex items-center justify-between border-t border-white/10 pt-3 mt-1">
               <div className="flex gap-2 opacity-75">
-                <span className="text-[9px] uppercase border border-white/20 rounded px-1.5 py-0.5 font-bold tracking-widest bg-white/5 font-mono text-cyan-200">VISA</span>
-                <span className="text-[9px] uppercase border border-white/20 rounded px-1.5 py-0.5 font-bold tracking-widest bg-white/5 font-mono text-cyan-200">MC</span>
-                <span className="text-[9px] uppercase border border-white/20 rounded px-1.5 py-0.5 font-bold tracking-widest bg-white/5 font-mono text-cyan-200">BIZUM</span>
+                <span className="text-[11px] uppercase border border-white/20 rounded px-1.5 py-0.5 font-bold tracking-widest bg-white/5 font-mono text-cyan-200">VISA</span>
+                <span className="text-[11px] uppercase border border-white/20 rounded px-1.5 py-0.5 font-bold tracking-widest bg-white/5 font-mono text-cyan-200">MC</span>
+                <span className="text-[11px] uppercase border border-white/20 rounded px-1.5 py-0.5 font-bold tracking-widest bg-white/5 font-mono text-cyan-200">BIZUM</span>
               </div>
-              <span className="text-[9px] text-white/40 uppercase tracking-wider font-semibold">PCI-DSS Compliant</span>
+              <span className="text-[11px] text-white/40 uppercase tracking-wider font-semibold">PCI-DSS Compliant</span>
             </div>
           </div>
 
           {/* Secure details reminder */}
-          <div className="flex items-center gap-1.5 justify-center text-[10px] text-white/50">
+          <div className="flex items-center gap-1.5 justify-center text-xs text-white/50">
             <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>

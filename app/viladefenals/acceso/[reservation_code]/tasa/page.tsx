@@ -103,7 +103,7 @@ export default async function TasaTuristicaPage({ params }: { params: Promise<{ 
       <div className="relative z-20 max-w-md mx-auto pt-8 px-4">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+          <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
           <p className="text-cyan-300 text-xs tracking-[0.25em] uppercase font-bold">Tasa Turística</p>
         </div>
 
@@ -132,16 +132,16 @@ export default async function TasaTuristicaPage({ params }: { params: Promise<{ 
           <div className="mb-6 space-y-2">
             {payingGuestNames.length > 0 && (
               <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                <p className="text-[10px] uppercase tracking-wider text-teal-300 font-bold mb-1">Huéspedes Sujetos a Pago</p>
-                <ul className="text-xs text-white/80 list-disc list-inside space-y-0.5">
+                <p className="text-xs uppercase tracking-wider text-teal-300 font-bold mb-1">Huéspedes Sujetos a Pago</p>
+                <ul className="text-sm text-white/80 list-disc list-inside space-y-0.5">
                   {payingGuestNames.map((name, i) => <li key={i}>{name}</li>)}
                 </ul>
               </div>
             )}
             {exemptGuestNames.length > 0 && (
               <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                <p className="text-[10px] uppercase tracking-wider text-yellow-300 font-bold mb-1">Huéspedes Exentos</p>
-                <ul className="text-xs text-white/60 list-disc list-inside space-y-0.5">
+                <p className="text-xs uppercase tracking-wider text-yellow-300 font-bold mb-1">Huéspedes Exentos</p>
+                <ul className="text-sm text-white/60 list-disc list-inside space-y-0.5">
                   {exemptGuestNames.map((name, i) => <li key={i}>{name}</li>)}
                 </ul>
               </div>

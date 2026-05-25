@@ -37,7 +37,7 @@ function LanguageSelector({ currentLang }: { currentLang: string }) {
         <Link 
           key={l} 
           href={`?lang=${l}`}
-          className={`text-[10px] md:text-xs font-bold uppercase tracking-wider transition-colors ${currentLang === l ? 'text-white drop-shadow-md' : 'text-white/50 hover:text-white'}`}
+          className={`text-xs md:text-sm font-bold uppercase tracking-wider transition-colors ${currentLang === l ? 'text-white drop-shadow-md' : 'text-white/50 hover:text-white'}`}
         >
           {l}
         </Link>
@@ -61,7 +61,7 @@ export default async function AccesoPage({
   const lang: Lang = (['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
   const paymentStatus = resolvedSearchParams?.payment_status as string;
-  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true';
+  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD';
 
   console.log("Cargando reserva:", decodedCode, "TestMode:", testMode);
 
@@ -77,7 +77,7 @@ export default async function AccesoPage({
         <Background />
         <div className="relative z-20 max-w-md mx-auto pt-16 px-4">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+            <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
             <LanguageSelector currentLang={lang} />
           </div>
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 text-center">
@@ -165,7 +165,7 @@ export default async function AccesoPage({
         <Background />
         <div className="relative z-20 max-w-md mx-auto pt-16 px-4">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+            <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
             <LanguageSelector currentLang={lang} />
           </div>
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 text-center">
@@ -221,7 +221,7 @@ export default async function AccesoPage({
       <div className="relative z-20 max-w-md mx-auto pt-8 px-4">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+          <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
           <p className="text-cyan-300 text-xs tracking-[0.25em] uppercase font-bold mb-4">{dict.active_key}</p>
           <LanguageSelector currentLang={lang} />
         </div>

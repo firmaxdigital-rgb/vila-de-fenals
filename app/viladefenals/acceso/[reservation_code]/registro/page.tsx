@@ -714,7 +714,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
       <div className="relative z-20 max-w-xl mx-auto pt-8 px-4">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-light tracking-wider mb-2">Vila de Fenals</h1>
+          <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
           <LanguageSelector currentLang={lang} editId={editId} />
         </div>
 

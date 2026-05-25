@@ -1,0 +1,1754 @@
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  1 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+MANUAL DE INSTRUCCIONES DEL USUARIO DE LA WEB DE 
+REGISTRO DE VIAJEROS DE ESTABLECIMIENTOS DE 
+HOSPEDAJE  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+mossos d’esquadra Generalitat de Catalunya   
+Departament d’Interior i Seguretat Pública 
+Direcció General de la Policia  
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  2 
+ÍNDICE 
+ 
+ 
+ 
+ 
+1. Acceso a la web                   
+ 
+ 
+2. Procedimiento para darse de alta en la web                 
+ 
+ 
+3. Funciones básicas                   
+ 
+ 
+4. Creación y formato de los ficheros                 
+ 
+ 
+5. Olvido de la palabra de paso                   
+ 
+ 
+6. Otras formas de envío por razones especiales debidamente motivadas             
+ 
+ 
+7. Cartel aviso Clientes y Servicio de Atención al Usuario. Avisos y Novedades.  
+ 
+ 
+8. Coordenadas de un establecimiento.  
+ 
+ 
+9. Anexo. Ejemplo fichero .txt 
+ 
+              
+ 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  3 
+1. Acceso a la web  
+ 
+El acceso se encuentra en la dirección web http://mossos.gencat.cat/ca/inici/ en el apartado de 
+Servicios y trámites. 
+ 
+ 
+ 
+ 
+ 
+ 
+A continuación, escoja la opción Registro de viajeros de establecimientos de hospedaje 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  4 
+ 
+Puede acceder directamente al Registro de viajeros a través de la página de inicio al bajar la pestaña 
+lateral hasta Servicios y trámites. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Se mostrará la siguiente pantalla de información de las actividades de hospedaje y alquiler y es 
+necesario que escoja la actividad de Registro de viajeros de establecimiento de hospedaje . 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  5 
+ 
+Se mostrará la página web de registro de viajeros de establecimientos de hospedaje  con las 
+siguientes opciones: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+A. La opción Documentación y enlaces está subdividida en cuatro menús: 
+ Legislación: para informar a los usuarios de la normativa vigente relacionada con el 
+registro de viajeros. No es necesario estar dado de alta en la aplicación para consultarla, 
+es de uso común sin necesidad de acceder a ella con nombre de usuario ni palabra de 
+paso.  
+ Información envío de datos : para consultar/descargar el Manual de instrucciones del 
+usuario de la web. No es necesario estar dado de alta en la aplicación para acceder a ella, es 
+de uso común. 
+ 
+ Ficha de viajeros en blanco : para poder descargar la plantilla de la ficha de viajero. El 
+modelo de ficha individual se puede encontrar tanto en formato t ipo Word como en formato 
+PDF. Esta ficha se encuentra en diferentes idiomas, catalán, castellano, inglés y francés.  
+ 
+ Cartel aviso clientes:  es un letrero informativo que sirve para advertir a los clientes de la 
+normativa vigente, se puede descargar para imprimir en formato PDF. 
+ 
+B. La opción Mantenimiento de establecimientos está subdividida en cinco menús: 
+ Establecimientos asociados: permite cambiar ciertos parámetros de su hotel y consultar los 
+datos del establecimiento y de las personas asociadas al mismo (titular/representante). 
+ Cambia palabra de paso: para cambiar la contraseña que la policía Mossos le proporcionó al 
+darse de alta a través del correo suport.hotels@gencat.cat. Esta contraseña facilitada debe 
+modificarse en el primer acceso a la aplicación por otra que será exclusiva del 
+establecimiento. 
+ Reasignación hotel (establecimiento ): para cambiar el usuario del web asignado  al 
+establecimiento. El sistema pedirá los datos de acceso del usuario que se quie re modificar. 
+Una vez identificado se podrá cambiar. 
+ 
+ Alta establecimiento (generación PI-15): para darse de alta en el sistema debe rellenar el 
+formulario de alta de establecimiento (PI -15), firmarlo y enviarlo telemáticamente. Al mismo 
+tiempo hay que esc anear y adjuntar el DNI / NIE / NIF / Pasaporte de la/s persona/es que 
+figure/n en el formulario. 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  6 
+ 
+     Importante:  
+Es necesario adjuntar la licencia del Ayuntamiento o número de inscripción en el 
+Registro de Turismo de Cataluña para comprobar la licencia concedida. 
+ Envio PI-15: enlace donde se encuentra pestaña de añadir los archivos solicitados y hacer el 
+envío. 
+C. La opción Envío información viajeros  se encuentran los dos tipos de ficheros para enviar los 
+datos y son: las fichas individuales de viajeros y los ficheros masivos de viajeros. 
+D. La opción Acceso aplicación hospedaje  sirve para acceder a la ventana de entrada a la 
+aplicación. Es en esta ventana donde se debe introducir el usuario y la palabra de paso, que serán 
+facilitados para acceder a las funciones de registro y comunicación de viajeros. 
+E. La opción Preguntas más frecuentes  es una recopilación de las cuestiones efectuadas por los 
+usuarios de los establecimientos de hospedaje de forma más reiterada, con las correspondientes 
+respuestas. 
+2. Procedimiento para darse de alta en la web     
+ 
+Antes de iniciar este proceso de alta, habrá que tener en cuenta quién efectuará las comunicaciones.    
+ 
+Supuestos: 
+ 
+A. Efectúa las comunicaciones el titular del establecimiento. 
+B. Efectúa las comunicaciones la persona físic a/jurídica gestora (agencia inmobiliaria, etc.) 
+del establecimiento. 
+C. Efectúan las comunicaciones ambos, el titular y la persona física/jurídica gestora del 
+establecimiento. 
+ 
+Trámite por seguir en los supuestos A y B de este apartado: 
+ 
+Una vez se accede a l a página web en la dirección http://mossos.gencat.cat/ca/inici/, en el apartado 
+Servicios y trámites y a continuación Registro de viajeros de establecimientos de hospedaje , los 
+sujetos obligados pueden darse de alta en la web siguiendo las siguientes instrucciones: 
+ 
+1. Se debe seleccionar la opción Alta de establecimiento que se encuentra a la izquierda de la 
+página, y rellenar el Formulario de alta de establecimiento (PI 15) . Para la gestión del alta, 
+es obligatorio que se rellenen todos los campos del formulario a excepción del campo fax y 
+los campos contenidos en el apartado "Datos de la persona física o jurídica gestora de las 
+comunicaciones" que son opcionales. 
+ 
+Una vez rellenado, impreso y firmado el form ulario (PI 15), deberá escanear los documentos 
+DNI / NIE / NIF / Pasaporte de la/las persona/es que figure/n en el formulario. Es necesario 
+adjuntar la licencia del ayuntamiento o número de inscripción en el Registro de 
+Turismo de Cataluña para agilizar la comprobación la licencia concedida. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  7 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  8 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+IMPORTANTE: Al generar la PREALTA se les informará de un número. El formulario PREALTA 
+generado en su ordenador deberá de enviarlo firmado a través del enlace denominado Envío 
+Formulario de alta (PI 15) junto con la documentación requerida. 
+ 
+2. Seguidamente, se deberá seleccionar la opción del enlace denominado Envío Formulario 
+de alta (PI 15), que abrirá un formulario que permite adjuntar la documentación anterior.1  
+ 
+3. Enviada la documentación, aparecerá un mensaje de confirmación de operación realizada 
+correctamente. Entonces habrá que esperar a que la Unidad Regional de Policía 
+Administrativa (en adelante URPA) se ponga en c ontacto con el establecimiento para darle 
+acceso a la web.  
+ 
+4. Una vez disponga de los datos de acceso, podrá entrar en la web desde la dirección 
+http://mossos.gencat.cat/ca/inici/, en el apartado  Servicios y trámites y a continuación  
+Registro de viajeros de establecimientos de hospedaje. 
+ 
+ Cuando se acceda por primera vez a la aplicación se deberá cambiar la palabra de 
+paso. Si el usuario se equivoca más de tres veces al introducir la palabra de paso, se 
+bloqueará su acceso y deberá reactivarse automáticamente siguiendo las 
+indicaciones del procedimiento "¿Ha olvidado la palabra de paso?". 
+ La palabra de paso no caduca. Se recuerda la obligación de mantener en secreto el 
+código de usuario y la palabra de paso p ara acceder al sistema. El usuario es el único 
+responsable de las consecuencias que se puedan derivar de su mal uso, divulgación 
+o pérdida. 
+ 
+ 
+ 
+ 
+ 
+ 
+                                                      
+1 Es podrà adjuntar fins a 8 arxius. Cada arxiu potser de 5 MB. Mida màxima entre els 8 adjunts: 15MB  
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  9 
+ Una vez se disponga del código de usuario y de la palabra de paso, se podrá acceder al aplicativo. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                  
+ 
+ 
+ 
+5. En los casos excepcionales en que se acredite la imposibilidad de enviar el formulario 
+telemáticamente, se podrá presentar en cualquier comisaría de la Policía de la Generalitat - 
+Mossos d'Esquadra: 
+ 
+ En el caso de que entregue el for mulario PI 15 la persona física / jurídica titular del 
+establecimiento, deberá llevar dos copias del formulario y presentar su documentación 
+acreditativa (DNI / NIE / NIF / Pasaporte). 
+ En el caso de que entregue el formulario PI 15 otra persona, deberá lle var dos copias2 
+del formulario y fotocopia del DNI / NIE / NIF / Pasaporte de la persona física / jurídica 
+titular del establecimiento que figure en el formulario. 
+ 
+Las direcciones de las sedes regionales (URPA), así como la localización de comisarías del 
+Cuerpo de Mossos d'Esquadra, se pueden consultar en el apartado Alta Establecimiento. 
+ 
+ 
+Trámite para seguir en el supuesto C de este apartado: 
+En caso de que el titular y uno o más gestores quisieran comunicar a los clientes de un mismo 
+establecimiento –sin duplicar la comunicación de un mismo cliente -, cada uno deberá disponer de 
+un código de usuario diferente . Por tanto, todo el mundo deberá tramitar su alta y comunicar los 
+datos de las personas alojadas con su código de usuario y, en consecuencia, se res ponsabilizará del 
+registro y de la comunicación de los datos de los clientes de acuerdo con la normativa vigente.  
+Este supuesto es habitual en el caso de las viviendas de uso turístico, casas rurales, refugios, 
+albergues y otros, siempre que el titular así lo decida. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  10 
+Ejemplo del proceso de alta: 
+ 
+ 
+ 
+             
+      Paso 1: Formulario PI15        Paso 2: Envío    Paso 3: Añadir documentos 
+ 
+Paso 1: Rellenar el formulario PI15 correctamente, imprimir y firmar. 
+Paso 2: Abrir pestaña Envío PI-15 
+Paso 3: Envío del PI15 firmado en pdf y la copia de la documentación acreditativa (DNI / NIE / 
+Pasaporte / NIF) de la/las persona/es que figure/in en el PI15. 
+ 
+IMPORTANTE: Adjuntar la licencia del Ayuntamiento o número de inscripción en el Registro de 
+Turismo de Cataluña para comprobación de documentación. 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  11 
+3. Funciones básicas  
+ 
+3.1 Establecimientos asociados 
+ 
+El establecimiento puede configurar y personalizar alguno de los parámetros y datos relativos a la 
+aplicación. También, el usuario podrá consult ar los datos de su establecimiento y los datos asociados 
+al mismo (titular/representante). Para ello, una vez se ha accedido a la aplicación, se debe ir al 
+apartado Mantenimiento de establecimientos  y a continuación a Establecimientos asociados  
+desde donde se puede: 
+ 
+ Modificar el idioma: esta opción permite configurar el idioma de preferencia (catalán o 
+castellano), en el que se quiere que se muestren los mensajes de la aplicación. Este punto se 
+validará en el siguiente acceso del usuario a la aplicación. 
+ 
+ Modificar el tipo de envío: permite seleccionar el tipo de envío por fichas individuales o por 
+ficheros masivos. Determina la pantalla de inicio del usuario. 
+ 
+Cambio de datos establecimiento: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  12 
+ 
+3.2 Cambio de palabra de paso 
+ 
+La otra gestión permitida es el cambio de la palabra de p aso a la que se acced e a través del enlace 
+de Mantenimiento de establecimientos / Cambio de palabra de paso de la barra de menú.  
+ 
+    
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.3   Reasignación hotel a usuario 
+ 
+La función "Reasignación hotel" permite cambiar al usuario asignado a un establecimiento. Ejemplo:  
+- USUARI A está asignado a HOTEL A  
+- USUARI B está asignado a HOTEL B 
+USUARIO A y USUARIO B son la misma persona (gestor de HUTs) y quiere gestionar todos los 
+establecimientos desde el USUARIO A. Introduciendo el ID policial del HOTEL B y las credenciales 
+del USUARIO B, se hará la reasignación al USUARIO A. Después de la reasignación, HOTEL A y 
+HOTEL B, quedarán asignados a USUARIO A. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  13 
+ 
+3.4   Entrada de clientes ficha a ficha 
+ 
+Una vez se ha introducido el usuario y la palabra de paso se accede a la parte de la web exclusiva de 
+los establecimientos usuarios. 
+Con el botón Nueva ficha, se accede a la ventana de entrada de clientes y se introducen los dat os, 
+luego se debe pulsar Aceptar y el registro quedará en la lista de clientes preparados para enviar. Una 
+vez se han introducido todos los registros se puede hacer el envío desde Enviar registros. La lista 
+de clientes para enviar se puede ver desde la opción de menú Fichas individuales de viajeros.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  14 
+  
+Ventana para introducir los datos de los clientes:  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+El campo tipo de registro da la opción Contrato en curso o Reserva . Una vez se haya rellenado 
+la ficha del cliente, se tendrá que Aceptar. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+La aplicación da la posibilidad de imprimir fichas en blanco para aquellos establecimientos que lo 
+necesiten.   
+ 
+Desde la opción Establecimientos asociados  se configura el ti po de envío, por lo tanto, si el 
+establecimiento configura Fichas individuales de viajeros  cuando se entre en la aplicación 
+trabajará directamente desde esta pantalla.   
+ 
+Haciendo clic sobre la opción Enviar Fichas , se enviarán todos los registros pendient es de 
+enviar. Una vez enviados, los registros que aparecían en el listado desaparecerán y la 
+información de todos los registros se enviará automáticamente a los Mossos d'Esquadra y 
+mostrará el mensaje: Operación realizada con éxito. Descargar comprobante de envío. 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  15 
+El sistema generará un comprobante de envío (reporte) si el usuario toma la opción Descargar 
+comprobante de envío  que podrá guardar y/o imprimir . (Este comprobante no se considera 
+registro) 
+ 
+ 
+ 
+La página web no almacena a los clientes enviad os por los establecimientos, por lo tanto, 
+no existe un histórico de las comunicaciones efectuadas por éstos. En ningún caso la 
+Policía de la Generalitat Mossos d'Esquadra facilitará los datos de los clientes enviados a 
+ningún establecimiento que así lo solicite.    
+ 
+Se puede acceder a los detalles de un registro desde el listado de la pantalla de Fichas 
+individuales de viajeros pulsando sobre su fecha. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  16 
+La pantalla de Detalle de registro de viajero tiene el siguiente aspecto: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  17 
+Desde la pantalla Detalle registro viajero se puede:  
+ 
+1. Modificar una ficha. Primero se debe modificar el campo a corregir y luego se debe hacer clic 
+sobre Modificar Ficha.  
+2. Borrar la ficha. Haciendo clic sobre Borrar ficha se elimina la ficha.  
+3. Volver atrás. Haciendo clic sobre Volver.  
+4. Imprimir la ficha. Haciendo clic sobre Imprimir ficha se genera un fichero pdf con los detalles 
+de la ficha del viajero que se puede guardar y/o imprimir.         
+ 
+Mientras el usuario introduce a los viajeros de forma individual, también existe la posibilidad de 
+efectuar una búsqueda por N. documento viajero (número de documento), siempre antes de hacer 
+el envío. 
+Esta utilidad sirve para que el usuario pueda buscar un viajero previamente introducido en la sesión, 
+para comprobar o modificar los datos. 
+ 
+Criterio de búsqueda del viajero: 
+ 
+ 
+ 
+ 
+3.4  Enviament de fitxers massius 
+ 
+ 
+ 
+ 
+ 
+ 
+3.5 Envío de ficheros masivos 
+ 
+Desde la opción Mantenimiento de establecimientos y a cont inuación a Datos establecimientos 
+se configura el tipo de envío, por tanto, si el establecimiento configura Archivos masivos de 
+viajeros, cuando entre en la aplicación trabajará siemp re desde la misma ventana, es  decir, el 
+tipo de envío quedará predefinido por los próximos envíos 
+ 
+Si el establecimiento dispone de un programa que le genera un fichero (con la estructura 
+especificada en la Resolución de 14 de julio de 2003 de la Secretaría de Estado de Seguridad) 
+debe adjuntarlo y enviarlo directamente desde la web. 
+ 
+envío de ficheros: 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  18 
+Para adjuntar el fichero que genera la aplicación informática del establecimiento se debe hacer lo 
+siguiente: Pulsar el icono Elige un fichero  y explorar en el sistema informático del 
+establecimiento el fichero con los datos  de viajeros que se quiere enviar, seleccionarlo y hacer 
+clic sobre Aceptar. 
+ 
+Adjuntar fichero: 
+ 
+ 
+La aplicación detecta automáticamente el formato del archivo. Si el formato no es válido, se muestra 
+un mensaje con la lista de errores que hay, en caso de s er correcto se muestra el mensaje conforme 
+se ha hecho la operación correctamente, con el mensaje Operación realizada con éxito. Descargar 
+comprobante de envío.  
+Si el usuario toma la opción Descargar comprobante de envío  el sistema generará un comprobante  
+de envío (reporte) que se podrá guardar y/o imprimir , al igual que en el envío de fichas individuales. 
+(Este comprobante no se considera registro)   
+ 
+La página web no almacena a los clientes enviados por los establecimientos, por lo tanto, no 
+existe un hi stórico de las comunicaciones efectuadas por éstos. En ningún caso la PG -Vallès 
+d'Esquadra facilitará los datos de los clientes enviados a ningún establecimiento que así lo 
+solicite. 
+ 
+3.6 Área de usuario 
+ 
+Desde la opción cambiar la contraseña se puede realizar este cambio y desde la opción “Mi perfil” s e 
+puede modificar el correo electrónico asociado al usuario. 
+ 
+ 
+4. Creación y formato de los ficheros  
+ 
+El envío masivo supone la previa confección de un archivo que debe reunir unas características 
+específicas.  
+ 
+Creación de un fichero en formato texto (*.txt) con la estructura especificada en la Resolución de 14 
+de julio de 2003 de la Secretaría de Estado de Seguridad (ver anexos).  
+ 
+Es un único fichero que incluye los datos del establecimiento y los de los nuev os clientes alojados 
+(esto quiere decir que sólo deben enviar las altas de cada cliente en el plazo máximo de 24 horas 
+desde su llegada. Por lo tanto, no es necesario volver a relacionar a los clientes que ya han sido 
+informados en envíos anteriores).  
+ 
+El nombre de los ficheros está compuesto por el identificador del establecimiento facilitado por los 
+Mossos d'Esquadra y que consta de 9 o 10 caracteres, un punto ".", una secuencia numérica de tres 
+dígitos (empezará por ".001" y al llegar a ".999" volverá a reiniciarse en ".001). 
+ 
+Ejemplos: 08043AAR02.001... 08043AAR02.999, 08043AAR02.001 
+ 
+La extensión de fichero común a todos los ficheros será (".txt") por tratarse de un documento de texto 
+plano.   
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  19 
+ 
+ESPECIFICACIONES GENERALES  
+Los campos del registro  de datos de clientes se *separarán con el carácter "*pipe" ("|") sin que sea 
+necesario mantener la longitud total del campo. 
+Cuando algún campo no tenga contenido, el carácter "*pipe" "|" continuará siendo obligatorio.  
+No se permiten las abreviaturas, y siempre hay que utilizar los caracteres específicos del alfabeto 
+occidental.  
+Los apellidos compuestos van separados por un único espacio en blanco, no por otros signos.   
+Los valores alfabéticos van en mayúsculas.  
+Todos los valores van alineados a la izquierda.  
+Los registros que contenga el fichero, a excepción del último, deben estar separados por un retorno 
+de carro y un salto de línea, es decir, cada registro de cliente es una línea nueva.  
+ 
+CONTENIDO DE LOS FICHEROS  
+El fichero está compuesto por:  
+• Registro de tipo 0 (sólo cuando se trate de una agrupación hotelera/arrendador).  
+• Registro de tipo 1 (datos e identificador policial del establecimiento) 
+• Registro de tipo 2 (datos del viajero). 
+ 
+LÍNEA AGRUPACIÓN 
+ORDEN 
+CAMPO NOMBRE CAMPO
+TAMAÑO 
+MÁXIMO 
+CAMPO
+¿ES 
+OBLIGATORIO?
+¿SE DEBE 
+INFORMAR EN 
+MAYÚSCULAS?
+RESTRICCIONES
+1 Tipo registro 1 SI NO
+El valor siempre será "0" . Es el 
+identificador que permite identificar el 
+tipo de registro y cómo se tratará 
+éste.
+2 Número de 
+registros 5 SI NO Debe ser un dígito válido.
+ 
+ 
+ 
+OTRAS CONSIDERACIONES      
+· Se validará que el número de campos coincida con lo esperado (2 campos).    
+· Se validarán las longitudes máximas de todos los campos      
+· Se validará que los campos que deben informarse en mayúscula realmente estén informados en 
+mayúscula.      
+· Se validará que el número de establecimientos informados coincida con el número de 
+establecimientos detectados.      
+· Se validará que el registro 0 únicamente aparezca una vez en el fichero.    
+· Se validará que el registro 0 únicamente pueda aparecer al principio del fichero.   
+· Se validará que en el fichero únicamente haya un establecimiento informado en caso de no informar 
+el registro 0 (agrupación). 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  20 
+ 
+LÍNEA ESTABLECIMIENTO 
+ORDEN 
+CAMPO NOMBRE CAMPO
+TAMAÑO 
+MÁXIMO 
+CAMPO
+¿ES 
+OBLIGATORIO?
+¿SE DEBE 
+INFORMAR EN 
+MAYÚSCULAS?
+RESTRICCIONES
+1 Tipo registro 1 SI NO
+El valor siempre será "1" . Es el 
+identificador que permite identificar 
+el tipo de registro y cómo se tratará 
+éste.
+2 Código 
+establecimiento 10 SI NO
+El código del establecimiento debe 
+corresponder a uno de los 
+establecimientos asociados al 
+usuario que carga el fichero en la 
+web.
+3 Nombre 
+establecimiento 40 SI SI Sin restricciones
+4 Fecha confección 8 SI NO La fecha debe estar informada en 
+formato "yyyyMMdd"
+5 Hora confección 4 SI NO La fecha debe estar informada en 
+formato "HHmm"
+6 Número de 
+registros 5 SI NO Debe ser un dígito válido.
+7 Formato fichero 3 NO NO
+En caso de ir informado, el valor 
+siempre debe ser "V24".  
+IMPORTANTE: Este campo es muy 
+importante ya que activa las 
+validaciones sobre los nuevos 
+campos. En caso de no informarse 
+este valor, el formato que tratará el 
+fichero será el anterior a las 
+adaptaciones.
+ 
+ 
+ 
+OTRAS CONSIDERACIONES      
+· Se validará que el número de campos coincida con lo esperado (7 campos).    
+· Se validarán las longitudes máximas de todos los campos.      
+· Se validará que los campos que deben informarse en mayúscula, realmente estén informados en 
+mayúscula.      
+· Se validará que el número de viajeros informa do corresponda al detectado por cada uno de los 
+establecimientos.      
+· Se validará que el código de establecimiento informado sea uno de los establecimientos asociados 
+al usuario.      
+· La fecha y hora de confección NO puede ser posterior al momento en el que se carga el fichero.
+      
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  21 
+LÍNEA VIAJERO 
+ORDEN 
+CAMPO 
+NOMBRE  TAMAÑO 
+MÁXIMO 
+CAMPO 
+ES OBLIGATORIO? SE HA DE 
+INFORMAR EN 
+MAYÚSCULA? 
+RESTRICCIONES 
+1 Tipo registro 1 SI NO   
+2 Número de 
+documento 
+español 
+11 OBLIGATORIEDAD 
+CONDICIONADA 
+NO   
+3 Número de 
+documento 
+estranjero 
+14 OBLIGATORIEDAD 
+CONDICIONADA 
+NO   
+4 Tipo de 
+documento 
+identificador 
+1 OBLIGATORIETAT 
+CONDICIONADA 
+SI CAMPO CON CODIFICACIÓN 
+RESTRINGIDA. Consulta 
+codificación 
+TIPUS_DOCUMENTO 
+5 Fecha 
+expedición 
+documento 
+identificador 
+8 NO NO Format "yyyyMMdd". La data ha 
+de ser igual o anterior a l'actual. 
+No pot ser posterior. 
+6 Primer apellido 30 SI SI   
+7 Segundo 
+apellido 
+30 OBLIGATORIEDAD 
+CONDICIONADA 
+SI   
+8 Nombre 30 SI SI   
+9 Sexo 1 NO SI CAMPO CON CODIFICACIÓN 
+RESTRINGIDA. Consulta 
+codificación TIPUS_SEXO 
+10 Fecha 
+nacimiento 
+8 OBLIGATORIEDAD 
+CONDICIONADA 
+NO Format "yyyyMMdd". La data ha 
+de ser igual o anterior a l'actual. 
+No pot ser posterior. 
+11 Pais 
+nacionalidad 
+21 NO SI Codificació ISO 3166-1 Alfa-3 
+12 Fecha entrada 8 SI NO Formato "yyyyMMdd" 
+13 Hora entrada 4 SI NO Formato "HHmm" 
+14 Fecha salida 8 SI NO Formato "yyyyMMdd" 
+15 Hora salida 4 SI NO Formato "HHmm" 
+16 Fecha 
+contracto 
+8 SI NO Formato "yyyyMMdd". La fecha 
+ha de ser igual o anterior a la 
+actual. No puede ser posterior. 
+17 Tipo contracte 1 SI NO CAMPO CON CODIFICACIÓN 
+RESTRINGIDA. Consulta 
+codificación 
+TIPUS_CONTRATO 
+18 Número 
+contracto 
+20 SI NO   
+19 Número 
+viajeros 
+3 SI NO Dígito válido. Número entre el 1 i 
+el 999. 
+20 Número 
+habitaciones 
+3 NO NO Dígito válido. Número entre el 1 i 
+el 999. 
+21 El hotel 
+dispone de 
+internet? 
+1 NO NO S (Si) / N (No) 
+22 Tipo pago 5 SI NO CAMPO CON CODIFICACIÓN 
+RESTRINGIDA. Consulta 
+codificación TIPUS_PAGO 
+23 Teléfono 20 INFORMAR 
+TELÉFONO O EMAIL 
+NO   
+24 Relación de 
+parentesco 
+2 OBLIGATORIEDAD 
+CONDICIONADA 
+NO CAMPO CON CODIFICACIÓN 
+RESTRINGIDA. Consulta 
+codificación 
+TIPUS_PARENTESCO 
+25 Email 100 INFORMAR 
+TELÉFONO O EMAIL 
+NO Email vàlido. Ejemplo: 
+correugencat@gencat.cat 
+26 Número 
+soporte 
+documento 
+identificativo 
+9 OBLIGATORIEDAD 
+CONDICIONADA 
+NO 9 carácteres EXACTOS. 
+27 Dirección 
+postal 
+100 OBLIGATORIEDAD 
+CONDICIONADA 
+NO   
+28 Provincia 
+postal 
+2 OBLIGATORIETAT 
+CONDICIONADA 
+NO Codificación INE (2 dígitos) . 
+Para las províncias con dígito 
+único, informamos el 0 delante.  
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  22 
+Ejemplo: 08 (Barcelona) 
+29 Municipi postal 6 OBLIGATORIEDAD 
+CONDICIONADA 
+NO Codificación INE (6 digitos) 
+30 Localitat postal 100 OBLIGATORIEDAD 
+CONDICIONADA 
+NO   
+31 Pais postal 3 OBLIGATORIEDAD 
+CONDICIONADA 
+NO Codificación ISO 3166-1 Alfa-3 
+32 Código postal 20 OBLIGATORIEDAD 
+CONDICIONADA 
+NO 5 dígitos exactos por país 
+España, hasta 20 dígitos si pais 
+diferente de Espanya. 
+ 
+ 
+OTRAS CONSIDERACIONES      
+· Se validará que el número de campos coincida con lo esperado (32 campos)    
+· Se validarán las longitudes máximas de todos los campos      
+· Se validará que los campos que deben informarse en mayúscula realmente estén informados en 
+mayúscula.      
+· Si la edad del viajero es superior a 14 años (se calcula con la fecha de nacimiento) y se CONTRATO 
+EN CURSO se ej ecutarán las validaciones sobre tipo de documento, documentos identificadores y 
+segundo apellido.      
+> No pueden ir informados el número de documento español y el número de documento extranjero  
+> El número de documento extranjero y el número de documento  español NO pueden contener el 
+carácter "%"      
+> El número de documento español SÓLO ira informado en caso de que el tipo de documento sea "D" 
+(DNI/NIF), o "P" (PASAPORTE ESPAÑOL).      
+> El número de documento extranjero SÓLO irá informado en caso de qu e el tipo de documento sea 
+"P" (PASAPORTE EXTRANJERO), "N" (NIE) o “OTRO” (OTROS IDENTIFICADORES).   
+> Si informamos un NIF o un NIE, se validará el formato.      
+> Si el tipo de documento corresponde a DNI/NIF, deberemos informar el segundo apellido .  
+· La fecha y hora de salida NO podrá ser anterior a la fecha y hora de entrada.    
+· Si el tipo de documento corresponde a NIF/DNI/NIE, debemos informar al número de apoyo.   
+· Si es CONTRATO EN CURSO y el viajero es menor de 18 años, se debe informar la relac ión de 
+parentesco.      
+· Si es CONTRATO EN CURSO, los datos postales del viajero SON OBLIGATORIAS (campos 27 a 32) 
+> Si país = ESPAÑA, informamos obligatoriamente municipio y provincia.    
+> Si país NO es ESPAÑA, informamos obligatoriamente localidad.     
+· Todos los campos que NO son obligatorios por una RESERVA, no se validarán mientras NO estén 
+informados. Si se informan, aplican las mismas validaciones que por un CONTRATO EN CURSO . 
+· La fecha de nacimiento es obligatoria SOLO para los registros de tipo s CONTRATO EN CURSO. 
+Para las reservas, es opcional.      
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  23 
+CODIFICACIÓN 
+TIPOS DE DOCUMENTOS 
+Valor a informar al fichero Equivalencia 
+D NIF / DNI / TIE 
+N Permiso de residencia español (NIE) 
+P Pasaporte 
+O Otros documentos 
+TIPO DE SEXE 
+Valor a informar al fichero Equivalencia 
+M Masculino 
+F Femenino 
+O Otro 
+TIPOS DE  PAGO 
+Valor a informar al fichero Equivalencia 
+DESTI Pago en destino 
+EFECT Efectivo 
+MOVIL Pago por móvil 
+OTRO Otros medios de pago 
+PLATF Plataforma de pago 
+TARJT Tarjeta de crédito 
+TRANS Transferencia 
+TREG Tarjeta regalo 
+TIPOS DE CONTRATO 
+Valor a informar al fichero Equivalencia 
+C Contrato en curso 
+R Reserva 
+TIPOS DE PARENTESCO 
+Valor a informar al fichero Equivalencia 
+AB Abuelo/abuela 
+BA Bisabuelo/bisabuela 
+BN Bisnieto/Bisnieta 
+CD Cuñado/cuñada 
+CY Cónyuge 
+HJ Hijo/hija 
+HR Hermano/hermana 
+NI Nieto/nieta 
+OT Otros 
+PM Padre/madre 
+SB Sobrino/sobrina 
+SG Suegro/suegra 
+TI Tio/tia 
+TU Tutor/tutora 
+YN Yerno/nuera 
+ 
+ 
+      
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  24 
+5. Olvido de la palabra de paso 
+ 
+Si el usuario ha olvidado su palabra de paso, ésta se puede reactivar. Esta opción se encuentra 
+en la página principal de la web de registro de viajeros de establecimientos de hospedaje, ¿Ha 
+olvidado su palabra de paso? 
+ 
+ 
+ 
+ 
+ 
+ 
+    
+  
+ 
+ 
+Si se toma esta opción se abre la siguiente pantalla, en la que se debe informar del código de 
+usuario que es el número de identificador policial del establecimiento y del correo de contacto 
+que se informó en el formulario PI15 de prealta. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  25 
+Una vez introducida esta información se ha apretar Reinicializar palabra de paso. 
+ 
+ 
+ 
+ 
+La nueva palabra de paso se envía automáticamente al correo especificado.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  26 
+6. Otras formas de envío por razones especiales debidamente motivadas  (art. 
+4 de la Orden IRP/418/2010, de 5 de agosto del DIRIP) 
+ 
+Cuando los establecimientos no puedan efectuar la comunicación de los datos por medios 
+telemáticos, por razones especiales debidamente motivadas, podrán hacerlo por correo, fax o 
+entregando los datos directamente a una comisaría de la Policía de la Generalitat-Mozos de Escuadra 
+(PG-ME).   
+ 
+En este caso debe comunicarse este hecho a través de un escrito dirigido al Director General de la 
+Policía, detallando las razones especiales a que se refiere el art. 4 de la Orden  IRP/418/2010, de 5 de 
+agosto del DIRIP y entregarlo a la comisaría de la PG-ME más cercana.   
+ 
+La recepción de este documento no comportará la necesidad de que ningún servicio de la 
+Administración haga una respuesta por escrito ni ninguna resolución de au torización. 
+ 
+COMUNICACIÓN DE DATOS PERSONALMENTE O POR CORREO A LAS COMISARÍAS  
+ 
+Los establecimientos que presenten directamente los datos o bien los envíen por correo a las 
+comisarías de su población deberán rellenar el formulario PI -15 que se le facilitará en su comisaría de 
+referencia y copia de los documentos de identidad de las personas encartadas.   
+ 
+Los datos se cumplimentarán con mayúsculas y se hará una copia, el original quedará en las 
+dependencias policiales y el otro se devolverá al establecimie nto una vez se haya justificado su 
+recepción.   
+ 
+COMUNICACIÓN VÍA FAX  
+ 
+Los establecimientos de hospedaje que comuniquen por vía fax los datos de las personas alojadas, 
+deben hacerlo en la comisaría de la población o del distrito donde radique el estableci miento. Deben 
+enviar por fax el formulario PI 15 rellenado y los documentos requeridos para hacer el alta del 
+establecimiento. La PG -ME dejará constancia de su recepción a través del justificante 
+correspondiente. 
+ 
+7. Cartel de aviso a los clientes 
+ 
+Los usuarios podrán descargar carteles de aviso para exponer en sus establecimientos:  
+ 
+El Artículo 4 del Real Decreto 933/2021, de 26 de octubre, sobre la obligación de registro y 
+comunicación a la policía de las personas que se alojan a los establecimientos de hosp edaje 
+ 
+“Las personas que se alojan en los establecimientos de hospedaje ubicados en Cataluña, se 
+tienen que registrar obligatoriamente” 
+ 
+Según la LOPSC 4/2015, en el artículo 9 apartado 1 dice textualmente: 
+ 
+“El Documento Nacional de Identidad es obligator io a partir de los catorce años. Este 
+documento es personal e intransferible, correspondiendo a su titular mantenerlo vigente y 
+conservarlo y custodiarlo con la debida diligencia. No podrá ser privado del mismo, ni siquiera 
+temporalmente, excepto los supue stos que, conforme el que prevé la Ley, tenga que ser 
+sustituido por otro documento.” 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  27 
+Para advertir a sus clientes de la normativa vigente, se dispondrá dentro del menú Documentación 
+del cartel informativo para tal efecto. 
+ 
+ 
+ 
+ 
+Si se clica la opc ión Cartel Aviso Clientes  se abre una ventana donde se muestra el cartel de aviso 
+a los clientes en diferentes idiomas: catalán, castellano, francés, inglés y alemán . 
+ 
+ 
+ 
+ 
+Si tomamos en la frase de Descarga Cartel Aviso Clientes  del idioma que se des ee se podrá 
+guardar y/o imprimir. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  28 
+7.1 Servicio de atención al usuario 
+ 
+A disposición de los establecimientos hay un Servicio de Atención al Usuario (SAU) que está 
+operativo los 365 días del año y durante las 24 horas del día, con el fin de apoyar y sol ucionar todas 
+aquellas incidencias técnicas y/o consultas que puedan surgir con la página web de registro de 
+viajeros de los establecimientos de hospedaje. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Dentro del recuadro del Servicio de Atención al Usuario, se encuentra el link Consulte las preguntas 
+más frecuentes antes de contactar, aquí se muestra una recopilación de las cuestiones efectuadas 
+por los usuarios de los establecimientos de hospedaje de forma más reiterada, con las 
+correspondientes respuestas.   
+Si no se puede resolver la dud a y/o incidencia, consultando las preguntas más frecuentes, se 
+encuentra la opción Por teléfono, llamando al número de teléfono 93 486 84 26 se recibe atención 
+telefónica con el servicio de atención al usuario. 
+Si se quiere enviar la consulta y/o incidencia por medio de un correo electrónico, se encuentra la 
+opción Formulario de Incidencia/Consulta, al pulsar esta opción se abre una pantalla con una serie 
+de campos para rellenar, todos los campos son obligatorios excepto el fichero adjunto. Para hacer 
+uso del formulario es necesario que el usuario sea un hotel registrado y conozca su Identificador 
+Policial, en caso de no ser así las consultas sólo se podrán realizar vía telefónica.   
+Al formulario se puede acceder tanto si el establecimiento está logado en l a página web de registro de 
+viajeros como si no lo está. Si el establecimiento accede al formulario una vez que ya ha entrado con 
+su código de usuario y palabra de paso (logado), los campos Nombre establecimiento, 
+Identificador policial, Correo electrónico y Teléfono se rellenan automáticamente.  
+A continuación, se muestra la pantalla de ejemplo:  
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  29 
+ 
+En caso de no estar logado, todos los campos estarán en blanco. En ambos casos todos los campos 
+se pueden modificar por el usuario.   
+En el campo Motivo de la incidencia/consulta el usuario debe introducir una descripción del motivo 
+por el que se pone en contacto con el servicio de atención al usuario y cuáles son sus necesidades.   
+El campo Fichero Adjunto es el único campo opcional y permite al usuario aña dir archivos, como por 
+ejemplo capturas de pantalla, con el fin de mejorar la información.  
+A continuación, se muestra el formulario de consulta con todos los campos en blanco, como si se 
+accediera sin estar logado. (identificado)  
+                                          
+  
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  30 
+Al apretar el botón Aceptar se validará que todos los campos obligatorios estén informados y que de 
+identificador Policial exista en la aplicación. En caso afirmativo se enviará el mensaje al SAU y otro de 
+justificante de envío al corr eo electrónico de contacto. Si alguna validación no fuera correcta se 
+mostrará un mensaje por pantalla.   
+Los campos erróneos se mostrarán de color rojo. A continuación, se muestra una pantalla de ejemplo 
+de error.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  31 
+7.2 Avisos y novedades 
+ 
+Se trata de un sistema de avisos para mejorar la comunicación entre el Cuerpo de Mossos 
+d'Esquadra y los establecimientos de hospedaje que acceden a la aplicación.   
+ 
+En esta pantalla se reflejarán los avisos y novedades que deban difundirse en el sector. 
+ 
+ 
+ 
+Si se toma encima del resumen del aviso o novedad  se abrirá una pantalla donde se amplía la 
+información que se quiere dar a conocer al sector. 
+ 
+7.3 Denuncia por Internet 
+ 
+Es una aplicación informática de la Policía de la Generalitat-Vallès d'Esquadra ajena a la web de 
+Registro de viajeros de establecimientos de hospedaje. Este enlace redirecciona directamente a la 
+web de Denuncias por Internet para facilitar su localización. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  32 
+8. Coordenadas de un establecimiento 
+ 
+¿Cómo obtener las coordenadas de un establecimiento?  
+ 
+Pasos a seguir:  
+1. Abre Google Maps en tu computadora: https://www.google.com/maps  
+2. Busca el lugar del que deseas obtener las coordenadas.  
+3. Haz clic con el botón derecho en el lugar o en el área del mapa. Se abrirá una ventana emergente. 
+Puedes encontrar la latitud y la longitud en formato decimal en la parte superior .  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  
+ 
+4. Para copiar las coordenadas automáticamente, haz clic con el botón izquierdo en la latitud y la 
+longitud.  
+ 
+¿En qué formato se introducen en la web de Hoteles?  
+Cuando actualizamos los datos de un establecimiento o damos de alta uno nuevo, se nos solicitará 
+especificar las coordenadas donde se ubica el establecimiento.  
+ 
+FORMATO: Hasta 2 dígitos enteros y 5 decimales. Se recomienda especificar los 5 decimales, 
+aunque no es obligatorio. El separador de enteros y decimales debe ser un punto (.).  
+ 
+Si copiamos las coordenadas directamente desde Google Maps, este proporcionará más de 5 
+decimales.  
+ 
+Ejemplo:  
+ 
+ Ubicación: Comisaria Mossos d’Esquadra - Horta-Guinardó  
+ Coordenadas que facilita Google Maps: 41.409580249985424, 2.1677456264775463  
+ 
+Nos interesan los primeros dos dígitos antes del punto y los primeros 5 decimales.  
+ 
+El primer valor corresponde a la LATITUD, el segundo valor corresponde a la LONGITUD.  
+ 
+En la web de Hoteles deberíamos informar: 41.40958, 2.16774.  
+ 
+El formulario validará las coordenadas antes de permitir actualizar los datos de un establecimiento o 
+crear uno nuevo. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+  
+Actualización mayo 2025       Registro de viajeros  33 
+9.EJEMPLO FICHERO TXT 
+ 
+ 
+ 
+ 
+ 
+
