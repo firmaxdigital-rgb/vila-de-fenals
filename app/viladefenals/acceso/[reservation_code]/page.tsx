@@ -30,7 +30,7 @@ function Background() {
 }
 
 function LanguageSelector({ currentLang }: { currentLang: string }) {
-  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'];
+  const langs = ['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'];
   return (
     <div className="flex flex-wrap justify-center gap-3 mb-6 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 w-fit mx-auto">
       {langs.map((l) => (
@@ -58,7 +58,7 @@ export default async function AccesoPage({
 
   const resolvedSearchParams = await searchParams;
   const langQuery = resolvedSearchParams?.lang as string;
-  const lang: Lang = (['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
+  const lang: Lang = (['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
   const paymentStatus = resolvedSearchParams?.payment_status as string;
   const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD' || decodedCode === 'TEST7GUESTS';
@@ -106,7 +106,57 @@ export default async function AccesoPage({
     console.warn("Table public.travelers table fetch error:", err);
   }
 
-  const totalGuests = reservation.total_guests || 2;
+  const totalGuests = reservation.total_guests;
+
+  // Resolve platform name and custom check-in/check-out hours
+  let platformName = reservation.platform || 'Airbnb';
+  let checkInTime = '14:00';
+  let checkOutTime = '12:00';
+  if (reservation.platform && reservation.platform.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(reservation.platform);
+      platformName = parsed.name || 'Airbnb';
+      checkInTime = parsed.check_in_time || '14:00';
+      checkOutTime = parsed.check_out_time || '12:00';
+    } catch (e) {
+      console.error("Error parsing platform JSON in guest page:", e);
+    }
+  }
+
+  if (totalGuests === 0 || totalGuests === null) {
+    return (
+      <div className="min-h-screen text-white font-sans relative pb-20">
+        <Background />
+        <div className="relative z-20 max-w-md mx-auto pt-16 px-4">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
+            <LanguageSelector currentLang={lang} />
+          </div>
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 text-center space-y-6">
+            <div className="mx-auto w-14 h-14 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shadow-lg">
+              <span className="text-cyan-400 text-3xl font-bold animate-pulse">⏰</span>
+            </div>
+            <div className="space-y-3">
+              <h2 className="text-lg font-bold text-cyan-300">
+                {lang === 'en' ? 'Check-in Pending Activation' : 'Check-in Pendiente de Activación'}
+              </h2>
+              <p className="text-sm text-white/80 leading-relaxed">
+                {lang === 'en'
+                  ? 'Thank you for your reservation! The Vila de Fenals administration is currently assigning the slot capacity and finalizing details for your stay.'
+                  : '¡Gracias por su reserva! La administración de Vila de Fenals está configurando los detalles y la asignación de plazas para su estancia.'}
+              </p>
+              <p className="text-xs text-white/60 leading-relaxed pt-2">
+                {lang === 'en'
+                  ? 'The traveler registration and tourist tax payment portal will activate automatically once ready. If you have any urgency, please contact us.'
+                  : 'El portal de registro de viajeros y liquidación de tasa turística se activará automáticamente en breve. Si tiene alguna urgencia o duda, por favor póngase en contacto con nosotros.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const completedForms = travelers.length;
   const isPhase1Complete = completedForms >= totalGuests;
 
@@ -142,54 +192,26 @@ export default async function AccesoPage({
   const calculatedTax = parseFloat((payingGuests * nights * rate).toFixed(2));
   const isTaxPaid = reservation.is_tax_paid === true;
 
-  // Active check-in timeframe variables
+  // Active check-in timeframe variables (using custom check-in/check-out hours)
   const now = new Date();
+  
+  const checkInHourInput = parseInt(checkInTime.split(':')[0], 10);
+  const checkOutHourInput = parseInt(checkOutTime.split(':')[0], 10);
+
   const allowedCheckIn = new Date(reservation.check_in);
-  allowedCheckIn.setHours(14, 0, 0, 0); // 2 hours before 16:00 Check-in
+  allowedCheckIn.setHours(checkInHourInput - 2, 0, 0, 0); // 2 hours buffer before local check-in time
 
   const allowedCheckOut = new Date(reservation.check_out);
-  allowedCheckOut.setHours(11, 0, 0, 0); // 1 hour after 10:00 Check-out
+  allowedCheckOut.setHours(checkOutHourInput + 1, 0, 0, 0); // 1 hour buffer after local check-out time
 
   const isValidTime = now >= allowedCheckIn && now <= allowedCheckOut || testMode || decodedCode === 'TEST7GUESTS' || decodedCode === 'HMMR92E9DJ';
 
-  // Display limits warnings
+  // Display limits warnings (using local Spain time)
   const displayCheckIn = new Date(reservation.check_in);
-  displayCheckIn.setHours(16, 0, 0, 0);
+  displayCheckIn.setHours(checkInHourInput, 0, 0, 0);
 
   const displayCheckOut = new Date(reservation.check_out);
-  displayCheckOut.setHours(10, 0, 0, 0);
-
-  if (!isValidTime) {
-    return (
-      <div className="min-h-screen text-white font-sans relative pb-20">
-        <Background />
-        <div className="relative z-20 max-w-md mx-auto pt-16 px-4">
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-light tracking-wider mb-2">VILA DE FENALS</h1>
-            <LanguageSelector currentLang={lang} />
-          </div>
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 text-center">
-            <div className="bg-cyan-500/10 border border-cyan-400/30 rounded-2xl p-6 text-white space-y-4">
-              <p className="text-cyan-300 text-lg font-medium">{dict.inactive_title || 'Llave Virtual Inactiva'}</p>
-              <p className="text-xs text-white/70 leading-relaxed">
-                Su llave virtual estará disponible a partir de las 14:00 del día de llegada y se desactivará a las 11:00 del día de salida.
-              </p>
-              <div className="text-left bg-white/5 border border-white/10 rounded-xl p-4 text-xs space-y-2">
-                <p className="flex justify-between">
-                  <span className="text-white/60">Entrada:</span>
-                  <span className="font-semibold text-cyan-200">{displayCheckIn.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-white/60">Salida:</span>
-                  <span className="font-semibold text-cyan-200">{displayCheckOut.toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  displayCheckOut.setHours(checkOutHourInput, 0, 0, 0);
 
   // Calculate the overall flow unlocks
   const isFullyUnlocked = isPhase1Complete && isTaxPaid;
@@ -228,17 +250,21 @@ export default async function AccesoPage({
 
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-[0_16px_40px_rgba(6,182,212,0.25)] p-6 md:p-8 text-white space-y-6">
           <AccesoTabs 
-            reservation={reservation}
+            reservation={{
+              ...reservation,
+              platform: platformName // Pass parsed platform name
+            }}
             travelers={travelers}
             lang={lang}
             paymentStatus={paymentStatus}
             testMode={testMode}
+            isValidTime={isValidTime}
           />
 
           {/* Footer with platforms details */}
           <div className="pt-4 border-t border-white/10 flex justify-between items-center text-[10px] text-white/50 uppercase font-bold tracking-wider">
-            <span>Reserva: {reservation.platform}</span>
-            <span>Salida: {displayCheckOut.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'short', day: 'numeric' })}</span>
+            <span>Reserva: {platformName}</span>
+            <span>Salida: {displayCheckOut.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'short', day: 'numeric' })} a las {checkOutTime}</span>
           </div>
         </div>
       </div>

@@ -32,6 +32,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: 'Reserva no encontrada' }, { status: 404 });
     }
 
+    // Security: Only allow door opening for fully completed check-ins
+    if (!reservation.is_registered || !reservation.is_tax_paid) {
+      return NextResponse.json({ success: false, message: 'Check-in no completado o tasa no pagada.' }, { status: 403 });
+    }
+
     const now = new Date();
     
     // Validar hora de Check-in: 2 horas antes de la hora oficial (16:00 - 2h = 14:00)

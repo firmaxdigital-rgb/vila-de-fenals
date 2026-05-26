@@ -16,7 +16,7 @@ const SUPPORTED_LANGUAGES = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { reservation_code, lang = 'es', micro_charge = false } = body;
+    const { reservation_code, lang = 'es', micro_charge = false, unregistered_paying_guests = 0 } = body;
 
     if (!reservation_code) {
       return NextResponse.json({ success: false, error: 'Falta el código de reserva' }, { status: 400 });
@@ -73,6 +73,10 @@ export async function POST(request: Request) {
         payingGuests++;
       }
     });
+
+    // Add unregistered paying guests (which are remaining guests who are not minors, passed from the frontend selection)
+    const extraPayingGuests = parseInt(unregistered_paying_guests as any, 10) || 0;
+    payingGuests += extraPayingGuests;
 
     const rate = 1.75;
     let totalAmount = parseFloat((payingGuests * nights * rate).toFixed(2));

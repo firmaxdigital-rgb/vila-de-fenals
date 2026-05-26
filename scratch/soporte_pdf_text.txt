@@ -1,0 +1,28 @@
+Cómo introducir el número de soporte 
+Le facilitamos a continuación la descripción del número de soporte según el tipo de 
+documento: 
+a) DNI Electrónico: Si su documento es un DNI Electrónico, el número de 
+soporte aparece en el anverso y consta de 3 letras y 6 dígitos. Ejemplo: 
+AAA123456. 
+ 
+b) Tarjeta de extranjero o Permiso de Residencia: Si su documento es una 
+tarjeta de extranjero o Permiso de Residencia, el número de soporte 
+aparece en el anverso y consta de la letra E y 8 dígitos. Si tiene menos de 
+8 números tendrá que completarlo a la izquierda con el número 0. Ejemplo: 
+E87654321. 
+ 
+ 
+c) Certificado de registro de ciudadano de la Unión: Si su documento es un 
+certificado de registro de ciudadano de la Unión, en el documento consta un 
+
+número (número de certificado), escriba la letra “C” y a continuación los 
+8 dígitos del número. Si este número tiene menos de 8 dígitos se puede 
+completar con ceros a la izquierda. Ejemplo: Si su certificado tiene como 
+número de soporte: 1234567, debe indicar C01234567.  
+ 
+ 
+ 
+En los certificados más antiguos, tamaño folio, el número de certificado 
+(número de soporte) aparece en el anverso: 
+ 
+

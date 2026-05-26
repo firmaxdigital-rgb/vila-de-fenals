@@ -58,7 +58,7 @@ const uploadBtnTranslations: Record<string, { search: string; take: string }> = 
 
 function LanguageSelector({ currentLang, editId }: { currentLang: string; editId: string | null }) {
   const router = useRouter();
-  const langs = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru', 'nl', 'ja'];
+  const langs = ['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'];
   
   const handleLangChange = (newLang: string) => {
     const params = new URLSearchParams();
@@ -91,6 +91,132 @@ interface AdultCandidate {
   apellidos: string;
 }
 
+const docTypeTranslations = {
+  es: { DNI: 'DNI (Español)', NIE: 'NIE (Español)', PASAPORTE: 'Pasaporte', OTRO: 'Otro Documento / ID Europeo (NO Español)' },
+  en: { DNI: 'DNI (Spanish)', NIE: 'NIE (Spanish)', PASAPORTE: 'Passport', OTRO: 'Other Document / European ID (Non-Spanish)' },
+  fr: { DNI: 'DNI (Espagnol)', NIE: 'NIE (Espagnol)', PASAPORTE: 'Passeport', OTRO: 'Autre document / ID européen (Non espagnol)' },
+  de: { DNI: 'DNI (Spanisch)', NIE: 'NIE (Spanisch)', PASAPORTE: 'Reisepass', OTRO: 'Anderes Dokument / Europäischer Ausweis (Nicht spanisch)' },
+  pl: { DNI: 'DNI (Hiszpański)', NIE: 'NIE (Hiszpański)', PASAPORTE: 'Paszport', OTRO: 'Inny document / Europejski dowód tożsamości (Niehiszpański)' },
+  zh: { DNI: 'DNI (西班牙)', NIE: 'NIE (西班牙)', PASAPORTE: '护照', OTRO: '其他文件 / 欧洲身份证 (非西班牙)' },
+  uk: { DNI: 'DNI (Іспанський)', NIE: 'NIE (Іспанський)', PASAPORTE: 'Паспорт', OTRO: 'Інший документ / Європейське посвідчення (Не іспанське)' },
+  ru: { DNI: 'DNI (Испанский)', NIE: 'NIE (Испанский)', PASAPORTE: 'Паспорт', OTRO: 'Другой документ / Европейское удостоверение (Не испанское)' },
+  nl: { DNI: 'DNI (Spaans)', NIE: 'NIE (Spaans)', PASAPORTE: 'Paspoort', OTRO: 'Ander document / Europees ID (Niet Spaans)' },
+  ja: { DNI: 'DNI (スペイン)', NIE: 'NIE (スペイン)', PASAPORTE: 'パスポート', OTRO: 'その他の書類 / 欧州身分証 (非スペイン)' },
+};
+
+const supportHelperTranslations = {
+  es: {
+    btn_help: "¿Dónde encontrarlo?",
+    title: "Número de Soporte",
+    close: "Entendido",
+    dni_title: "DNI (Español)",
+    dni_desc: "Aparece en el anverso (cara delantera) como 'NUM SOPORT'. Consta de 3 letras y 6 números (ej. AAA123456).",
+    nie_card_title: "NIE (Tarjeta física)",
+    nie_card_desc: "Aparece en el anverso como 'NUM SOPORT'. Consta de la letra 'E' seguida de 8 números. Si tiene menos números, añada ceros a la izquierda (ej. E87654321).",
+    nie_paper_title: "NIE (Certificado de papel)",
+    nie_paper_desc: "Es el número de certificado del papel verde. Escriba la letra 'C' seguida del número. Si tiene menos de 8 números, añada ceros a la izquierda (ej. si es 1234567, escriba C01234567)."
+  },
+  en: {
+    btn_help: "Where to find it?",
+    title: "Support Number",
+    close: "Got it",
+    dni_title: "DNI (Spanish ID)",
+    dni_desc: "Appears on the front as 'NUM SOPORT'. Consists of 3 letters and 6 numbers (e.g. AAA123456).",
+    nie_card_title: "NIE (Physical Card)",
+    nie_card_desc: "Appears on the front as 'NUM SOPORT'. Consists of the letter 'E' followed by 8 numbers. If it has fewer numbers, pad with zeros on the left (e.g. E87654321).",
+    nie_paper_title: "NIE (Paper Certificate)",
+    nie_paper_desc: "The certificate number from the green paper sheet. Write the letter 'C' followed by the number. If it has fewer than 8 numbers, pad with zeros on the left (e.g. C01234567)."
+  },
+  fr: {
+    btn_help: "Où le trouver ?",
+    title: "Numéro de support",
+    close: "Compris",
+    dni_title: "DNI (Carte d'identité espagnole)",
+    dni_desc: "Apparaît sur le recto comme 'NUM SOPORT'. Composé de 3 lettres et 6 chiffres (ex. AAA123456).",
+    nie_card_title: "NIE (Carte physique)",
+    nie_card_desc: "Apparaît sur le recto comme 'NUM SOPORT'. Composé de la lettre 'E' suivie de 8 chiffres. S'il y a moins de chiffres, complétez avec des zéros à gauche (ex. E87654321).",
+    nie_paper_title: "NIE (Certificat papier)",
+    nie_paper_desc: "Le numéro de certificat de la feuille verte. Écrivez la lettre 'C' suivie du numéro. S'il comporte moins de 8 chiffres, complétez avec des zéros à gauche (ex. C01234567)."
+  },
+  de: {
+    btn_help: "Wo zu finden?",
+    title: "Support-Nummer",
+    close: "Verstanden",
+    dni_title: "DNI (Spanischer Ausweis)",
+    dni_desc: "Befindet sich auf der Vorderseite als 'NUM SOPORT'. Besteht aus 3 Buchstaben und 6 Zahlen (z. B. AAA123456).",
+    nie_card_title: "NIE (Physische Karte)",
+    nie_card_desc: "Befindet sich auf der Vorderseite als 'NUM SOPORT'. Besteht aus dem Buchstaben 'E' gefolgt von 8 Zahlen. Bei weniger Zahlen links mit Nullen auffüllen (z. B. E87654321).",
+    nie_paper_title: "NIE (Papierzertifikat)",
+    nie_paper_desc: "Die Zertifikatsnummer auf dem grünen Papier. Schreiben Sie den Buchstaben 'C' gefolgt von der Nummer. Bei weniger als 8 Zahlen links mit Nullen auffüllen (z. B. C01234567)."
+  },
+  pl: {
+    btn_help: "Gdzie to znaleźć?",
+    title: "Numer nośnika (Support)",
+    close: "Rozumiem",
+    dni_title: "DNI (Hiszpański dowód)",
+    dni_desc: "Widnieje na awersie jako 'NUM SOPORT'. Składa się z 3 liter i 6 cyfr (np. AAA123456).",
+    nie_card_title: "NIE (Karta fizyczna)",
+    nie_card_desc: "Widnieje na awersie jako 'NUM SOPORT'. Składa się z litery 'E' i 8 cyfr. Jeśli ma mniej cyfr, dodaj zera z lewej strony (np. E87654321).",
+    nie_paper_title: "NIE (Certyfikat papierowy)",
+    nie_paper_desc: "Numer certyfikatu z zielonej karty. Wpisz literę 'C' i numer. Jeśli ma mniej niż 8 cyfr, dodaj zera z lewej strony (np. C01234567)."
+  },
+  zh: {
+    btn_help: "在哪里可以找到？",
+    title: "支持号码 (Nº Soporte)",
+    close: "明白",
+    dni_title: "DNI (西班牙身份证)",
+    dni_desc: "显示在正面，标记为 'NUM SOPORT'。由3个字母和6位数字组成 (例如 AAA123456)。",
+    nie_card_title: "NIE (物理卡)",
+    nie_card_desc: "显示在正面，标记为 'NUM SOPORT'。由字母 'E' 后跟8位数字组成。如果数字较少，请在左侧补零 (例如 E87654321)。",
+    nie_paper_title: "NIE (纸质证书)",
+    nie_paper_desc: "绿色纸质证书上的证书号。在号码前写上字母 'C'。如果少于8位数字，请在左侧补零 (例如 C01234567)。"
+  },
+  uk: {
+    btn_help: "Де його знайти?",
+    title: "Номер підтримки",
+    close: "Зрозуміло",
+    dni_title: "DNI (Іспанська ID-картка)",
+    dni_desc: "Вказано на лицьовій стороні як 'NUM SOPORT'. Складається з 3 літер та 6 цифр (наприклад, AAA123456).",
+    nie_card_title: "NIE (Фізична картка)",
+    nie_card_desc: "Вказано на лицьовій стороні як 'NUM SOPORT'. Складається з літери 'E' та 8 цифр. Якщо цифр менше, додайте нулі ліворуч (наприклад, E87654321).",
+    nie_paper_title: "NIE (Паперовий сертифікат)",
+    nie_paper_desc: "Номер сертифіката на зеленому паперовому бланку. Напишіть літеру 'C' та номер. Якщо в ньому менше 8 цифр, додайте нулі ліворуч (наприклад, C01234567)."
+  },
+  ru: {
+    btn_help: "Где его найти?",
+    title: "Номер поддержки",
+    close: "Понятно",
+    dni_title: "DNI (Испанское удостоверение)",
+    dni_desc: "Указан на лицевой стороне как 'NUM SOPORT'. Состоит из 3 букв и 6 цифр (например, AAA123456).",
+    nie_card_title: "NIE (Физическая карта)",
+    nie_card_desc: "Указан на лицевой стороне как 'NUM SOPORT'. Состоит из буквы 'E' и 8 цифр. Если цифр меньше, добавьте нули слева (например, E87654321).",
+    nie_paper_title: "NIE (Бумажный сертификат)",
+    nie_paper_desc: "Номер сертификата на зеленом бумажном бланке. Напишите букву 'C' и номер. Если в нем меньше 8 цифр, добавьте нули слева (например, C01234567)."
+  },
+  nl: {
+    btn_help: "Waar te vinden?",
+    title: "Supportnummer",
+    close: "Begrepen",
+    dni_title: "DNI (Spaans ID)",
+    dni_desc: "Staat op de voorkant als 'NUM SOPORT'. Bestaat uit 3 letters en 6 cijfers (bijv. AAA123456).",
+    nie_card_title: "NIE (Fysieke kaart)",
+    nie_card_desc: "Staat op de voorkant als 'NUM SOPORT'. Bestaat uit de letter 'E' gevolgd door 8 cijfers. Als het minder cijfers heeft, voeg dan nullen aan de linkerkant toe (bijv. E87654321).",
+    nie_paper_title: "NIE (Papieren certificaat)",
+    nie_paper_desc: "Het certificaatnummer op het groene papier. Schrijf de letter 'C' gevolgd door het nummer. Als het minder dan 8 cijfers heeft, voeg dan nullen aan de linkerkant toe (bijv. C01234567)."
+  },
+  ja: {
+    btn_help: "どこにありますか？",
+    title: "サポート番号 (Nº Soporte)",
+    close: "了解",
+    dni_title: "DNI (スペイン身分証)",
+    dni_desc: "表面に 'NUM SOPORT' として記載されています。3文字 of アルファベットと6桁の数字で構成されます (例: AAA123456)。",
+    nie_card_title: "NIE (物理カード)",
+    nie_card_desc: "表面に 'NUM SOPORT' として記載されています。アルファベットの 'E' と8桁の数字で構成されます。桁数が足りない場合は、左側に0を追加してください (例: E87654321)。",
+    nie_paper_title: "NIE (紙の証明書)",
+    nie_paper_desc: "緑色の紙の証明書に記載されている証明書番号です。アルファベットの 'C' に続けて番号を入力してください。8桁未満の場合は、左側に0を追加してください (例: C01234567)。"
+  }
+};
+
 export default function RegistroViajeroPage({ params }: { params: { reservation_code: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -98,6 +224,8 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const decodedCode = decodeURIComponent(params.reservation_code);
 
   const dict = translations[lang] || translations['es'];
+  const docTypes = docTypeTranslations[lang] || docTypeTranslations['es'];
+  const supportHelp = supportHelperTranslations[lang] || supportHelperTranslations['es'];
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -106,6 +234,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const [isDrawing, setIsDrawing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showSupportHelp, setShowSupportHelp] = useState(false);
   const [error, setError] = useState('');
   
   // OCR processing states
@@ -137,7 +266,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     apellidos: '',
     segundo_apellido: '',
     numero_soporte: '',
-    tipo_documento: 'DNI',
+    tipo_documento: 'OTRO',
     numero_documento: '',
     fecha_expedicion: '',
     fecha_caducidad: '',
@@ -256,7 +385,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               apellidos: traveler.apellidos || '',
               segundo_apellido: traveler.segundo_apellido || '',
               numero_soporte: traveler.numero_soporte || '',
-              tipo_documento: traveler.tipo_documento || 'DNI',
+              tipo_documento: traveler.tipo_documento || 'OTRO',
               numero_documento: traveler.numero_documento || '',
               fecha_expedicion: traveler.fecha_expedicion || '',
               fecha_caducidad: traveler.fecha_caducidad || '',
@@ -904,10 +1033,10 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_doc_type}</label>
                 <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900">
-                  <option value="DNI">DNI (Español)</option>
-                  <option value="PASAPORTE">Pasaporte</option>
-                  <option value="NIE">NIE / Extranjero</option>
-                  <option value="OTRO">Otro Documento</option>
+                  <option value="DNI">{docTypes.DNI}</option>
+                  <option value="NIE">{docTypes.NIE}</option>
+                  <option value="PASAPORTE">{docTypes.PASAPORTE}</option>
+                  <option value="OTRO">{docTypes.OTRO}</option>
                 </select>
               </div>
               <div className="space-y-1">
@@ -924,9 +1053,20 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
-                  {dict.form_support_number} {(formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
-                </label>
+                <div className="flex justify-between items-center h-4">
+                  <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate">
+                    {dict.form_support_number} {(formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
+                  </label>
+                  {(formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && (
+                    <button
+                      type="button"
+                      onClick={() => setShowSupportHelp(true)}
+                      className="text-[9px] text-cyan-300 hover:text-cyan-100 hover:underline flex items-center gap-0.5 font-bold transition-all focus:outline-none shrink-0"
+                    >
+                      ❓ {supportHelp.btn_help}
+                    </button>
+                  )}
+                </div>
                 <input 
                   disabled={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE'}
                   required={(formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && (age === null || age >= 14)} 
@@ -1204,6 +1344,55 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
           </div>
         </form>
       </div>
+
+      {/* ==========================================
+          MODAL: NÚMERO DE SOPORTE HELPER MODAL
+          ========================================== */}
+      {showSupportHelp && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in animate-in fade-in duration-200">
+          <div className="bg-gray-950/95 backdrop-blur-xl border border-white/15 rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 shadow-2xl shadow-cyan-500/10 text-white space-y-4">
+            <h3 className="text-base font-bold text-cyan-200 border-b border-white/10 pb-2 flex items-center gap-2">
+              <span>📋</span> {supportHelp.title}
+            </h3>
+            
+            <div className="space-y-4 text-xs max-h-[60vh] overflow-y-auto pr-1 leading-relaxed">
+              {formData.tipo_documento === 'DNI' ? (
+                <div className="space-y-1.5 bg-white/5 border border-white/5 p-3 rounded-2xl">
+                  <h4 className="font-bold text-cyan-300 flex items-center gap-1.5">
+                    <span>🪪</span> {supportHelp.dni_title}
+                  </h4>
+                  <p className="text-white/80 text-[11px]">{supportHelp.dni_desc}</p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-1.5 bg-white/5 border border-white/5 p-3 rounded-2xl">
+                    <h4 className="font-bold text-cyan-300 flex items-center gap-1.5">
+                      <span>💳</span> {supportHelp.nie_card_title}
+                    </h4>
+                    <p className="text-white/80 text-[11px]">{supportHelp.nie_card_desc}</p>
+                  </div>
+                  <div className="space-y-1.5 bg-white/5 border border-white/5 p-3 rounded-2xl">
+                    <h4 className="font-bold text-cyan-300 flex items-center gap-1.5">
+                      <span>📄</span> {supportHelp.nie_paper_title}
+                    </h4>
+                    <p className="text-white/80 text-[11px]">{supportHelp.nie_paper_desc}</p>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="pt-2">
+              <button 
+                type="button"
+                onClick={() => setShowSupportHelp(false)}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 text-cyan-950 text-xs font-bold transition-all shadow-md active:scale-95"
+              >
+                {supportHelp.close}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   </div>
   );

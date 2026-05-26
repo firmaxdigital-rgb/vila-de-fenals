@@ -1,8 +1,43 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { generateMemorablePin, createNukiKeypadCode } from '../../../lib/nuki';
+import { generateMemorablePin, createNukiKeypadCode, getCleanNukiName, deleteNukiKeypadCodesByReservation } from '../../../lib/nuki';
+import nodemailer from 'nodemailer';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Helper to get a UTC Date corresponding to a specific hour in Europe/Madrid timezone,
+ * avoiding any server-side timezone differences or daylight saving shifts.
+ */
+function getSpainUtcDate(dateStr: string, localHour: number): Date {
+  const checkDate = new Date(`${dateStr}T12:00:00Z`);
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Madrid',
+    hour12: false,
+    hour: 'numeric'
+  });
+  
+  const parts = formatter.formatToParts(checkDate);
+  const hourPart = parts.find(p => p.type === 'hour');
+  
+  if (!hourPart) {
+    const month = parseInt(dateStr.split('-')[1], 10);
+    const offset = (month >= 4 && month <= 10) ? 2 : 1;
+    const utcHour = localHour - offset;
+    const finalDate = new Date(`${dateStr}T00:00:00Z`);
+    finalDate.setUTCHours(utcHour, 0, 0, 0);
+    return finalDate;
+  }
+  
+  const madridHour = parseInt(hourPart.value, 10);
+  const offset = madridHour - 12;
+  const utcHour = localHour - offset;
+  
+  const finalDate = new Date(`${dateStr}T00:00:00Z`);
+  finalDate.setUTCHours(utcHour, 0, 0, 0);
+  
+  return finalDate;
+}
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'; // Usar el Service Role Key para tener permisos de escritura
@@ -16,7 +51,12 @@ const AIRBNB_ICAL_URL = 'https://www.airbnb.es/calendar/ical/669455999251966218.
 const VRBO_ICAL_URL = 'https://www.vrbo.com/icalendar/e05e2860e5ec4787b14614afc00383b0.ics?nonTentative';
 
 async function fetchAndParseIcal(url: string, platform: string) {
-  const response = await fetch(url, { cache: 'no-store' });
+  const response = await fetch(url, { 
+    cache: 'no-store',
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+  });
   let data = await response.text();
 
   // iCalendar format folds lines longer than 75 chars by adding CRLF + space. 
@@ -77,8 +117,37 @@ async function fetchAndParseIcal(url: string, platform: string) {
       }
     }
 
-    const guestsMatch = (ev.description || '').match(/(?:Number of guests|Guests|Huéspedes|Hospedes):\s*(\d+)/i);
-    const totalGuests = guestsMatch ? parseInt(guestsMatch[1], 10) : 2;
+    // Combine summary and description to search comprehensively
+    const textToSearch = `${ev.summary || ''} | ${ev.description || ''}`;
+    let totalGuests = 0; // Default fallback (triggers pending activation for the host to confirm)
+
+    // 1. Look for distinct counts of adults and children to sum them up,
+    // e.g. "(5 adults, 1 child)" or "2 adultos, 1 niño" or "2 adults (1 child)"
+    const adultsMatch = textToSearch.match(/(\d+)\s*(?:adults?|adultos?)/i);
+    const childrenMatch = textToSearch.match(/(\d+)\s*(?:children|niños?|niñas?|child|infants?|bebés?)/i);
+    
+    if (adultsMatch) {
+      const adultsCount = parseInt(adultsMatch[1], 10);
+      const childrenCount = childrenMatch ? parseInt(childrenMatch[1], 10) : 0;
+      totalGuests = adultsCount + childrenCount;
+      console.log(`[iCal Sync Parser] Desglose encontrado en "${textToSearch}": ${adultsCount} adultos + ${childrenCount} niños = ${totalGuests} huéspedes.`);
+    } else {
+      // 2. Direct labels: e.g. "Number of guests: X", "Guests: X", "Huéspedes: X", "Pax: X"
+      const directLabelMatch = textToSearch.match(/(?:Number of guests|Guests|Huéspedes|Hospedes|Viajeros|Pax):\s*(\d+)/i);
+      if (directLabelMatch) {
+        totalGuests = parseInt(directLabelMatch[1], 10);
+        console.log(`[iCal Sync Parser] Etiqueta directa encontrada en "${textToSearch}": ${totalGuests} huéspedes.`);
+      } else {
+        // 3. General units: e.g. "5 guests", "5 huéspedes", "5 pax", "5 viajeros"
+        const unitMatch = textToSearch.match(/(\d+)\s*(?:guests?|huéspedes?|hospedes?|viajeros?|pax)/i);
+        if (unitMatch) {
+          totalGuests = parseInt(unitMatch[1], 10);
+          console.log(`[iCal Sync Parser] Unidad encontrada en "${textToSearch}": ${totalGuests} huéspedes.`);
+        } else {
+          console.log(`[iCal Sync Parser] No se detectó recuento de huéspedes en "${textToSearch}". Usando por defecto: ${totalGuests}.`);
+        }
+      }
+    }
 
     return {
       reservation_code: code,
@@ -116,41 +185,35 @@ export async function GET() {
     }
 
     const existingMap = new Map();
+    const existsMap = new Map();
     if (existingReservations) {
-      existingReservations.forEach(r => existingMap.set(r.reservation_code, r.nuki_pin));
+      existingReservations.forEach(r => {
+        existingMap.set(r.reservation_code, r.nuki_pin);
+        existsMap.set(r.reservation_code, true);
+      });
     }
 
     // 2. Generate PINs and Nuki Auth for NEW reservations (or those without a PIN)
     for (const ev of allEvents) {
       // Check if it already exists in our DB with a PIN
       const currentPin = existingMap.get(ev.reservation_code);
+      const existsInDb = existsMap.has(ev.reservation_code);
       
       if (!currentPin) {
         // Generate a memorable ABC-CBA pin
         const newPin = generateMemorablePin();
 
-        // Calculate exact validity times (1h before check-in, 1h after check-out)
-        // Spain local time: Check-in 16:00 -> 1h before is 15:00 Spain time = 13:00 UTC (May is CEST, UTC+2)
-        const checkInDate = new Date(ev.check_in);
-        checkInDate.setUTCHours(13, 0, 0, 0);
+        // Calculate exact validity times: Nuki offsets (Check-in Spain time: 14:00 - 1h = 13:00, Check-out Spain time: 12:00 + 1h = 13:00)
+        const checkInDate = getSpainUtcDate(ev.check_in, 13);
+        const checkOutDate = getSpainUtcDate(ev.check_out, 13);
 
-        // Spain local time: Check-out 10:00 -> 1h after is 11:00 Spain time = 09:00 UTC (May is CEST, UTC+2)
-        const checkOutDate = new Date(ev.check_out);
-        checkOutDate.setUTCHours(9, 0, 0, 0);
+        const nukiName = getCleanNukiName(ev.reservation_code, ev.summary);
 
-        // Prepare name for Nuki (Max 20 chars). Format: "GuestName 2026"
-        const checkInYear = checkInDate.getFullYear();
-        let guestName = ev.summary ? ev.summary.replace(/^Reserved$/i, '').replace('Reserved - ', '').replace('Reserva ', '').replace('Airbnb (Not available)', '').trim() : '';
-        if (!guestName) guestName = `R-${ev.reservation_code}`;
-        
-        // " 2026" takes 5 chars. Leave room to truncate guestName to 15 chars so total is max 20 chars.
-        if (guestName.length > 15) {
-          guestName = guestName.substring(0, 15).trim();
-        }
-        const nukiName = `${guestName} ${checkInYear}`;
-
-        // Provision in Nuki Web API
+        // Provision in Nuki Web API (first delete any potential leftover for this reservation to ensure uniqueness)
         try {
+          console.log(`Re-syncing Nuki: Deleting potential existing auths for ${ev.reservation_code}`);
+          await deleteNukiKeypadCodesByReservation(ev.reservation_code);
+
           console.log(`Creating Nuki code ${newPin} for reservation ${ev.reservation_code} as ${nukiName}`);
           await createNukiKeypadCode(nukiName, checkInDate, checkOutDate, newPin);
           ev.nuki_pin = newPin; // We set it only if Nuki creation succeeded!
@@ -161,6 +224,64 @@ export async function GET() {
       } else {
         // Preserve existing pin so we don't overwrite it with null
         ev.nuki_pin = currentPin;
+      }
+
+      // Enviar correo de notificación para nuevas reservas
+      if (!existsInDb) {
+        try {
+          const smtpHost = process.env.SMTP_HOST;
+          const smtpPort = process.env.SMTP_PORT;
+          const smtpUser = process.env.SMTP_USER;
+          const smtpPassword = process.env.SMTP_PASSWORD;
+          const smtpFrom = process.env.SMTP_FROM || 'checkin@viladefenals.com';
+          const smtpTo = 'asesorweb@firmax.es';
+
+          if (smtpHost && smtpPort && smtpUser && smtpPassword) {
+            const transporter = nodemailer.createTransport({
+              host: smtpHost,
+              port: parseInt(smtpPort, 10),
+              secure: parseInt(smtpPort, 10) === 465,
+              auth: {
+                user: smtpUser,
+                pass: smtpPassword,
+              },
+            });
+
+            const adminUrl = `https://viladefenals.activavivienda.es/viladefenals/acceso/${ev.reservation_code}/admin`;
+            const emailSubject = `[Vila de Fenals] ¡Nueva Reserva Sincronizada! - ${ev.reservation_code}`;
+            const emailBody = `Se ha creado una nueva reserva en el sistema a través de iCal.
+              
+--------------------------------------------------
+📋 DETALLES DE LA RESERVA
+--------------------------------------------------
+🔑 Código de Reserva:  ${ev.reservation_code}
+🌍 Plataforma:         ${ev.platform}
+📅 Fecha de Entrada:   ${ev.check_in}
+📅 Fecha de Salida:    ${ev.check_out}
+--------------------------------------------------
+
+⚠️ Esta reserva se ha inicializado con 0 plazas por defecto (Pendiente de Activación).
+Para establecer el número exacto de huéspedes y configurar sus horas de check-in/check-out, haga clic en el siguiente enlace de administración:
+
+🔗 ENLACE DE ADMINISTRACIÓN:
+${adminUrl}
+
+Por favor, configure esta reserva lo antes posible para habilitar el portal de check-in para el viajero.
+
+Atentamente,
+Portal de Check-in Automático de Vila de Fenals`;
+
+            await transporter.sendMail({
+              from: smtpFrom,
+              to: smtpTo,
+              subject: emailSubject,
+              text: emailBody
+            });
+            console.log(`[iCal Sync Notification] Email successfully sent to ${smtpTo} for new reservation ${ev.reservation_code}.`);
+          }
+        } catch (emailErr) {
+          console.error(`[iCal Sync Notification] Error sending notification email for ${ev.reservation_code}:`, emailErr);
+        }
       }
     }
 

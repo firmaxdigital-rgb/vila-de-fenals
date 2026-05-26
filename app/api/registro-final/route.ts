@@ -1,10 +1,44 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { generateMossosTxtFiles, TravelerData } from '../../../lib/traveler-txt';
-import { generateMemorablePin, createNukiKeypadCode } from '../../../lib/nuki';
+import { generateMemorablePin, createNukiKeypadCode, getCleanNukiName, deleteNukiKeypadCodesByReservation } from '../../../lib/nuki';
 import nodemailer from 'nodemailer';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Helper to get a UTC Date corresponding to a specific hour in Europe/Madrid timezone,
+ * avoiding any server-side timezone differences or daylight saving shifts.
+ */
+function getSpainUtcDate(dateStr: string, localHour: number): Date {
+  const checkDate = new Date(`${dateStr}T12:00:00Z`);
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Madrid',
+    hour12: false,
+    hour: 'numeric'
+  });
+  
+  const parts = formatter.formatToParts(checkDate);
+  const hourPart = parts.find(p => p.type === 'hour');
+  
+  if (!hourPart) {
+    const month = parseInt(dateStr.split('-')[1], 10);
+    const offset = (month >= 4 && month <= 10) ? 2 : 1;
+    const utcHour = localHour - offset;
+    const finalDate = new Date(`${dateStr}T00:00:00Z`);
+    finalDate.setUTCHours(utcHour, 0, 0, 0);
+    return finalDate;
+  }
+  
+  const madridHour = parseInt(hourPart.value, 10);
+  const offset = madridHour - 12;
+  const utcHour = localHour - offset;
+  
+  const finalDate = new Date(`${dateStr}T00:00:00Z`);
+  finalDate.setUTCHours(utcHour, 0, 0, 0);
+  
+  return finalDate;
+}
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
@@ -92,15 +126,34 @@ export async function POST(request: Request) {
 
       // Sync with physical Nuki lock if configured
       try {
-        const checkInDateObj = new Date(reservation.check_in);
-        checkInDateObj.setHours(16, 0, 0, 0);
+        let checkInTime = '14:00';
+        let checkOutTime = '12:00';
+        if (reservation.platform && reservation.platform.trim().startsWith('{')) {
+          try {
+            const parsed = JSON.parse(reservation.platform);
+            checkInTime = parsed.check_in_time || '14:00';
+            checkOutTime = parsed.check_out_time || '12:00';
+          } catch (e) {
+            console.error("Error parsing platform JSON in registro-final:", e);
+          }
+        }
 
-        const checkOutDateObj = new Date(reservation.check_out);
-        checkOutDateObj.setHours(10, 0, 0, 0);
+        const checkInHourInput = parseInt(checkInTime.split(':')[0], 10);
+        const checkInLocalHour = checkInHourInput - 1;
 
-        const firstTravelerName = `${parsedTravelers[0]?.nombre || 'Guest'} ${parsedTravelers[0]?.apellidos || ''}`.trim();
+        const checkOutHourInput = parseInt(checkOutTime.split(':')[0], 10);
+        const checkOutLocalHour = checkOutHourInput + 1;
+
+        const checkInDateObj = getSpainUtcDate(reservation.check_in, checkInLocalHour);
+        const checkOutDateObj = getSpainUtcDate(reservation.check_out, checkOutLocalHour);
+
+        const nukiName = getCleanNukiName(reservation_code, reservation.summary);
+
+        console.log(`Re-syncing Nuki: Deleting potential existing auths for ${reservation_code}`);
+        await deleteNukiKeypadCodesByReservation(reservation_code);
+
         const nukiResult = await createNukiKeypadCode(
-          `Reserva ${reservation_code} - ${firstTravelerName}`,
+          nukiName,
           checkInDateObj,
           checkOutDateObj,
           nukiPin

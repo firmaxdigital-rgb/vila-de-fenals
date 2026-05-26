@@ -18,6 +18,7 @@ interface AccesoTabsProps {
   lang: Lang;
   paymentStatus?: string;
   testMode: boolean;
+  isValidTime: boolean;
 }
 
 export default function AccesoTabs({ 
@@ -25,14 +26,27 @@ export default function AccesoTabs({
   travelers, 
   lang, 
   paymentStatus, 
-  testMode 
+  testMode,
+  isValidTime
 }: AccesoTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isSimulated = searchParams.get('simulated') === 'true';
   const dict = translations[lang] || translations['es'];
   const decodedCode = reservation.reservation_code;
-  const isTaxPaid = reservation.is_tax_paid === true;
+  const isTaxPaidFromDB = reservation.is_tax_paid === true;
+  const [localTaxPaid, setLocalTaxPaid] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(`paycomet_success_${decodedCode}`) === 'true';
+      if (stored) {
+        setLocalTaxPaid(true);
+      }
+    }
+  }, [decodedCode]);
+
+  const isTaxPaid = isTaxPaidFromDB || localTaxPaid;
   
   // Tab navigation state
   const [activeTab, setActiveTab] = useState('acceso');
@@ -59,21 +73,61 @@ export default function AccesoTabs({
   }, [reservation.reservation_code, lang, testMode]);
 
   useEffect(() => {
-    if (paymentStatus === 'success' && isSimulated && !isTaxPaid) {
-      console.log("Simulated payment success landed. Activating simulation webhook call...");
-      fetch('/api/paycomet/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reservation_code: decodedCode, status: 'PAID' })
-      }).then((res) => {
-        if (res.ok) {
+    if (paymentStatus === 'success') {
+      console.log("[AccesoTabs] Successful payment landed. Storing persistent state and calling confirm API fallback...");
+      
+      // Store in localStorage immediately
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`paycomet_success_${decodedCode}`, 'true');
+        setLocalTaxPaid(true);
+      }
+
+      // Invoke simulated webhook if requested, and also update general confirmation in DB
+      const endpointsToCall = [];
+      if (isSimulated && !isTaxPaidFromDB) {
+        endpointsToCall.push(
+          fetch('/api/paycomet/simulate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservation_code: decodedCode, status: 'PAID' })
+          })
+        );
+      } else if (!isTaxPaidFromDB) {
+        endpointsToCall.push(
+          fetch('/api/payment/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reservation_code: decodedCode })
+          })
+        );
+      }
+
+      if (endpointsToCall.length > 0) {
+        Promise.all(endpointsToCall).then(() => {
+          console.log("[AccesoTabs] Backend payment fallbacks successfully updated.");
           router.refresh();
-        }
-      });
+        }).catch(err => {
+          console.error("[AccesoTabs] Error in fallback backend confirm calls:", err);
+          router.refresh();
+        });
+      }
     }
-  }, [paymentStatus, isSimulated, isTaxPaid, decodedCode, router]);
+  }, [paymentStatus, isSimulated, isTaxPaidFromDB, decodedCode, router]);
 
   const totalGuests = reservation.total_guests || 2;
+
+  const formattedCheckInDate = (() => {
+    try {
+      const d = new Date(reservation.check_in);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return reservation.check_in;
+    }
+  })();
+
   const completedForms = travelers.length;
   const isPhase1Complete = completedForms >= totalGuests;
   const isFullyUnlocked = isPhase1Complete && isTaxPaid;
@@ -326,6 +380,7 @@ export default function AccesoTabs({
                     />
                   </div>
                 )}
+
               </div>
 
               {/* Phase 2: Tourist Tax */}
@@ -417,7 +472,7 @@ export default function AccesoTabs({
                 )}
               </div>
             </div>
-          ) : (
+          ) : isValidTime ? (
             /* unlocked portal controls */
             <div className="space-y-4">
               {/* Virtual Key Header */}
@@ -451,6 +506,67 @@ export default function AccesoTabs({
                   </div>
                 </div>
               )}
+
+              {/* WiFi Details Card */}
+              <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-3">
+                <h3 className="font-semibold text-base flex items-center gap-2">
+                  <Wifi size={18} className="text-emerald-400" /> {dict.wifi_title}
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
+                    <span className="text-white/60 text-sm">{dict.wifi_network}</span>
+                    <span className="font-semibold text-sm text-white">FitelFibra_2G_4168</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center bg-white/5 border border-white/5 p-3 rounded-xl">
+                    <span className="text-white/60 text-sm">{dict.wifi_password}</span>
+                    <button 
+                      onClick={handleCopyWifi}
+                      className="flex items-center gap-1.5 text-emerald-400 font-semibold text-sm hover:text-emerald-300 transition-colors"
+                    >
+                      {wifiCopied ? (
+                        <>
+                          <CheckCircle2 size={14} /> 
+                          <span>{dict.wifi_copied}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={14} /> 
+                          <span>86075541</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* unlocked but too early - virtual keys inactive notice */
+            <div className="space-y-4 animate-fade-in">
+              <div className="bg-cyan-500/10 border border-cyan-400/30 rounded-3xl p-6 text-center space-y-4">
+                <div className="mx-auto w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-500/35 flex items-center justify-center shadow-lg">
+                  <Lock size={20} className="text-cyan-400 animate-pulse" />
+                </div>
+                <div className="space-y-1.5 text-white">
+                  <h3 className="text-base font-semibold text-cyan-300">{lang === 'en' ? 'Check-in Completed Successfully!' : '¡Check-in Completado con Éxito!'}</h3>
+                  <p className="text-xs text-white/70 leading-relaxed max-w-xs mx-auto">
+                    {lang === 'en'
+                      ? `Your check-in has been completed correctly. However, your virtual keys and access codes will be automatically activated starting from the scheduled check-in time on your day of arrival ${formattedCheckInDate}.`
+                      : `Su check-in se ha completado correctamente. Sin embargo, sus llaves virtuales y códigos de acceso se activarán automáticamente a partir de la hora prevista para su check in del día de llegada ${formattedCheckInDate}.`}
+                  </p>
+                </div>
+                
+                <div className="text-left bg-black/25 border border-white/10 rounded-2xl p-4 text-xs space-y-2.5">
+                  <p className="flex justify-between items-center">
+                    <span className="text-white/50">{lang === 'en' ? 'Check-in:' : 'Entrada:'}</span>
+                    <span className="font-bold text-cyan-200">{new Date(reservation.check_in).toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                  </p>
+                  <p className="flex justify-between items-center">
+                    <span className="text-white/50">{lang === 'en' ? 'Check-out:' : 'Salida:'}</span>
+                    <span className="font-bold text-cyan-200">{new Date(reservation.check_out).toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                  </p>
+                </div>
+              </div>
 
               {/* WiFi Details Card */}
               <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-3">

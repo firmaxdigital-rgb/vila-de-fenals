@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log("PayComet Webhook recibido con parámetros:", params);
+    console.log("PayComet Webhook recibido para Order:", params.Order || params.order || 'N/A');
 
     // Extract key parameters sent by PayComet (case-insensitive fallback)
     const responseStr = params.Response || params.response || '';
@@ -52,32 +52,24 @@ export async function POST(request: Request) {
 
     let isSignatureValid = false;
 
-    if (paycometApiKey && paycometTerminal && paycometMerchant) {
-      // Concatenate standard PayComet notification signature:
-      // SHA512(MERCHANT_MERCHANTCODE + MERCHANT_TERMINAL + OPERATION + MERCHANT_ORDER + DateTime + md5(PASSWORD))
-      // In PayComet notifications, the operation parameter for the signature is usually the transaction type (or response).
-      // We will attempt to calculate it.
-      const md5Password = crypto.createHash('md5').update(paycometApiKey).digest('hex');
-      const signatureSource = `${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${dateTime}${md5Password}`;
-      const computedSignature = crypto.createHash('sha512').update(signatureSource).digest('hex');
-
-      isSignatureValid = (computedSignature.toLowerCase() === signature.toLowerCase());
-
-      console.log(`Firma recibida: ${signature}`);
-      console.log(`Firma calculada: ${computedSignature}`);
-      console.log(`Firma válida: ${isSignatureValid}`);
-    } else {
-      console.warn("PayComet merchant credentials missing in .env.local. Signature check bypassed for testing/development.");
-      isSignatureValid = true; // Bypassed if not configured to facilitate onboarding
+    if (!paycometApiKey || !paycometTerminal || !paycometMerchant) {
+      console.error("SEGURIDAD: Credenciales de PayComet no configuradas. Webhook rechazado.");
+      return NextResponse.json({ success: false, error: 'Configuración de pago incompleta.' }, { status: 500 });
     }
 
-    // During development or simulated payment runs, we accept it anyway but log a warning if invalid
+    const md5Password = crypto.createHash('md5').update(paycometApiKey).digest('hex');
+    const signatureSource = `${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${dateTime}${md5Password}`;
+    const computedSignature = crypto.createHash('sha512').update(signatureSource).digest('hex');
+
+    isSignatureValid = (computedSignature.toLowerCase() === signature.toLowerCase());
+
     if (!isSignatureValid) {
-      console.warn("ADVERTENCIA: La firma de PayComet no coincide. Continuando con la transacción bajo el supuesto de entorno sandbox/desarrollo.");
+      console.error(`SEGURIDAD: Firma de PayComet inválida para Order ${rawOrderId}. Webhook rechazado.`);
+      return NextResponse.json({ success: false, error: 'Firma de pago inválida.' }, { status: 403 });
     }
 
     // 3. Process payment status
-    if (responseStr.toUpperCase() === 'OK' || params.simulated === 'true' || params.simulated === true) {
+    if (responseStr.toUpperCase() === 'OK') {
       console.log(`Pago exitoso confirmado para la reserva: ${reservationCode} (Order ID: ${rawOrderId}). Actualizando base de datos.`);
 
       // Update is_tax_paid in Supabase reservations table
