@@ -925,6 +925,37 @@ export default function AccesoTabs({
                   </div>
                 </div>
               </div>
+
+              {/* Maps Location Button */}
+              <div className="pt-2">
+                <a
+                  href="https://maps.app.goo.gl/CtqNXCuE8TGzQCwcA?g_st=aw"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2.5 w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold py-3.5 px-4 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] text-sm shadow-md"
+                >
+                  <MapIcon size={18} className="shrink-0 text-cyan-400" />
+                  <span>{(dict as any).maps_btn || 'Ubicación en Maps'}</span>
+                </a>
+              </div>
+
+              {/* YouTube App Access Video Guide Card */}
+              <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-3">
+                <h3 className="font-semibold text-base flex items-center gap-2">
+                  <ExternalLink size={18} className="text-cyan-400" /> {(dict as any).app_access_video_title || 'Acceso desde la App'}
+                </h3>
+                <div className="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black shadow-inner">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="https://www.youtube.com/embed/GyKgu-haTAo?rel=0"  
+                    title="App Access Video"
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                  />
+                </div>
+              </div>
             </div>
           ) : (
             /* unlocked but too early - virtual keys inactive notice */

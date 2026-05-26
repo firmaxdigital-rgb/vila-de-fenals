@@ -141,7 +141,9 @@ export const translations = {
     "form_cad_date": "F. Caducidad",
     "edit_action": "Editar",
     "unregistered_minors_prompt": "De los viajeros restantes, ¿cuántos son menores de 16 años?",
-    "payment_direct_exempt_hint": "La ley de Cataluña exime del pago de la tasa a los menores de 16 años."
+    "payment_direct_exempt_hint": "La ley de Cataluña exime del pago de la tasa a los menores de 16 años.",
+    "maps_btn": "Ubicación en Maps",
+    "app_access_video_title": "Acceso desde la App"
   },
   "en": {
     "not_found_title": "Reservation not found",
@@ -283,7 +285,9 @@ export const translations = {
     "form_cad_date": "Expiry Date",
     "edit_action": "Edit",
     "unregistered_minors_prompt": "Of the remaining travelers, how many are under 16 years old?",
-    "payment_direct_exempt_hint": "Catalonia law exempts minors under 16 from paying the tourist tax."
+    "payment_direct_exempt_hint": "Catalonia law exempts minors under 16 from paying the tourist tax.",
+    "maps_btn": "Location on Maps",
+    "app_access_video_title": "App Access Guide"
   },
   "fr": {
     "not_found_title": "Réservation introuvable",

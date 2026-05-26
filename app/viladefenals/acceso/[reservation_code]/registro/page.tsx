@@ -236,6 +236,10 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const [success, setSuccess] = useState(false);
   const [showSupportHelp, setShowSupportHelp] = useState(false);
   const [error, setError] = useState('');
+
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showLegalTextModal, setShowLegalTextModal] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   
   // OCR processing states
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
@@ -766,7 +770,14 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
       return;
     }
 
+    // Instead of submitting immediately, launch the consent modal flow
+    setShowTermsModal(true);
+  };
+
+  const performFinalSubmit = async () => {
     setIsSubmitting(true);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const signatureBase64 = canvas.toDataURL('image/png');
 
     try {
@@ -1388,6 +1399,160 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 text-cyan-950 text-xs font-bold transition-all shadow-md active:scale-95"
               >
                 {supportHelp.close}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL: LEGAL CONSENT POPUP (MAIN POPUP)
+          ========================================== */}
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in animate-in fade-in duration-200">
+          <div className="bg-gray-950/95 backdrop-blur-xl border border-white/15 rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 shadow-2xl shadow-cyan-500/10 text-white space-y-4">
+            <h3 className="text-base font-bold text-cyan-200 border-b border-white/10 pb-2 flex items-center gap-2">
+              <span>⚖️</span> {lang === 'en' ? 'Consent & Legal Terms' : 'Consentimiento y Términos'}
+            </h3>
+            
+            <p className="text-xs text-white/80 leading-relaxed">
+              {lang === 'en'
+                ? 'To complete your traveler registration and enable key delivery, you must accept our policies.'
+                : 'Para completar su registro de viajero y poder habilitar la entrega de llaves, es obligatorio que acepte nuestras políticas.'}
+            </p>
+
+            <div className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
+              <input
+                id="legal_checkbox"
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="w-4 h-4 rounded border-white/20 bg-black/40 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:outline-none cursor-pointer mt-0.5"
+              />
+              <label htmlFor="legal_checkbox" className="text-xs text-white/95 cursor-pointer leading-relaxed">
+                {lang === 'en' ? (
+                  <>
+                    I accept the{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowLegalTextModal(true)}
+                      className="text-cyan-300 hover:text-cyan-100 underline font-bold focus:outline-none"
+                    >
+                      Conditions of Use and Privacy Policy
+                    </button>{' '}
+                    of Vila de Fenals.
+                  </>
+                ) : (
+                  <>
+                    Acepto las{' '}
+                    <button
+                      type="button"
+                      onClick={() => setShowLegalTextModal(true)}
+                      className="text-cyan-300 hover:text-cyan-100 underline font-bold focus:outline-none"
+                    >
+                      Condiciones de Uso y la Política de Privacidad
+                    </button>{' '}
+                    de Vila de Fenals.
+                  </>
+                )}
+              </label>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button 
+                type="button"
+                onClick={() => {
+                  setShowTermsModal(false);
+                  setTermsAccepted(false);
+                }}
+                className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold transition-all active:scale-95"
+              >
+                {lang === 'en' ? 'Cancel' : 'Cancelar'}
+              </button>
+              
+              <button 
+                type="button"
+                disabled={!termsAccepted || isSubmitting}
+                onClick={async () => {
+                  setShowTermsModal(false);
+                  await performFinalSubmit();
+                }}
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-cyan-950 text-xs font-bold transition-all shadow-md active:scale-95"
+              >
+                {isSubmitting ? (lang === 'en' ? 'Sending...' : 'Enviando...') : (lang === 'en' ? 'Confirm & Send' : 'Confirmar y Enviar')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==========================================
+          MODAL: LEGAL TERMS FULL TEXT (SECOND POPUP)
+          ========================================== */}
+      {showLegalTextModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in animate-in fade-in duration-200">
+          <div className="bg-gray-950 border border-white/15 rounded-3xl p-6 max-w-md w-full animate-in zoom-in-95 duration-200 shadow-2xl shadow-cyan-500/15 text-white space-y-4">
+            <h3 className="text-base font-bold text-cyan-200 border-b border-white/10 pb-2 flex items-center gap-2">
+              <span>📋</span> {lang === 'en' ? 'Conditions of Use & Privacy Policy' : 'Condiciones de Uso y Política de Privacidad'}
+            </h3>
+            
+            <div className="space-y-4 text-xs max-h-[60vh] overflow-y-auto pr-2 leading-relaxed text-white/90">
+              {lang === 'en' ? (
+                <>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">1. Mandatory Registration (RD 933/2021)</h4>
+                    <p>In compliance with Spanish Royal Decree 933/2021, all guests over 14 years old are legally required to provide true identity details for the official documentary registration of lodging activities before competent authorities.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">2. Data Retention for Legal Compliance</h4>
+                    <p>Your personal data (including name, ID document, address, and signature) will be stored securely for the sole purpose of complying with the official registration before the Law Enforcement Agencies (Mossos d\'Esquadra). This data will be kept under strict security measures for the legally required period of 3 years, after which it will be completely deleted.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">3. Commercial Communications Consent</h4>
+                    <p>By accepting these conditions, you expressly authorize <strong>Vila de Fenals</strong> to retain your basic contact details (name and email) to send you exclusive offers and personalized promotions about our properties in the future. We will never share this information with any third parties.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">4. No Disclosure to Third Parties</h4>
+                    <p>We firmly commit to <strong>never selling, renting, transferring, or sharing</strong> your personal data with any company or third party outside Vila de Fenals, except under mandatory request from police or judicial authorities.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">5. Privacy Rights</h4>
+                    <p>You may exercise your rights of access, rectification, erasure, limitation, and opposition at any time by contacting the host directly.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">1. Obligatoriedad del Registro (RD 933/2021)</h4>
+                    <p>En cumplimiento del Real Decreto 933/2021, de 26 de octubre, todos los huéspedes mayores de 14 años están legalmente obligados a facilitar sus datos de identidad de forma veraz para el registro de hospedajes ante las autoridades competentes.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">2. Conservación con Fines Legales</h4>
+                    <p>Sus datos personales (incluyendo nombre, documento de identidad, dirección y firma) se conservarán de forma segura con la única finalidad de dar cumplimiento al registro oficial ante las Fuerzas y Cuerpos de Seguridad del Estado (Mossos d\'Esquadra). Estos datos serán almacenados bajo estrictas medidas de seguridad durante el plazo legal de 3 años, tras el cual se procederá a su completa destrucción.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">3. Autorización Comercial (Ofertas Personalizadas)</h4>
+                    <p>Al aceptar estas condiciones, usted autoriza expresamente a <strong>Vila de Fenals</strong> a conservar sus datos de contacto básicos (nombre y correo electrónico) para informarle en el futuro de ofertas exclusivas y promociones personalizadas sobre nuestros alojamientos, sin compartir sus datos con terceros.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">4. No Cesión a Terceros</h4>
+                    <p>Nos comprometemos firmemente a <strong>no vender, alquilar, ceder ni compartir</strong> sus datos personales con ninguna empresa o tercero ajeno a Vila de Fenals, salvo por requerimiento obligatorio de las autoridades policiales o judiciales.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <h4 className="font-bold text-cyan-300">5. Derechos ARCO</h4>
+                    <p>En cualquier momento puede ejercer sus derechos de acceso, rectificación, supresión, limitación y oposición enviando una solicitud directa al anfitrión.</p>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="pt-2">
+              <button 
+                type="button"
+                onClick={() => setShowLegalTextModal(false)}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 text-cyan-950 text-xs font-bold transition-all shadow-md active:scale-95"
+              >
+                {lang === 'en' ? 'Close' : 'Cerrar'}
               </button>
             </div>
           </div>
