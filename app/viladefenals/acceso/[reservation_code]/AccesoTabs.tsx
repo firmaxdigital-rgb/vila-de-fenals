@@ -249,8 +249,13 @@ export default function AccesoTabs({
   const unregisteredCount = Math.max(0, totalGuests - completedForms);
 
   // 3. Compute dynamic paying guests based on unregistered selection
-  // Clamp selected minors count between 0 and unregisteredCount
-  const safeMinorsCount = Math.min(Math.max(0, unregisteredMinorsCount), unregisteredCount);
+  // At least one guest in the total guests count must be an adult (paying).
+  // Total minors = registeredMinors + unregisteredMinors
+  const registeredMinors = completedForms - registeredPaying;
+  const maxUnregisteredMinors = Math.max(0, Math.min(unregisteredCount, totalGuests - 1 - registeredMinors));
+  
+  // Clamp selected minors count between 0 and maxUnregisteredMinors
+  const safeMinorsCount = Math.min(Math.max(0, unregisteredMinorsCount), maxUnregisteredMinors);
   const unregisteredPayingCount = Math.max(0, unregisteredCount - safeMinorsCount);
   
   const payingGuests = registeredPaying + unregisteredPayingCount;
@@ -573,8 +578,8 @@ export default function AccesoTabs({
                             </span>
                             <button
                               type="button"
-                              onClick={() => setUnregisteredMinorsCount(prev => Math.min(unregisteredCount, prev + 1))}
-                              disabled={unregisteredMinorsCount >= unregisteredCount}
+                              onClick={() => setUnregisteredMinorsCount(prev => Math.min(maxUnregisteredMinors, prev + 1))}
+                              disabled={unregisteredMinorsCount >= maxUnregisteredMinors}
                               className="w-6 h-6 rounded-lg bg-white/10 border border-white/15 text-white font-bold flex items-center justify-center text-xs hover:bg-white/15 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                             >
                               +
