@@ -181,6 +181,36 @@ export default function AccesoTabs({
   const isDepositComplete = !hasDeposit || (depositPaid >= depositAmount);
   const isFullyUnlocked = isPhase1Complete && isTaxPaid && isDepositComplete;
 
+  const [isFinalizingFallback, setIsFinalizingFallback] = useState(false);
+
+  // Client-side fallback to finalize registration if fully unlocked but Nuki PIN is missing
+  useEffect(() => {
+    if (isFullyUnlocked && !reservation.nuki_pin && !isFinalizingFallback) {
+      setIsFinalizingFallback(true);
+      console.log("[AccesoTabs] All conditions met but Nuki PIN is missing. Triggering finalization fallback...");
+      fetch('/api/registro-final', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reservation_code: decodedCode })
+      })
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          console.log("[AccesoTabs] Fallback finalization succeeded:", data);
+          router.refresh();
+        } else {
+          const errText = await res.text();
+          console.error("[AccesoTabs] Fallback finalization API returned error:", errText);
+          setIsFinalizingFallback(false);
+        }
+      })
+      .catch(err => {
+        console.error("[AccesoTabs] Error in fallback finalization:", err);
+        setIsFinalizingFallback(false);
+      });
+    }
+  }, [isFullyUnlocked, reservation.nuki_pin, isFinalizingFallback, decodedCode, router]);
+
   // Calculate nights
   const checkIn = new Date(reservation.check_in);
   const checkOut = new Date(reservation.check_out);
@@ -826,6 +856,39 @@ export default function AccesoTabs({
                   
                   <div className="bg-black/35 backdrop-blur-md border border-white/15 rounded-2xl py-3 px-6 font-mono text-cyan-100 flex items-center justify-center gap-3 select-all cursor-pointer hover:bg-black/45 transition-all shadow-inner w-full max-w-[280px] mx-auto">
                     <span className="font-bold text-white text-3xl tracking-[0.15em] ml-2">{reservation.nuki_pin}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Fallback generating access card */}
+              {!reservation.nuki_pin && (
+                <div className="bg-black/20 border border-white/10 rounded-2xl p-5 text-center space-y-3 animate-pulse">
+                  <h3 className="font-semibold text-base flex items-center justify-center gap-2">
+                    <Key size={18} className="text-cyan-400 animate-bounce" /> {dict.code_title}
+                  </h3>
+                  <p className="text-white/75 text-sm leading-relaxed max-w-xs mx-auto">
+                    {({
+                      es: "Generando su código PIN personal...",
+                      en: "Generating your personal PIN code...",
+                      fr: "Génération de votre code PIN personnel...",
+                      de: "Generiere Ihren persönlichen PIN-Code...",
+                      pl: "Generowanie osobistego kodu PIN...",
+                      nl: "Genereren van uw persoonlijke PIN-code...",
+                      zh: "正在生成您的个人 PIN 码...",
+                      uk: "Генерація вашого персонального PIN-коду...",
+                      ru: "Генерация вашего персонального PIN-кода...",
+                      ja: "個人用 PIN コードを生成中...",
+                    } as Record<Lang, string>)[lang] || "Generating your personal PIN code..."}
+                  </p>
+                  
+                  <div className="bg-black/35 backdrop-blur-md border border-white/15 rounded-2xl py-4 px-6 flex items-center justify-center gap-3 w-full max-w-[280px] mx-auto shadow-inner">
+                    <svg className="animate-spin h-5 w-5 text-cyan-400" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span className="font-semibold text-cyan-200 text-sm">
+                      {lang === 'en' ? 'Syncing lock...' : 'Sincronizando cerradura...'}
+                    </span>
                   </div>
                 </div>
               )}
