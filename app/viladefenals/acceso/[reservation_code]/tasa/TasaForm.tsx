@@ -124,7 +124,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_title: '¡Estancia exenta de Tasa!',
       exempt_desc: 'Todos los huéspedes registrados son menores de 16 años.',
       exempt_btn: 'Finalizar Check-in (0.00€)',
-      exempt_processing: 'Finalizando Check-in...'
+      exempt_processing: 'Finalizando Check-in...',
+      gateway_title: 'Pasarela de Pago'
     },
     en: {
       total: 'Total to pay:',
@@ -136,7 +137,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_title: 'Exempt from Tourist Tax!',
       exempt_desc: 'All registered guests are under 16 years old.',
       exempt_btn: 'Finalize Check-in (0.00€)',
-      exempt_processing: 'Finalizing Check-in...'
+      exempt_processing: 'Finalizing Check-in...',
+      gateway_title: 'Payment Gateway'
     },
     fr: {
       total: 'Total à payer:',
@@ -148,7 +150,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_title: 'Séjour exempté de taxe !',
       exempt_desc: 'Tous les clients enregistrés ont moins de 16 ans.',
       exempt_btn: 'Finaliser le Check-in (0.00€)',
-      exempt_processing: 'Finalisation du Check-in...'
+      exempt_processing: 'Finalisation du Check-in...',
+      gateway_title: 'Passerelle de paiement'
     },
     de: {
       total: 'Gesamtbetrag:',
@@ -160,7 +163,86 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_title: 'Von der Kurtaxe befreit!',
       exempt_desc: 'Alle angemeldeten Gäste sind unter 16 Jahre alt.',
       exempt_btn: 'Check-in abschließen (0.00€)',
-      exempt_processing: 'Check-in wird abgeschlossen...'
+      exempt_processing: 'Check-in wird abgeschlossen...',
+      gateway_title: 'Zahlungsportal'
+    },
+    nl: {
+      total: 'Totaal te betalen:',
+      secure_hint: 'Gecodeerde verbinding met hoge beveiliging van PayComet',
+      pay_btn: 'Doorgaan naar Veilige Betaling',
+      processing: 'Verbindung maken met Gateway...',
+      redirecting: 'Doorsturen naar PayComet...',
+      reassurance: 'Deze bewerking stuurt u door naar de officieel gecertificeerde PayComet-betalingsgateway. Vila de Fenals slaat uw creditcardgegevens nooit op en heeft er geen toegang toe.',
+      exempt_title: 'Verblijf vrijgesteld van toeristenbelasting!',
+      exempt_desc: 'Alle geregistreerde gasten zijn jonger dan 16 jaar.',
+      exempt_btn: 'Check-in afronden (0.00€)',
+      exempt_processing: 'Check-in afronden...',
+      gateway_title: 'Betalingspoort'
+    },
+    pl: {
+      total: 'Razem do zapłaty:',
+      secure_hint: 'Szyfrowane połączenie o wysokim bezpieczeństwie PayComet',
+      pay_btn: 'Przejdź do bezpiecznej płatności',
+      processing: 'Łączenie z bramką...',
+      redirecting: 'Przekierowanie do PayComet...',
+      reassurance: 'Ta operacja przekieruje Cię do oficjalnej, certyfikowanej bramki płatniczej PayComet. Vila de Fenals nigdy nie przechowuje ani nie ma dostępu do danych Twojej karty kredytowej.',
+      exempt_title: 'Pobyt zwolniony z opłaty klimatycznej!',
+      exempt_desc: 'Wszyscy zarejestrowani goście mają poniżej 16 lat.',
+      exempt_btn: 'Sfinalizuj zameldowanie (0.00€)',
+      exempt_processing: 'Finalizowanie zameldowania...',
+      gateway_title: 'Bramka płatnicza'
+    },
+    zh: {
+      total: '应付总额：',
+      secure_hint: 'PayComet 高安全加密连接',
+      pay_btn: '前往安全支付',
+      processing: '正在连接网关...',
+      redirecting: '正在重定向至 PayComet...',
+      reassurance: '此操作将重定向您至 PayComet 官方认证的支付网关。Vila de Fenals 从不存储也无权访问您的信用卡信息。',
+      exempt_title: '免除旅游税！',
+      exempt_desc: '所有登记的住客均未满 16 岁。',
+      exempt_btn: '完成入住登记 (0.00€)',
+      exempt_processing: '正在完成入住登记...',
+      gateway_title: '支付网关'
+    },
+    uk: {
+      total: 'Всього до сплати:',
+      secure_hint: 'Високозахищене шифроване з’єднання PayComet',
+      pay_btn: 'Перейти до безпечної оплати',
+      processing: 'Підключення до шлюзу...',
+      redirecting: 'Перенаправлення на PayComet...',
+      reassurance: 'Ця операція перенаправить вас на офіційний сертифікований платіжний шлюз PayComet. Vila de Fenals ніколи не зберігає та не має доступу до даних вашої кредитної картки.',
+      exempt_title: 'Перебування звільнено від туристичного збору!',
+      exempt_desc: 'Усі зареєстровані гості віком до 16 років.',
+      exempt_btn: 'Завершити реєстрацію (0.00€)',
+      exempt_processing: 'Завершення реєстрації...',
+      gateway_title: 'Платіжний шлюз'
+    },
+    ru: {
+      total: 'Всего к оплате:',
+      secure_hint: 'Высокозащищенное шифрованное соединение PayComet',
+      pay_btn: 'Перейти к безопасной оплате',
+      processing: 'Подключение к шлюзу...',
+      redirecting: 'Перенаправление на PayComet...',
+      reassurance: 'Эта операция перенаправит вас на официальный сертифицированный платежный шлюз PayComet. Vila de Fenals никогда не хранит и не имеет доступа к данным вашей кредитной карты.',
+      exempt_title: 'Пребывание освобождено от туристического сбора!',
+      exempt_desc: 'Все зарегистрированные гости младше 16 лет.',
+      exempt_btn: 'Завершить регистрацию (0.00€)',
+      exempt_processing: 'Завершение регистрации...',
+      gateway_title: 'Платежный шлюз'
+    },
+    ja: {
+      total: 'お支払い合計：',
+      secure_hint: 'PayCometによる高セキュリティ暗号化接続',
+      pay_btn: '安全な決済に進む',
+      processing: 'ゲートウェイに接続中...',
+      redirecting: 'PayCometにリダイレクト中...',
+      reassurance: 'この操作により、公式に認定されたPayComet決済ゲートウェイにリダイレクトされます。Vila de Fenalsはクレジットカード情報を一切保存せず、アクセスすることもありません。',
+      exempt_title: '宿泊税免除！',
+      exempt_desc: '登録されているすべての宿泊客は16歳未満です。',
+      exempt_btn: 'チェックインを完了する (0.00€)',
+      exempt_processing: 'チェックインを完了中...',
+      gateway_title: '決済ゲートウェイ'
     }
   };
 
@@ -203,7 +285,7 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
           {/* Premium Informative Billing Card */}
           <div className="space-y-3 bg-black/25 rounded-2xl p-4 border border-white/10 text-white/80">
             <div className="flex justify-between items-center text-white/50 text-xs uppercase font-bold tracking-wider mb-2">
-              <span className="flex items-center gap-1">💳 Pasarela de Pago</span>
+              <span className="flex items-center gap-1">💳 {dict.gateway_title || 'Pasarela de Pago'}</span>
               <span className="flex items-center gap-0.5"><ShieldCheck size={12} className="text-emerald-400" /> PayComet Secure</span>
             </div>
 

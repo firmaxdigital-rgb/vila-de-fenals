@@ -75,6 +75,327 @@ const recyclingTranslations: Record<Lang, { title: string; desc: string; room: s
   }
 };
 
+const accesoTranslations: Record<Lang, {
+  fianza_title: string;
+  fianza_desc: string;
+  fianza_success_title: string;
+  fianza_success_desc: string;
+  fianza_split_label: string;
+  fianza_split_hint: string;
+  fianza_limit_label: string;
+  fianza_parts_label: string;
+  fianza_part: string;
+  fianza_paid: string;
+  fianza_pay: string;
+  fianza_pay_remaining: string;
+  fianza_remaining_label: string;
+  fianza_pay_full: string;
+  fianza_link_generating: string;
+  check_in_label: string;
+  check_out_label: string;
+  whatsapp_btn: string;
+  whatsapp_message: string;
+  fianza_partial: string;
+  payment_received_success: string;
+  payment_received_success_desc: string;
+  tax_paid_success: string;
+  tax_paid_success_desc: string;
+  syncing_lock: string;
+  check_in_completed_success: string;
+  check_in_completed_success_desc: string;
+}> = {
+  es: {
+    fianza_title: "3. Fianza de Seguridad",
+    fianza_desc: "Por motivos de seguridad, se requiere un depósito temporal que será devuelto manualmente tras comprobar el estado del apartamento al final de la estancia.",
+    fianza_success_title: "Fianza depositada correctamente.",
+    fianza_success_desc: "Importe total garantizado de forma segura.",
+    fianza_split_label: "¿Tu tarjeta tiene un límite por pago inferior a este importe?",
+    fianza_split_hint: "Si lo marcas, podrás definir el límite por transacción y dividiremos el pago total en varios enlaces de menor importe.",
+    fianza_limit_label: "Límite de pago por tarjeta (€)",
+    fianza_parts_label: "Tramos de pago requeridos:",
+    fianza_part: "Tramo",
+    fianza_paid: "Pagado",
+    fianza_pay: "Pagar",
+    fianza_pay_remaining: "Pagar Resto",
+    fianza_remaining_label: "Total Restante de Fianza:",
+    fianza_pay_full: "Pagar Fianza Completa",
+    fianza_link_generating: "Generando Enlace de Pago...",
+    check_in_label: "Entrada:",
+    check_out_label: "Salida:",
+    whatsapp_btn: "Contactar con el Anfitrión",
+    whatsapp_message: "¡Hola! Tengo una consulta sobre mi reserva [code] en Vila de Fenals.",
+    fianza_partial: "Parcial",
+    payment_received_success: "¡PAGO RECIBIDO CORRECTAMENTE!",
+    payment_received_success_desc: "Hemos procesado su pago de la Tasa Turística de forma segura. En unos momentos se sincronizará la Fase 3 con su código de acceso de Nuki.",
+    tax_paid_success: "¡PAGO DE TASA REGISTRADO CON ÉXITO!",
+    tax_paid_success_desc: "Hemos registrado el pago de su Tasa Turística correctamente. Sin embargo, para desbloquear las llaves virtuales y acceder al apartamento, aún debe completar el registro obligatorio de todos los viajeros de la reserva (Fase 1).",
+    syncing_lock: "Sincronizando cerradura...",
+    check_in_completed_success: "¡Check-in Completado con Éxito!",
+    check_in_completed_success_desc: "Su check-in se ha completado correctamente. Sin embargo, sus llaves virtuales y códigos de acceso se activarán automáticamente a partir de la hora prevista para su check in del día de llegada [date]."
+  },
+  en: {
+    fianza_title: "3. Security Deposit",
+    fianza_desc: "For security reasons, a temporary deposit is required. It will be refunded manually after checking the apartment's condition at the end of your stay.",
+    fianza_success_title: "Deposit paid successfully.",
+    fianza_success_desc: "Total amount secured.",
+    fianza_split_label: "Does your card have a single payment limit lower than this amount?",
+    fianza_split_hint: "If checked, you can enter your card transaction limit and we will split the total fianza into multiple smaller payment links.",
+    fianza_limit_label: "Single Payment Limit (€)",
+    fianza_parts_label: "Payment Parts Required:",
+    fianza_part: "Part",
+    fianza_paid: "Paid",
+    fianza_pay: "Pay",
+    fianza_pay_remaining: "Pay Remaining",
+    fianza_remaining_label: "Total Remaining:",
+    fianza_pay_full: "Pay Security Deposit",
+    fianza_link_generating: "Generating Payment Link...",
+    check_in_label: "Check-in:",
+    check_out_label: "Check-out:",
+    whatsapp_btn: "Contact Host",
+    whatsapp_message: "Hello! I have a question regarding my reservation [code] at Vila de Fenals.",
+    fianza_partial: "Partial",
+    payment_received_success: "Payment Received Successfully!",
+    payment_received_success_desc: "We have processed your Tourist Tax payment securely. In a few moments, Phase 3 will synchronize with your Nuki access code.",
+    tax_paid_success: "Tourist Tax Paid Successfully!",
+    tax_paid_success_desc: "We have processed your Tourist Tax payment securely. However, to unlock your virtual keys and access the apartment, you must still complete the mandatory registration form for all travelers (Phase 1).",
+    syncing_lock: "Syncing lock...",
+    check_in_completed_success: "Check-in Completed Successfully!",
+    check_in_completed_success_desc: "Your check-in has been completed correctly. However, your virtual keys and access codes will be automatically activated starting from the scheduled check-in time on your day of arrival [date]."
+  },
+  fr: {
+    fianza_title: "3. Dépôt de Garantie",
+    fianza_desc: "Pour des raisons de sécurité, un dépôt temporaire est requis. Il sera remboursé manuellement après vérification de l'état de l'appartement à la fin de votre séjour.",
+    fianza_success_title: "Dépôt effectué avec succès.",
+    fianza_success_desc: "Montant total sécurisé de manière fiable.",
+    fianza_split_label: "Votre carte a-t-elle une limite de paiement unique inférieure à ce montant ?",
+    fianza_split_hint: "Si coché, vous pouvez saisir la limite de transaction de votre carte et nous diviserons le montant total en plusieurs liens de paiement plus petits.",
+    fianza_limit_label: "Limite de paiement par carte (€)",
+    fianza_parts_label: "Tranches de paiement requises :",
+    fianza_part: "Partie",
+    fianza_paid: "Payé",
+    fianza_pay: "Payer",
+    fianza_pay_remaining: "Payer le solde",
+    fianza_remaining_label: "Solde restant du dépôt :",
+    fianza_pay_full: "Payer le dépôt de garantie complet",
+    fianza_link_generating: "Génération du lien de paiement...",
+    check_in_label: "Arrivée :",
+    check_out_label: "Départ :",
+    whatsapp_btn: "Contacter l'Hôte",
+    whatsapp_message: "Bonjour ! J'ai une question concernant ma réservation [code] à Vila de Fenals.",
+    fianza_partial: "Partiel",
+    payment_received_success: "Paiement reçu avec succès !",
+    payment_received_success_desc: "Nous avons traité votre paiement de taxe de séjour en toute sécurité. Dans quelques instants, la phase 3 se synchronisera avec votre code d'accès Nuki.",
+    tax_paid_success: "Taxe de séjour payée avec succès !",
+    tax_paid_success_desc: "Nous avons traité votre paiement de taxe de séjour en toute sécurité. Cependant, pour déverrouiller vos clés virtuelles et accéder à l'appartement, vous devez encore remplir le formulaire d'enregistrement obligatoire pour tous les voyageurs (Phase 1).",
+    syncing_lock: "Synchronisation de la serrure...",
+    check_in_completed_success: "Enregistrement réussi !",
+    check_in_completed_success_desc: "Votre enregistrement a été effectué correctement. Cependant, vos clés virtuelles et codes d'accès seront activés automatiquement à partir de l'heure d'enregistrement prévue le jour de votre arrivée [date]."
+  },
+  de: {
+    fianza_title: "3. Kaution",
+    fianza_desc: "Aus Sicherheitsgründen ist eine vorübergehende Kaution erforderlich. Sie wird am Ende Ihres Aufenthalts nach Überprüfung des Zustands der Wohnung manuell zurückerstattet.",
+    fianza_success_title: "Kaution erfolgreich hinterlegt.",
+    fianza_success_desc: "Gesamtbetrag sicher hinterlegt.",
+    fianza_split_label: "Hat Ihre Karte ein Zahlungslimit, das unter diesem Betrag liegt?",
+    fianza_split_hint: "Wenn diese Option aktiviert ist, können Sie Ihr Kartenlimit eingeben, und wir teilen die Kaution in mehrere kleinere Zahlungslinks auf.",
+    fianza_limit_label: "Zahlunglimit pro Karte (€)",
+    fianza_parts_label: "Erforderliche Zahlungsschritte:",
+    fianza_part: "Teil",
+    fianza_paid: "Bezahlt",
+    fianza_pay: "Bezahlen",
+    fianza_pay_remaining: "Restbetrag bezahlen",
+    fianza_remaining_label: "Verbleibende Kaution:",
+    fianza_pay_full: "Vollständige Kaution bezahlen",
+    fianza_link_generating: "Zahlungslink wird generiert...",
+    check_in_label: "Anreise:",
+    check_out_label: "Abreise:",
+    whatsapp_btn: "Gastgeber kontaktieren",
+    whatsapp_message: "Hallo! Ich habe eine Frage zu meiner Reservierung [code] in Vila de Fenals.",
+    fianza_partial: "Teilweise",
+    payment_received_success: "Zahlung erfolgreich erhalten!",
+    payment_received_success_desc: "Wir haben Ihre Kurtaxenzahlung sicher verarbeitet. In wenigen Momenten wird Phase 3 mit Ihrem Nuki-Zugangscode synchronisiert.",
+    tax_paid_success: "Kurtaxe erfolgreich bezahlt!",
+    tax_paid_success_desc: "Wir haben Ihre Kurtaxenzahlung sicher verarbeitet. Um Ihre virtuellen Schlüssel freizuschalten und auf die Wohnung zuzugreifen, müssen Sie jedoch noch das obligatorische Anmeldeformular für alle Reisenden ausfüllen (Phase 1).",
+    syncing_lock: "Schloss wird synchronisiert...",
+    check_in_completed_success: "Check-in erfolgreich abgeschlossen!",
+    check_in_completed_success_desc: "Ihr Check-in wurde korrekt durchgeführt. Ihre virtuellen Schlüssel und Zugangscodes werden jedoch ab der geplanten Check-in-Zeit an Ihrem Ankunftstag [date] automatisch aktiviert."
+  },
+  pl: {
+    fianza_title: "3. Kaucja Zabezpieczająca",
+    fianza_desc: "Ze względów bezpieczeństwa wymagana jest kaucja wpłacana tymczasowo. Zostanie ona zwrócona ręcznie po sprawdzeniu stanu apartamentu na koniec pobytu.",
+    fianza_success_title: "Kaucja wpłacona pomyślnie.",
+    fianza_success_desc: "Cała kwota została zabezpieczona.",
+    fianza_split_label: "Czy Twoja karta ma limit pojedynczej płatności niższy niż ta kwota?",
+    fianza_split_hint: "Po zaznaczeniu możesz podać limit transakcji swojej karty, a my podzielimy kaucję na kilka linków do płatności o niższej kwocie.",
+    fianza_limit_label: "Limit płatności kartą (€)",
+    fianza_parts_label: "Wymagane raty płatności:",
+    fianza_part: "Część",
+    fianza_paid: "Opłacone",
+    fianza_pay: "Zapłać",
+    fianza_pay_remaining: "Zapłać pozostałość",
+    fianza_remaining_label: "Pozostała kwota kaucji:",
+    fianza_pay_full: "Zapłać całą kaucję",
+    fianza_link_generating: "Generowanie linku do płatności...",
+    check_in_label: "Meldowanie:",
+    check_out_label: "Wymeldowanie:",
+    whatsapp_btn: "Skontaktuj się z Gospodarzem",
+    whatsapp_message: "Dzień dobry! Mam pytanie dotyczące mojej rezerwacji [code] w Vila de Fenals.",
+    fianza_partial: "Częściowo",
+    payment_received_success: "Płatność otrzymana pomyślnie!",
+    payment_received_success_desc: "Bezpiecznie przetworzyliśmy płatność opłaty klimatycznej. Za chwilę faza 3 zsynchronizuje się z kodem dostępu Nuki.",
+    tax_paid_success: "Opłata klimatyczna opłacona pomyślnie!",
+    tax_paid_success_desc: "Bezpiecznie przetworzyliśmy płatność opłaty klimatycznej. Jednak aby odblokować wirtualne klucze i uzyskać dostęp do apartamentu, musisz jeszcze wypełnić obowiązkowy formularz rejestracyjny dla wszystkich podróżnych (Faza 1).",
+    syncing_lock: "Synchronizowanie zamka...",
+    check_in_completed_success: "Zameldowanie ukończone pomyślnie!",
+    check_in_completed_success_desc: "Zameldowanie przebiegło pomyślnie. Jednak Twoje wirtualne klucze i kody dostępu zostaną automatycznie aktywowane od planowanej godziny zameldowania w dniu przyjazdu [date]."
+  },
+  zh: {
+    fianza_title: "3. 安全押金",
+    fianza_desc: "出于安全考虑，需要收取临时押金。退房时确认公寓完好后将手动退还。",
+    fianza_success_title: "押金支付成功。",
+    fianza_success_desc: "总金额已安全担保。",
+    fianza_split_label: "您的信用卡单笔支付限额是否低于此金额？",
+    fianza_split_hint: "如果勾选，您可以输入信用卡单笔额度，我们将把押金总额拆分为多个小额支付链接。",
+    fianza_limit_label: "单笔支付限额 (€)",
+    fianza_parts_label: "所需拆分支付的部分：",
+    fianza_part: "部分",
+    fianza_paid: "已付",
+    fianza_pay: "支付",
+    fianza_pay_remaining: "支付剩余款项",
+    fianza_remaining_label: "剩余押金总额：",
+    fianza_pay_full: "支付全部安全押金",
+    fianza_link_generating: "正在生成支付链接...",
+    check_in_label: "入住时间：",
+    check_out_label: "退房时间：",
+    whatsapp_btn: "联系房东",
+    whatsapp_message: "您好！我有关于我在 Vila de Fenals 的预订 [code] 的疑问。",
+    fianza_partial: "部分已付",
+    payment_received_success: "付款成功接收！",
+    payment_received_success_desc: "我们已安全处理您的旅游税付款。稍后，第 3 阶段将与您的 Nuki 门禁密码同步。",
+    tax_paid_success: "旅游税支付成功！",
+    tax_paid_success_desc: "我们已安全处理您的旅游税付款。但是，要解锁虚拟钥匙并进入公寓，您仍需完成所有旅客的强制性登记表（第 1 阶段）。",
+    syncing_lock: "正在同步锁...",
+    check_in_completed_success: "入住登记成功完成！",
+    check_in_completed_success_desc: "您的入住登记已正确完成。但是，您的虚拟钥匙和准入密码将在您到达日 [date] 的预定入住时间开始自动激活。"
+  },
+  uk: {
+    fianza_title: "3. Страхова застава",
+    fianza_desc: "З міркувань безпеки вимагається тимчасова застава, яка буде повернута вручну після перевірки стану апартаментів наприкінці вашого перебування.",
+    fianza_success_title: "Заставу успішно внесено.",
+    fianza_success_desc: "Загальну суму успішно забезпечено.",
+    fianza_split_label: "Ваша картка має ліміт на одну транзакцію, нижчий за цю суму?",
+    fianza_split_hint: "Якщо позначено, ви зможете ввести ліміт транзакції вашої картки, і ми розділимо загальну суму застави на кілька менших посилань для оплати.",
+    fianza_limit_label: "Ліміт оплати карткою (€)",
+    fianza_parts_label: "Необхідні частини оплати:",
+    fianza_part: "Частина",
+    fianza_paid: "Сплачено",
+    fianza_pay: "Сплатити",
+    fianza_pay_remaining: "Сплатити залишок",
+    fianza_remaining_label: "Залишок застави:",
+    fianza_pay_full: "Сплатити повну суму застави",
+    fianza_link_generating: "Створення посилання для оплати...",
+    check_in_label: "Заїзд:",
+    check_out_label: "Виїзд:",
+    whatsapp_btn: "Зв'язатися з господарем",
+    whatsapp_message: "Привіт! У мене є питання щодо мого бронювання [code] у Vila de Fenals.",
+    fianza_partial: "Частково",
+    payment_received_success: "Платіж успішно отримано!",
+    payment_received_success_desc: "Ми безпечно обробили ваш платіж туристичного збору. За кілька хвилин Фаза 3 синхронізується з вашим кодом доступу Nuki.",
+    tax_paid_success: "Туристичний збір успішно сплачено!",
+    tax_paid_success_desc: "Ми безпечно обробили ваш платіж туристичного збору. Однак, щоб розблокувати віртуальні ключі та отримати доступ до апартаментів, вам все одно потрібно заповнити обов'язкову реєстраційну форму для всіх мандрівників (Фаза 1).",
+    syncing_lock: "Синхронізація замка...",
+    check_in_completed_success: "Реєстрацію успішно завершено!",
+    check_in_completed_success_desc: "Реєстрація пройшла успішно. Однак ваші віртуальні ключі та коди доступу будуть автоматично активовані, починаючи із запланованого часу заїзду в день вашого прибуття [date]."
+  },
+  ru: {
+    fianza_title: "3. Страховой залог",
+    fianza_desc: "Из соображений безопасности требуется временный залог, который будет возвращен вручную после проверки состояния апартаментов в конце вашего пребывания.",
+    fianza_success_title: "Залог успешно внесен.",
+    fianza_success_desc: "Вся сумма успешно обеспечена.",
+    fianza_split_label: "У вашей карты лимит на одну транзакцию ниже этой суммы?",
+    fianza_split_hint: "Если отмечено, вы сможете ввести лимит транзакции вашей карты, и мы разделим общую сумму залога на несколько меньших ссылок для оплаты.",
+    fianza_limit_label: "Лимит оплаты картой (€)",
+    fianza_parts_label: "Необходимые части оплаты:",
+    fianza_part: "Часть",
+    fianza_paid: "Оплачено",
+    fianza_pay: "Оплатить",
+    fianza_pay_remaining: "Оплатить остаток",
+    fianza_remaining_label: "Остаток залога:",
+    fianza_pay_full: "Оплатить полную сумму залога",
+    fianza_link_generating: "Создание ссылки для оплаты...",
+    check_in_label: "Заезд:",
+    check_out_label: "Выезд:",
+    whatsapp_btn: "Связаться с хозяином",
+    whatsapp_message: "Здравствуйте! У меня есть вопрос относительно моего бронирования [code] в Vila de Fenals.",
+    fianza_partial: "Частично",
+    payment_received_success: "Платеж успешно получен!",
+    payment_received_success_desc: "Мы безопасно обработали ваш платеж туристического сбора. Через несколько секунд Фаза 3 синхронизируется с вашим кодом доступа Nuki.",
+    tax_paid_success: "Туристический сбор успешно уплачен!",
+    tax_paid_success_desc: "Мы безопасно обработали ваш платеж туристического сбора. Однако, чтобы разблокировать виртуальные ключи и получить доступ к апартаментам, вам все равно необходимо заполнить обязательную регистрационную форму для всех путешественников (Фаза 1).",
+    syncing_lock: "Синхронизация замка...",
+    check_in_completed_success: "Регистрация успешно завершена!",
+    check_in_completed_success_desc: "Регистрация прошла успешно. Однако ваши виртуальные ключи и коды доступа будут автоматически активированы, начиная с запланированного времени заезда в день вашего прибытия [date]."
+  },
+  nl: {
+    fianza_title: "3. Borgsom",
+    fianza_desc: "Om veiligheidsredenen is een tijdelijke borgsom vereist. Deze wordt handmatig teruggestort na controle van de staat van het appartement aan het einde van uw verblijf.",
+    fianza_success_title: "Borgsom succesvol betaald.",
+    fianza_success_desc: "Totaalbedrag veiliggesteld.",
+    fianza_split_label: "Heeft uw kaart een betalingslimiet die lager is dan dit bedrag?",
+    fianza_split_hint: "Indien aangevinkt, kunt u de transactielimiet van uw kaart invoeren en splitsen we de totale borgsom op in meerdere kleinere betalingslinks.",
+    fianza_limit_label: "Betalingslimiet per kaart (€)",
+    fianza_parts_label: "Vereiste betalingsdelen:",
+    fianza_part: "Deel",
+    fianza_paid: "Betaald",
+    fianza_pay: "Betalen",
+    fianza_pay_remaining: "Resterend bedrag betalen",
+    fianza_remaining_label: "Totaal resterende borgsom:",
+    fianza_pay_full: "Volledige borgsom betalen",
+    fianza_link_generating: "Betalingslink genereren...",
+    check_in_label: "Check-in:",
+    check_out_label: "Check-out:",
+    whatsapp_btn: "Contact opnemen met Host",
+    whatsapp_message: "Hallo! Ik heb een vraag over mijn reservering [code] bij Vila de Fenals.",
+    fianza_partial: "Gedeeltelijk",
+    payment_received_success: "Betaling succesvol ontvangen!",
+    payment_received_success_desc: "We hebben uw betaling voor de toeristenbelasting veilig verwerkt. Binnen enkele ogenblikken wordt Fase 3 gesynchroniseerd met uw Nuki-toegangscode.",
+    tax_paid_success: "Toeristenbelasting succesvol betaald!",
+    tax_paid_success_desc: "We hebben uw betaling voor de toeristenbelasting veilig verwerkt. Om uw virtuele sleutels te ontgrendelen en toegang te krijgen tot het appartement, moet u echter nog het verplichte registratieformulier voor alle reizigers invullen (Fase 1).",
+    syncing_lock: "Slot synchroniseren...",
+    check_in_completed_success: "Check-in succesvol afgerond!",
+    check_in_completed_success_desc: "Uw check-in is correct afgerond. Uw virtuele sleutels en toegangscodes worden echter automatisch geactiveerd vanaf de geplande check-in tijd op uw dag van aankomst [date]."
+  },
+  ja: {
+    fianza_title: "3. 保証金",
+    fianza_desc: "安全上の理由から、一時的な保証金が必要となります。滞在終了時にアパートの状態を確認した後、手動で返金されます。",
+    fianza_success_title: "保証金の支払いが完了しました。",
+    fianza_success_desc: "総額が安全に担保されました。",
+    fianza_split_label: "カードの1回あたりの利用限度額がこの金額を下回っていますか？",
+    fianza_split_hint: "選択すると、カードの利用限度額を入力でき、保証金総額を複数の小さな支払いリンクに分割します。",
+    fianza_limit_label: "カードの利用限度額 (€)",
+    fianza_parts_label: "必要な分割支払い：",
+    fianza_part: "分割",
+    fianza_paid: "支払済",
+    fianza_pay: "支払う",
+    fianza_pay_remaining: "残額を支払う",
+    fianza_remaining_label: "保証金の残額：",
+    fianza_pay_full: "保証金全額を支払う",
+    fianza_link_generating: "支払いリンクを生成中...",
+    check_in_label: "チェックイン：",
+    check_out_label: "チェックアウト：",
+    whatsapp_btn: "ホストに連絡する",
+    whatsapp_message: "こんにちは！Vila de Fenalsでの予約[code]について質問があります。",
+    fianza_partial: "一部支払済",
+    payment_received_success: "支払いが正常に受信されました！",
+    payment_received_success_desc: "宿泊税の支払いが安全に処理されました。間もなく、フェーズ3がNukiアクセスコードと同期します。",
+    tax_paid_success: "宿泊税が正常に支払われました！",
+    tax_paid_success_desc: "宿泊税の支払いが安全に処理されました。ただし、バーチャルキーをロック解除してアパートに入るには、すべての宿泊者の必須登録フォーム（フェーズ1）を完了する必要があります。",
+    syncing_lock: "ロックを同期中...",
+    check_in_completed_success: "チェックインが正常に完了しました！",
+    check_in_completed_success_desc: "チェックインが正しく完了しました。ただし、バーチャルキーとアクセスコードは、到着予定日のチェックイン予定時刻[date]から自動的に有効になります。"
+  }
+};
+
 interface AccesoTabsProps {
   reservation: any;
   travelers: any[];
@@ -97,6 +418,7 @@ export default function AccesoTabs({
   const isSimulated = searchParams.get('simulated') === 'true';
   const dict = translations[lang] || translations['es'];
   const rDict = recyclingTranslations[lang] || recyclingTranslations['es'];
+  const aDict = accesoTranslations[lang] || accesoTranslations['es'];
   const decodedCode = reservation.reservation_code;
   const isTaxPaidFromDB = reservation.is_tax_paid === true;
   const [localTaxPaid, setLocalTaxPaid] = useState(false);
@@ -381,9 +703,7 @@ export default function AccesoTabs({
 
   const ContactHostButton = () => {
     const whatsAppLink = `https://wa.me/34661690375?text=${encodeURIComponent(
-      lang === 'en'
-        ? `Hello! I have a question regarding my reservation ${decodedCode} at Vila de Fenals.`
-        : `¡Hola! Tengo una consulta sobre mi reserva ${decodedCode} en Vila de Fenals.`
+      aDict.whatsapp_message.replace('[code]', decodedCode)
     )}`;
 
     return (
@@ -397,7 +717,7 @@ export default function AccesoTabs({
           <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.403.002 9.803-4.394 9.805-9.805.002-2.618-1.013-5.082-2.86-6.93C16.376 1.933 13.91 1.917 12 1.917c-5.41 0-9.809 4.398-9.813 9.815-.002 1.62.476 3.206 1.383 4.622L2.508 21.5l5.244-1.378zM17.472 14.382c-.3-.149-1.778-.878-2.057-.98-.28-.1-.484-.148-.688.15-.2.299-.778.98-.953 1.18-.175.199-.349.224-.65.075-1.125-.562-1.993-1.002-2.774-2.335-.204-.349.204-.324.582-1.077.062-.124.031-.233-.016-.332-.047-.1-.484-1.171-.662-1.602-.175-.42-.35-.362-.484-.369-.125-.007-.268-.007-.41-.007s-.375.053-.57.269c-.2.215-.757.74-.757 1.804s.774 2.09 1.88 2.24c.11.015 2.155 3.292 5.22 4.615.73.315 1.3.503 1.74.643.73.23 1.4.198 1.92.12.58-.087 1.778-.727 2.027-1.43.25-.702.25-1.3.175-1.43-.075-.13-.275-.205-.575-.355z"/>
           </svg>
-          <span>{lang === 'en' ? 'Contact Host' : 'Contactar con el Anfitrión'}</span>
+          <span>{aDict.whatsapp_btn}</span>
         </a>
       </div>
     );
@@ -413,23 +733,19 @@ export default function AccesoTabs({
             {isPhase1Complete ? (
               <>
                 <span className="font-bold text-white uppercase tracking-wider text-xs">
-                  {lang === 'en' ? 'Payment Received Successfully!' : '¡PAGO RECIBIDO CORRECTAMENTE!'}
+                  {aDict.payment_received_success}
                 </span>
                 <p className="leading-relaxed opacity-90">
-                  {lang === 'en' 
-                    ? 'We have processed your Tourist Tax payment securely. In a few moments, Phase 3 will synchronize with your Nuki access code.' 
-                    : 'Hemos procesado su pago de la Tasa Turística de forma segura. En unos momentos se sincronizará la Fase 3 con su código de acceso de Nuki.'}
+                  {aDict.payment_received_success_desc}
                 </p>
               </>
             ) : (
               <>
                 <span className="font-bold text-white uppercase tracking-wider text-xs text-emerald-300">
-                  {lang === 'en' ? 'Tourist Tax Paid Successfully!' : '¡PAGO DE TASA REGISTRADO CON ÉXITO!'}
+                  {aDict.tax_paid_success}
                 </span>
                 <p className="leading-relaxed opacity-90 text-emerald-100">
-                  {lang === 'en'
-                    ? 'We have processed your Tourist Tax payment securely. However, to unlock your virtual keys and access the apartment, you must still complete the mandatory registration form for all travelers (Phase 1).'
-                    : 'Hemos registrado el pago de su Tasa Turística correctamente. Sin embargo, para desbloquear las llaves virtuales y acceder al apartamento, aún debe completar el registro obligatorio de todos los viajeros de la reserva (Fase 1).'}
+                  {aDict.tax_paid_success_desc}
                 </p>
               </>
             )}
@@ -682,7 +998,7 @@ export default function AccesoTabs({
                   <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-3">
                     <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200 flex items-center gap-1.5">
                       <Key size={14} className="text-cyan-400" />
-                      <span>{lang === 'en' ? '3. Security Deposit' : '3. Fianza de Seguridad'}</span>
+                      <span>{aDict.fianza_title}</span>
                     </h3>
                     {isDepositComplete ? (
                       <span className="text-xs font-bold text-green-400 uppercase tracking-widest bg-green-500/20 px-2 py-0.5 rounded-full border border-green-500/30">
@@ -691,25 +1007,23 @@ export default function AccesoTabs({
                     ) : (
                       <span className="text-xs font-bold text-yellow-300 uppercase tracking-widest bg-yellow-500/20 px-2 py-0.5 rounded-full border border-yellow-500/30">
                         {depositPaid > 0 
-                          ? `${lang === 'en' ? 'Partial' : 'Parcial'} (${depositPaid}/${depositAmount}€)`
+                          ? `${aDict.fianza_partial} (${depositPaid}/${depositAmount}€)`
                           : (dict.pending_text || 'Pendiente')}
                       </span>
                     )}
                   </div>
 
                   <div className="bg-white/5 border border-white/5 rounded-xl p-3 text-xs text-white/70 leading-relaxed">
-                    {lang === 'en'
-                      ? 'For security reasons, a temporary deposit is required. It will be refunded manually after checking the apartment\'s condition at the end of your stay.'
-                      : 'Por motivos de seguridad, se requiere un depósito temporal que será devuelto manualmente tras comprobar el estado del apartamento al final de la estancia.'}
+                    {aDict.fianza_desc}
                   </div>
 
                   {isDepositComplete ? (
                     <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 text-sm text-green-300 flex items-center gap-2">
                       <CheckCircle2 size={16} className="shrink-0 text-green-400" />
                       <div>
-                        <span className="font-bold">{lang === 'en' ? 'Deposit paid successfully.' : 'Fianza depositada correctamente.'}</span>
+                        <span className="font-bold">{aDict.fianza_success_title}</span>
                         <p className="text-[11px] text-white/60">
-                          {lang === 'en' ? 'Total amount secured.' : 'Importe total garantizado de forma segura.'}
+                          {aDict.fianza_success_desc}
                         </p>
                       </div>
                     </div>
@@ -726,14 +1040,10 @@ export default function AccesoTabs({
                         />
                         <div className="space-y-1 animate-fade-in">
                           <label htmlFor="split_deposit_checkbox" className="text-xs text-white/90 font-medium cursor-pointer block leading-none">
-                            {lang === 'en'
-                              ? 'Does your card have a single payment limit lower than this amount?'
-                              : '¿Tu tarjeta tiene un límite por pago inferior a este importe?'}
+                            {aDict.fianza_split_label}
                           </label>
                           <span className="text-[10px] text-white/40 block leading-tight mt-1">
-                            {lang === 'en'
-                              ? 'If checked, you can enter your card transaction limit and we will split the total fianza into multiple smaller payment links.'
-                              : 'Si lo marcas, podrás definir el límite por transacción y dividiremos el pago total en varios enlaces de menor importe.'}
+                            {aDict.fianza_split_hint}
                           </span>
                         </div>
                       </div>
@@ -741,7 +1051,7 @@ export default function AccesoTabs({
                       {isSplitSelected && (
                         <div className="space-y-2 bg-black/10 border border-white/10 rounded-xl p-3 animate-fade-in">
                           <label htmlFor="card_limit_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
-                            {lang === 'en' ? 'Single Payment Limit (€)' : 'Límite de pago por tarjeta (€)'}
+                            {aDict.fianza_limit_label}
                           </label>
                           <div className="relative">
                             <input
@@ -794,17 +1104,17 @@ export default function AccesoTabs({
                           return (
                             <div className="space-y-2">
                               <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold block mb-1">
-                                {lang === 'en' ? 'Payment Parts Required:' : 'Tramos de pago requeridos:'}
+                                {aDict.fianza_parts_label}
                               </p>
                               {splitStatuses.map((split, sIdx) => {
                                 if (split.status === 'paid') {
                                   return (
                                     <div key={sIdx} className="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-xs">
                                       <span className="font-semibold text-white/80">
-                                        {lang === 'en' ? 'Part' : 'Tramo'} {sIdx + 1} ({split.amount.toFixed(2)}€)
+                                        {aDict.fianza_part} {sIdx + 1} ({split.amount.toFixed(2)}€)
                                       </span>
                                       <span className="text-[10px] font-bold text-green-400 uppercase tracking-wider bg-green-500/25 px-2 py-0.5 rounded-md border border-green-500/30">
-                                        ✓ {lang === 'en' ? 'Paid' : 'Pagado'}
+                                        ✓ {aDict.fianza_paid}
                                       </span>
                                     </div>
                                   );
@@ -815,10 +1125,10 @@ export default function AccesoTabs({
                                     <div key={sIdx} className="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-xs">
                                       <div className="space-y-0.5">
                                         <span className="font-semibold text-white/80 block">
-                                          {lang === 'en' ? 'Part' : 'Tramo'} {sIdx + 1} ({split.amount.toFixed(2)}€)
+                                          {aDict.fianza_part} {sIdx + 1} ({split.amount.toFixed(2)}€)
                                         </span>
                                         <span className="text-[10px] text-yellow-300/70 block">
-                                          {lang === 'en' ? 'Paid:' : 'Pagado:'} {partialPaid.toFixed(2)}€ | {lang === 'en' ? 'Pending:' : 'Pendiente:'} {pendingAmt.toFixed(2)}€
+                                          {aDict.fianza_paid}: {partialPaid.toFixed(2)}€ | {dict.pending_text || 'Pendiente'}: {pendingAmt.toFixed(2)}€
                                         </span>
                                       </div>
                                       <button
@@ -830,7 +1140,7 @@ export default function AccesoTabs({
                                         {generatingLinks[sIdx] ? (
                                           <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                         ) : (
-                                          <span>{lang === 'en' ? `Pay Remaining (${pendingAmt.toFixed(2)}€)` : `Pagar Resto (${pendingAmt.toFixed(2)}€)`}</span>
+                                          <span>{aDict.fianza_pay_remaining} ({pendingAmt.toFixed(2)}€)</span>
                                         )}
                                       </button>
                                     </div>
@@ -839,7 +1149,7 @@ export default function AccesoTabs({
                                   return (
                                     <div key={sIdx} className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs">
                                       <span className="font-semibold text-white/80">
-                                        {lang === 'en' ? 'Part' : 'Tramo'} {sIdx + 1} ({split.amount.toFixed(2)}€)
+                                        {aDict.fianza_part} {sIdx + 1} ({split.amount.toFixed(2)}€)
                                       </span>
                                       <button
                                         type="button"
@@ -850,7 +1160,7 @@ export default function AccesoTabs({
                                         {generatingLinks[sIdx] ? (
                                           <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                         ) : (
-                                          <span>{lang === 'en' ? `Pay (${split.amount.toFixed(2)}€)` : `Pagar (${split.amount.toFixed(2)}€)`}</span>
+                                          <span>{aDict.fianza_pay} ({split.amount.toFixed(2)}€)</span>
                                         )}
                                       </button>
                                     </div>
@@ -866,7 +1176,7 @@ export default function AccesoTabs({
                             <div className="space-y-3">
                               <div className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs">
                                 <span className="text-white/60">
-                                  {lang === 'en' ? 'Total Remaining:' : 'Total Restante de Fianza:'}
+                                  {aDict.fianza_remaining_label}
                                 </span>
                                 <span className="font-bold text-cyan-300 font-mono text-sm">
                                   {remainingDeposit.toFixed(2)}€
@@ -882,12 +1192,12 @@ export default function AccesoTabs({
                                 {generatingLinks[999] ? (
                                   <>
                                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    <span>{lang === 'en' ? 'Generating Payment Link...' : 'Generando Enlace de Pago...'}</span>
+                                    <span>{aDict.fianza_link_generating}</span>
                                   </>
                                 ) : (
                                   <>
                                     <CreditCard size={16} />
-                                    <span>{lang === 'en' ? `Pay Security Deposit (${remainingDeposit.toFixed(2)}€)` : `Pagar Fianza Completa (${remainingDeposit.toFixed(2)}€)`}</span>
+                                    <span>{aDict.fianza_pay_full} ({remainingDeposit.toFixed(2)}€)</span>
                                   </>
                                 )}
                               </button>
@@ -993,7 +1303,7 @@ export default function AccesoTabs({
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     <span className="font-semibold text-cyan-200 text-sm">
-                      {lang === 'en' ? 'Syncing lock...' : 'Sincronizando cerradura...'}
+                      {aDict.syncing_lock}
                     </span>
                   </div>
                 </div>
@@ -1081,21 +1391,19 @@ export default function AccesoTabs({
                   <Lock size={20} className="text-cyan-400 animate-pulse" />
                 </div>
                 <div className="space-y-1.5 text-white">
-                  <h3 className="text-base font-semibold text-cyan-300">{lang === 'en' ? 'Check-in Completed Successfully!' : '¡Check-in Completado con Éxito!'}</h3>
+                  <h3 className="text-base font-semibold text-cyan-300">{aDict.check_in_completed_success}</h3>
                   <p className="text-xs text-white/70 leading-relaxed max-w-xs mx-auto">
-                    {lang === 'en'
-                      ? `Your check-in has been completed correctly. However, your virtual keys and access codes will be automatically activated starting from the scheduled check-in time on your day of arrival ${formattedCheckInDate}.`
-                      : `Su check-in se ha completado correctamente. Sin embargo, sus llaves virtuales y códigos de acceso se activarán automáticamente a partir de la hora prevista para su check in del día de llegada ${formattedCheckInDate}.`}
+                    {aDict.check_in_completed_success_desc.replace('[date]', formattedCheckInDate)}
                   </p>
                 </div>
                 
                 <div className="text-left bg-black/25 border border-white/10 rounded-2xl p-4 text-xs space-y-2.5">
                   <p className="flex justify-between items-center">
-                    <span className="text-white/50">{lang === 'en' ? 'Check-in:' : 'Entrada:'}</span>
+                    <span className="text-white/50">{aDict.check_in_label}</span>
                     <span className="font-bold text-cyan-200">{new Date(reservation.check_in).toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
                   </p>
                   <p className="flex justify-between items-center">
-                    <span className="text-white/50">{lang === 'en' ? 'Check-out:' : 'Salida:'}</span>
+                    <span className="text-white/50">{aDict.check_out_label}</span>
                     <span className="font-bold text-cyan-200">{new Date(reservation.check_out).toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
                   </p>
                 </div>
