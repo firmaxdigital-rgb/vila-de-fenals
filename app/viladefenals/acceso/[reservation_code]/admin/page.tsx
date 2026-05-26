@@ -41,9 +41,12 @@ export default function AdminPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [travelers, setTravelers] = useState<any[]>([]);
+  const [isUpdatingOptOut, setIsUpdatingOptOut] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    async function loadReservation() {
+    async function loadReservationAndTravelers() {
+      setIsLoading(true);
       try {
         const { data, error } = await supabase
           .from('reservations')
@@ -51,9 +54,7 @@ export default function AdminPage() {
           .eq('reservation_code', decodedCode)
           .single();
 
-        if (error || !data) {
-          console.error("Reservation not found:", error);
-        } else {
+        if (!error && data) {
           setReservation(data);
           setGuestsCount(data.total_guests || 0);
           setHasDeposit(data.has_deposit || false);
@@ -69,13 +70,38 @@ export default function AdminPage() {
             }
           }
         }
+
+        // Fetch travelers as well
+        const { data: travelersData, error: travelersError } = await supabase
+          .from('travelers')
+          .select('*')
+          .eq('reservation_code', decodedCode);
+
+        if (!travelersError && travelersData) {
+          const parsed = travelersData.map((t: any) => {
+            if (t.firma && t.firma.trim().startsWith('{')) {
+              try {
+                const extra = JSON.parse(t.firma);
+                return {
+                  ...t,
+                  ...extra,
+                  firma: extra.firma || t.firma
+                };
+              } catch (e) {
+                console.error(e);
+              }
+            }
+            return t;
+          });
+          setTravelers(parsed);
+        }
       } catch (err) {
-        console.error("Error loading reservation:", err);
+        console.error("Error loading data:", err);
       } finally {
         setIsLoading(false);
       }
     }
-    loadReservation();
+    loadReservationAndTravelers();
   }, [decodedCode]);
 
   const [isVerifying, setIsVerifying] = useState(false);
@@ -134,6 +160,42 @@ export default function AdminPage() {
       alert('Error de red al guardar.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleToggleOptOut = async (travelerId: string, currentVal: boolean) => {
+    setIsUpdatingOptOut(prev => ({ ...prev, [travelerId]: true }));
+    const newVal = !currentVal;
+    
+    // Find the traveler
+    const t = travelers.find(item => item.id === travelerId);
+    if (!t) {
+      setIsUpdatingOptOut(prev => ({ ...prev, [travelerId]: false }));
+      return;
+    }
+
+    try {
+      // Call standard POST API to save changes securely
+      const res = await fetch('/api/travelers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...t,
+          opt_out: newVal
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update local state
+        setTravelers(prev => prev.map(item => item.id === travelerId ? { ...item, opt_out: newVal } : item));
+      } else {
+        alert(data.error || 'Error al cambiar opt-out.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al actualizar el consentimiento.');
+    } finally {
+      setIsUpdatingOptOut(prev => ({ ...prev, [travelerId]: false }));
     }
   };
 
@@ -381,6 +443,75 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Huéspedes Registrados & Consentimiento (Opt-Out) Card */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+              <div className="text-center space-y-1">
+                <h3 className="text-sm font-semibold text-white/95 flex items-center justify-center gap-1.5">
+                  <Users size={16} className="text-cyan-400" />
+                  <span>Huéspedes Registrados y Privacidad</span>
+                </h3>
+                <p className="text-[11px] text-white/50 leading-tight">
+                  Listado oficial de fichas completadas. Puede gestionar la exclusión comercial (Opt-Out) a petición del huésped.
+                </p>
+              </div>
+
+              {travelers.length === 0 ? (
+                <div className="text-center py-4 bg-black/20 border border-white/5 rounded-xl text-xs text-white/40">
+                  Ningún huésped registrado todavía en esta reserva.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[250px] overflow-y-auto pr-1">
+                  {travelers.map((t) => {
+                    const isExcluded = t.opt_out === true || t.opt_out === 'true';
+                    const hasAccepted = t.has_accepted_terms === true || t.has_accepted_terms === 'true' || t.has_accepted_terms === undefined; // Default true if registered under terms flow
+                    
+                    return (
+                      <div key={t.id} className="bg-black/35 border border-white/10 rounded-xl p-3 space-y-2 text-xs">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-white">{t.nombre} {t.apellidos}</p>
+                            <p className="text-[10px] text-white/40 mt-0.5">
+                              {t.tipo_documento}: {t.numero_documento}
+                            </p>
+                          </div>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md border ${
+                            hasAccepted 
+                              ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                              : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300'
+                          }`}>
+                            {hasAccepted ? 'Condiciones Aceptadas' : 'Pendiente Aceptación'}
+                          </span>
+                        </div>
+
+                        {/* Toggle Checkbox for Opt-Out */}
+                        <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                          <label 
+                            htmlFor={`opt_out_check_${t.id}`} 
+                            className="text-[10px] text-white/60 cursor-pointer hover:text-white transition-colors"
+                          >
+                            Excluir de comunicaciones (Opt-Out)
+                          </label>
+                          <div className="flex items-center gap-2">
+                            {isUpdatingOptOut[t.id] && (
+                              <div className="w-3.5 h-3.5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin shrink-0"></div>
+                            )}
+                            <input
+                              id={`opt_out_check_${t.id}`}
+                              type="checkbox"
+                              checked={isExcluded}
+                              disabled={isUpdatingOptOut[t.id]}
+                              onChange={() => handleToggleOptOut(t.id, isExcluded)}
+                              className="w-3.5 h-3.5 rounded border-white/20 bg-black/40 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:outline-none cursor-pointer disabled:opacity-45"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Notification alert for Pending status */}

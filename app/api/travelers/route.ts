@@ -219,7 +219,8 @@ export async function POST(request: Request) {
       'direccion', 'codigo_postal', 'municipio', 'pais_residencia',
       'telefono', 'email', 'parentesco', 'adulto_responsable_id',
       'segundo_apellido', 'numero_soporte', 'provincia',
-      'relacion_viajeros', 'firma_menor_16', 'hora_entrada', 'hora_salida'
+      'relacion_viajeros', 'firma_menor_16', 'hora_entrada', 'hora_salida',
+      'has_accepted_terms', 'opt_out'
     ].filter(col => !existingColumns.includes(col));
 
     let finalFirma = firma;
@@ -239,6 +240,8 @@ export async function POST(request: Request) {
       if (provincia) serializedExtra.provincia = provincia;
       if (relacion_viajeros) serializedExtra.relacion_viajeros = relacion_viajeros;
       if (firma_menor_16 !== undefined) serializedExtra.firma_menor_16 = firma_menor_16;
+      if (body.has_accepted_terms !== undefined) serializedExtra.has_accepted_terms = body.has_accepted_terms;
+      if (body.opt_out !== undefined) serializedExtra.opt_out = body.opt_out;
       serializedExtra.hora_entrada = finalHoraEntrada;
       serializedExtra.hora_salida = finalHoraSalida;
 
@@ -271,6 +274,8 @@ export async function POST(request: Request) {
       adulto_responsable_id: adulto_responsable_id || null,
       relacion_viajeros: relacion_viajeros || null,
       firma_menor_16: firma_menor_16 !== undefined ? firma_menor_16 : false,
+      has_accepted_terms: body.has_accepted_terms !== undefined ? body.has_accepted_terms : false,
+      opt_out: body.opt_out !== undefined ? body.opt_out : false,
       hora_entrada: finalHoraEntrada,
       hora_salida: finalHoraSalida
     };

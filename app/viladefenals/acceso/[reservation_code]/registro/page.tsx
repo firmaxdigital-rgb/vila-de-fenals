@@ -1146,7 +1146,8 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
           id: editId || undefined,
           reservation_code: decodedCode,
           ...formData,
-          firma: signatureBase64
+          firma: signatureBase64,
+          has_accepted_terms: true
         })
       });
 
