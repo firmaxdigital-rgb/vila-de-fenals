@@ -217,6 +217,363 @@ const supportHelperTranslations = {
   }
 };
 
+interface LegalTranslation {
+  consent_title: string;
+  consent_desc: string;
+  consent_accept_prefix: string;
+  consent_link_text: string;
+  consent_accept_suffix: string;
+  btn_cancel: string;
+  btn_confirm: string;
+  btn_sending: string;
+  terms_title: string;
+  close_btn: string;
+  clauses: { title: string; body: string }[];
+}
+
+const legalConsentTranslations: Record<string, LegalTranslation> = {
+  es: {
+    consent_title: "Consentimiento y Términos",
+    consent_desc: "Para completar su registro de viajero y poder habilitar la entrega de llaves, es obligatorio que acepte nuestras políticas.",
+    consent_accept_prefix: "Acepto las ",
+    consent_link_text: "Condiciones de Uso y la Política de Privacidad",
+    consent_accept_suffix: " de Vila de Fenals.",
+    btn_cancel: "Cancelar",
+    btn_confirm: "Confirmar y Enviar",
+    btn_sending: "Enviando...",
+    terms_title: "Condiciones de Uso y Política de Privacidad",
+    close_btn: "Cerrar",
+    clauses: [
+      {
+        title: "1. Obligatoriedad del Registro (RD 933/2021)",
+        body: "En cumplimiento del Real Decreto 933/2021, de 26 de octubre, todos los huéspedes mayores de 14 años están legalmente obligados a facilitar sus datos de identidad de forma veraz para el registro de hospedajes ante las autoridades competentes."
+      },
+      {
+        title: "2. Conservación con Fines Legales",
+        body: "Sus datos personales (incluyendo nombre, documento de identidad, dirección y firma) se conservarán de forma segura con la única finalidad de dar cumplimiento al registro oficial ante las Fuerzas y Cuerpos de Seguridad del Estado (Mossos d'Esquadra). Estos datos serán almacenados bajo estrictas medidas de seguridad durante el plazo legal de 3 años, tras el cual se procederá a su completa destrucción."
+      },
+      {
+        title: "3. Autorización Comercial (Ofertas Personalizadas)",
+        body: "Al aceptar estas condiciones, usted autoriza expresamente a Vila de Fenals a conservar sus datos de contacto básicos (nombre y correo electrónico) para informarle en el futuro de ofertas exclusivas y promociones personalizadas sobre nuestros alojamientos, sin compartir sus datos con terceros."
+      },
+      {
+        title: "4. No Cesión a Terceros",
+        body: "Nos comprometemos firmemente a no vender, alquilar, ceder ni compartir sus datos personales con ninguna empresa o tercero ajeno a Vila de Fenals, salvo por requerimiento obligatorio de las autoridades policiales o judiciales."
+      },
+      {
+        title: "5. Derechos ARCO",
+        body: "En cualquier momento puede ejercer sus derechos de acceso, rectificación, supresión, limitación y oposición enviando una solicitud directa al anfitrión."
+      }
+    ]
+  },
+  en: {
+    consent_title: "Consent & Legal Terms",
+    consent_desc: "To complete your traveler registration and enable key delivery, you must accept our policies.",
+    consent_accept_prefix: "I accept the ",
+    consent_link_text: "Conditions of Use and Privacy Policy",
+    consent_accept_suffix: " of Vila de Fenals.",
+    btn_cancel: "Cancel",
+    btn_confirm: "Confirm & Send",
+    btn_sending: "Sending...",
+    terms_title: "Conditions of Use & Privacy Policy",
+    close_btn: "Close",
+    clauses: [
+      {
+        title: "1. Mandatory Registration (RD 933/2021)",
+        body: "In compliance with Spanish Royal Decree 933/2021, all guests over 14 years old are legally required to provide true identity details for the official documentary registration of lodging activities before competent authorities."
+      },
+      {
+        title: "2. Data Retention for Legal Compliance",
+        body: "Your personal data (including name, ID document, address, and signature) will be stored securely for the sole purpose of complying with the official registration before the Law Enforcement Agencies (Mossos d'Esquadra). This data will be kept under strict security measures for the legally required period of 3 years, after which it will be completely deleted."
+      },
+      {
+        title: "3. Commercial Communications Consent",
+        body: "By accepting these conditions, you expressly authorize Vila de Fenals to retain your basic contact details (name and email) to send you exclusive offers and personalized promotions about our properties in the future. We will never share this information with any third parties."
+      },
+      {
+        title: "4. No Disclosure to Third Parties",
+        body: "We firmly commit to never selling, renting, transferring, or sharing your personal data with any company or third party outside Vila de Fenals, except under mandatory request from police or judicial authorities."
+      },
+      {
+        title: "5. Privacy Rights",
+        body: "You may exercise your rights of access, rectification, erasure, limitation, and opposition at any time by contacting the host directly."
+      }
+    ]
+  },
+  fr: {
+    consent_title: "Consentement et conditions légales",
+    consent_desc: "Pour finaliser votre enregistrement de voyageur et permettre la remise des clés, vous devez accepter nos politiques.",
+    consent_accept_prefix: "J'accepte les ",
+    consent_link_text: "Conditions d'utilisation et politique de confidentialité",
+    consent_accept_suffix: " de Vila de Fenals.",
+    btn_cancel: "Annuler",
+    btn_confirm: "Confirmer et envoyer",
+    btn_sending: "Envoi en cours...",
+    terms_title: "Conditions d'utilisation et politique de confidentialité",
+    close_btn: "Fermer",
+    clauses: [
+      {
+        title: "1. Enregistrement obligatoire (RD 933/2021)",
+        body: "Conformément au décret royal espagnol 933/2021, tous les clients de plus de 14 ans sont légalement tenus de fournir des informations d'identité véridiques pour l'enregistrement documentaire officiel des activités d'hébergement auprès des autorités compétentes."
+      },
+      {
+        title: "2. Conservation des données à des fins légales",
+        body: "Vos données personnelles (y compris nom, document d'identité, adresse et signature) seront stockées en toute sécurité dans le seul but de se conformer à l'enregistrement officiel auprès des forces de sécurité (Mossos d'Esquadra). Ces données seront conservées sous des mesures de sécurité strictes pendant la période légale de 3 ans, après quoi elles seront complètement supprimées."
+      },
+      {
+        title: "3. Consentement aux communications commerciales",
+        body: "En acceptant ces conditions, vous autorisez expressément Vila de Fenals à conserver vos coordonnées de base (nom et e-mail) pour vous envoyer des offres exclusives et des promotions personnalisées à l'avenir. Nous ne partagerons jamais ces informations avec des tiers."
+      },
+      {
+        title: "4. Non-divulgation à des tiers",
+        body: "Nous nous engageons fermement à ne jamais vendre, louer, transférer ou partager vos données personnelles avec une entreprise ou un tiers extérieur à Vila de Fenals, sauf sur demande obligatoire de la police ou des autorités judiciaires."
+      },
+      {
+        title: "5. Droits de confidentialité (Droits ARCO)",
+        body: "Vous pouvez exercer vos droits d'accès, de rectification, de suppression, de limitation et d'opposition à tout moment en contactant directement l'hôte."
+      }
+    ]
+  },
+  de: {
+    consent_title: "Einwilligung & rechtliche Bedingungen",
+    consent_desc: "Um Ihre Registrierung als Reisender abzuschließen und die Schlüsselübergabe zu ermöglichen, müssen Sie unsere Richtlinien akzeptieren.",
+    consent_accept_prefix: "Ich akzeptiere die ",
+    consent_link_text: "Nutzungsbedingungen und Datenschutzrichtlinie",
+    consent_accept_suffix: " von Vila de Fenals.",
+    btn_cancel: "Abbrechen",
+    btn_confirm: "Bestätigen & Senden",
+    btn_sending: "Senden...",
+    terms_title: "Nutzungsbedingungen & Datenschutzrichtlinie",
+    close_btn: "Schließen",
+    clauses: [
+      {
+        title: "1. Registrierungspflicht (RD 933/2021)",
+        body: "In Übereinstimmung mit dem spanischen königlichen Dekret 933/2021 sind alle Gäste über 14 Jahre gesetzlich verpflichtet, wahrheitsgemäße Identitätsdaten für die offizielle dokumentarische Registrierung von Beherbergungsaktivitäten bei den zuständigen Behörden anzugeben."
+      },
+      {
+        title: "2. Datenaufbewahrung zur gesetzlichen Einhaltung",
+        body: "Ihre personenbezogenen Daten (einschließlich Name, Identitätsdokument, Adresse und Unterschrift) werden sicher und ausschließlich zum Zweck der Erfüllung der offiziellen Registrierung bei den Strafverfolgungsbehörden (Mossos d'Esquadra) gespeichert. Diese Daten werden unter strengen Sicherheitsvorkehrungen für die gesetzlich vorgeschriebene Dauer von 3 jahre aufgewahrt und danach vollständig gelöscht."
+      },
+      {
+        title: "3. Einwilligung in werbliche Kommunikation",
+        body: "Durch die Annahme dieser Bedingungen ermächtigen Sie Vila de Fenals ausdrücklich dazu, Ihre grundlegenden Kontaktdaten (Name und E-Mail) aufzubewahren, um Ihnen in Zukunft exklusive Angebote und personalisierte Werbeaktionen über unsere Unterkünfte zuzusenden. Wir werden diese Informationen niemals an Dritte weitergeben."
+      },
+      {
+        title: "4. Keine Weitergabe an Dritte",
+        body: "Wir verpflichten uns feierlich, Ihre personenbezogenen Daten niemals an Unternehmen oder Dritte außerhalb von Vila de Fenals zu verkaufen, zu vermieten, zu übertragen oder weiterzugeben, es sei denn, dies wird von Polizei- oder Justizbehörden zwingend verlangt."
+      },
+      {
+        title: "5. Datenschutzrechte",
+        body: "Sie können Ihre Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch jederzeit ausüben, indem Sie sich direkt an den Gastgeber wenden."
+      }
+    ]
+  },
+  pl: {
+    consent_title: "Zgoda i Warunki Prawne",
+    consent_desc: "Aby dokończyć rejestrację podróżnego i umożliwić przekazanie kluczy, musisz zaakceptować naszą politykę.",
+    consent_accept_prefix: "Akceptuję ",
+    consent_link_text: "Warunki Użytkowania i Politykę Prywatności",
+    consent_accept_suffix: " Vila de Fenals.",
+    btn_cancel: "Anuluj",
+    btn_confirm: "Potwierdź i Wyślij",
+    btn_sending: "Wysyłanie...",
+    terms_title: "Warunki Użytkowania i Polityka Prywatności",
+    close_btn: "Zamknij",
+    clauses: [
+      {
+        title: "1. Obowiązkowa Rejestracja (RD 933/2021)",
+        body: "Zgodnie z hiszpańskim dekretem królewskim 933/2021, wszyscy goście powyżej 14 roku życia są prawnie zobowiązani do podania prawdziwych danych tożsamości w celu oficjalnej rejestracji zakwaterowania przed właściwymi organami."
+      },
+      {
+        title: "2. Przechowywanie Danych do Celów Prawnych",
+        body: "Twoje dane osobowe (w tym imię, nazwisko, dokument tożsamości, adres i podpis) będą bezpiecznie przechowywane wyłącznie w celu dopełnienia oficjalnej rejestracji przed organami ścigania (Mossos d'Esquadra). Dane te będą przechowywane przy użyciu ścisłych środków bezpieczeństwa przez wymagany prawem okres 3 lat, po czym zostaną całkowicie usunięte."
+      },
+      {
+        title: "3. Zgoda na Komunikację Handlową",
+        body: "Akceptując te warunki, wyraźnie upoważniasz Vila de Fenals do zachowania podstawowych danych kontaktowych (imię, nazwisko i e-mail) w celu wysyłania ekskluzywnych ofert i spersonalizowanych promocji dotyczących naszych obiektów w przyszłości. Nigdy nie udostępnimy tych informacji osobom trzecim."
+      },
+      {
+        title: "4. Brak Udostępniania Danych Osobom Trzecim",
+        body: "Zobowiązujemy się do nigdy niesprzedawania, niewynajmowania, nieprzekazywania ani nieudostępniania Twoich danych osobowych żadnej firmie ani osobie trzeciej spoza Vila de Fenals, z wyjątkiem obowiązkowego wezwania policji lub organów sądowych."
+      },
+      {
+        title: "5. Prawa Prywatności (Prawa ARCO)",
+        body: "W każdej chwili możesz skorzystać z prawa do dostępu, sprostowania, usunięcia, ograniczenia i sprzeciwu wobec przetwarzania danych, kontaktując się bezpośrednio z gospodarzem."
+      }
+    ]
+  },
+  nl: {
+    consent_title: "Toestemming & Juridische Voorwaarden",
+    consent_desc: "Om uw registratie als reiziger te voltooien en de sleuteloverdracht mogelijk te maken, moet u ons beleid accepteren.",
+    consent_accept_prefix: "Ik accepteer de ",
+    consent_link_text: "Gebruiksvoorwaarden en het Privacybeleid",
+    consent_accept_suffix: " van Vila de Fenals.",
+    btn_cancel: "Annuleren",
+    btn_confirm: "Bevestigen & Verzenden",
+    btn_sending: "Verzenden...",
+    terms_title: "Gebruiksvoorwaarden & Privacybeleid",
+    close_btn: "Sluiten",
+    clauses: [
+      {
+        title: "1. Verplichte Registratie (RD 933/2021)",
+        body: "In overeenstemming met het Spaanse Koninklijk Besluit 933/2021 zijn alle gasten ouder dan 14 jaar wettelijk verplicht om correcte identiteitsgegevens te verstrekken voor de officiële registratie van logiesactiviteiten bij de bevoegde autoriteiten."
+      },
+      {
+        title: "2. Gegevensbewaring voor Wettelijke Naleving",
+        body: "Uw persoonlijke gegevens (inclusief naam, identiteitsbewijs, adres en handtekening) worden veilig opgeslagen met als enig doel te voldoen aan de officiële registratie bij de wetshandhavingsinstanties (Mossos d'Esquadra). Deze gegevens worden onder strikte veiligheidsmaatregelen bewaard gedurende de wettelijk verplichte periode van 3 jaar, waarna ze volledig worden verwijderd."
+      },
+      {
+        title: "3. Toestemming voor Commerciële Communicatie",
+        body: "Door deze voorwaarden te accepteren, geeft u Vila de Fenals uitdrukkelijk toestemming om uw basiscontactgegevens (naam en e-mailadres) te bewaren om u in de toekomst exclusieve aanbiedingen en gepersonaliseerde promoties over onze accommodaties te sturen. We zullen deze informatie nooit met derden delen."
+      },
+      {
+        title: "4. Geen Openbaarmaking aan Derden",
+        body: "Wij verbinden ons er formeel toe uw persoonlijke gegevens nooit te verkopen, verhuren, over te dragen of te delen met enig bedrijf of derde partij buiten Vila de Fenals, behalve op verplicht verzoek van politie of justitiële autoriteiten."
+      },
+      {
+        title: "5. Privacyrechten",
+        body: "U kunt op elk moment uw recht op toegang, rectificatie, wissen, beperking en verzet uitoefenen door rechtstreeks contact op te nemen met de gastheer."
+      }
+    ]
+  },
+  uk: {
+    consent_title: "Згода та юридичні умови",
+    consent_desc: "Для завершення реєстрації мандрівника та отримання ключів необхідно прийняти наші правила.",
+    consent_accept_prefix: "Я приймаю ",
+    consent_link_text: "Умови використання та Політику конфіденційності",
+    consent_accept_suffix: " Vila de Fenals.",
+    btn_cancel: "Скасувати",
+    btn_confirm: "Підтвердити та надіслати",
+    btn_sending: "Надсилання...",
+    terms_title: "Умови використання та Політика конфіденційності",
+    close_btn: "Закрити",
+    clauses: [
+      {
+        title: "1. Обов'язкова реєстрація (RD 933/2021)",
+        body: "Відповідно до Королівського указу Іспанії 933/2021, усі гості віком від 14 років за законом зобов'язані надати точні ідентифікаційні дані для офіційної реєстрації проживання перед компетентними органами."
+      },
+      {
+        title: "2. Збереження даних для дотримання закону",
+        body: "Ваші персональні дані (включаючи ім'я, документ, що посвідчує особу, адресу та підпис) будуть надійно зберігатися виключно з метою дотримання вимог офіційної реєстрації перед правоохоронними органами (Mossos d'Esquadra). Ці дані зберігатимуться під суворими заходами безпеки протягом встановленого законом терміну в 3 роки, після чого будуть повністю видалені."
+      },
+      {
+        title: "3. Згода на комерційні розсилки",
+        body: "Приймаючи ці умови, ви прямо дозволяєте Vila de Fenals зберігати ваші основні контактні дані (ім'я та електронну пошту) для надсилання вам ексклюзивних пропозицій та персоналізованих акцій щодо нашого житла в майбутньому. Ми ніколи не передаватимемо цю інформацію третім особам."
+      },
+      {
+        title: "4. Нерозголошення третім особам",
+        body: "Ми твердо зобов'язуємося ніколи не продавати, не здавати в оренду, не передавати та не ділитися вашими персональними даними з жодною компанією чи третьою стороною за межами Vila de Fenals, за винятком обов'язкового запиту поліції чи судових органів."
+      },
+      {
+        title: "5. Права на конфіденційність (Права ARCO)",
+        body: "Ви можете в будь-який час реалізувати свої права на доступ, виправлення, видалення, обмеження та заперечення проти обробки даних, звернувшись безпосередньо до господаря."
+      }
+    ]
+  },
+  ru: {
+    consent_title: "Согласие и юридические условия",
+    consent_desc: "Для завершения регистрации путешественника и получения ключей необходимо принять наши правила.",
+    consent_accept_prefix: "Я принимаю ",
+    consent_link_text: "Условия использования и Политику конфиденциальности",
+    consent_accept_suffix: " Vila de Fenals.",
+    btn_cancel: "Отмена",
+    btn_confirm: "Подтвердить и отправить",
+    btn_sending: "Отправка...",
+    terms_title: "Условия использования и Политика конфиденциальности",
+    close_btn: "Закрыть",
+    clauses: [
+      {
+        title: "1. Обязательная регистрация (RD 933/2021)",
+        body: "В соответствии с Королевским указом Испании 933/2021, все гости старше 14 лет по закону обязаны предоставить достоверные удостоверяющие личность данные для официальной регистрации проживания перед компетентными органами."
+      },
+      {
+        title: "2. Хранение данных в юридических целях",
+        body: "Ваши персональные данные (включая имя, документ, удостоверяющий личность, адрес и подпись) будут надежно храниться исключительно с целью соблюдения официальной регистрации в правоохранительных органах (Mossos d'Esquadra). Эти данные будут храниться с соблюдением строгих мер безопасности в течение установленного законом периода в 3 года, после чего будут полностью удалены."
+      },
+      {
+        title: "3. Согласие на коммерческие рассылки",
+        body: "Принимая эти условия, вы прямо разрешаете Vila de Fenals сохранять ваши основные контактные данные (имя и адрес электронной почты) для отправки вам эксклюзивных предложений и персонализированных акций о нашем жилье в будущем. Мы никогда не будем делиться этой информацией с третьими лицами."
+      },
+      {
+        title: "4. Неразглашение третьим лицам",
+        body: "Мы твердо обязуемся никогда не продавать, не сдавать в аренду, не передавать и не делиться вашими персональными данными с какими-либо компаниями или третьими лицами за пределами Vila de Fenals, за исключением обязательных запросов со стороны полиции или судебных органов."
+      },
+      {
+        title: "5. Права на конфиденциальность (Права ARCO)",
+        body: "Вы можете в любое время воспользоваться своими правами на доступ, исправление, удаление, ограничение и возражение против обработки данных, связавшись напрямую с хозяином."
+      }
+    ]
+  },
+  zh: {
+    consent_title: "同意与法律条款",
+    consent_desc: "为完成您的旅客登记并能够获取钥匙，您必须接受我们的相关政策。",
+    consent_accept_prefix: "我接受 Vila de Fenals 的 ",
+    consent_link_text: "使用条款和隐私政策",
+    consent_accept_suffix: "。",
+    btn_cancel: "取消",
+    btn_confirm: "确认并发送",
+    btn_sending: "发送中...",
+    terms_title: "使用条款与隐私政策",
+    close_btn: "关闭",
+    clauses: [
+      {
+        title: "1. 强制登记 (西班牙 RD 933/2021 法令)",
+        body: "根据西班牙第 933/2021 号皇家法令，所有 14 岁以上的住客在入住前必须向主管机关提供真实有效的身份信息，以进行官方住宿登记备案。"
+      },
+      {
+        title: "2. 依法保留和存储数据",
+        body: "您的个人数据（包括姓名、身份证件、地址和签名）将被安全存储，其唯一目的是为了遵守向执法机构（加泰罗尼亚警方 Mossos d'Esquadra）进行的官方登记。这些数据将在严格的安全措施下保存法定年限（3 年），期满后将予以彻底删除。"
+      },
+      {
+        title: "3. 同意商业推广通讯",
+        body: "接受本条款即表示您明确授权 Vila de Fenals 保留您的基本联系方式（姓名和电子邮件），以便日后向您发送有关我们房源的独家优惠和个性化促销信息。我们绝不会将此信息分享给任何第三方。"
+      },
+      {
+        title: "4. 绝不向第三方透露",
+        body: "我们郑重承诺，绝不向 Vila de Fenals 之外的任何公司或第三方出售、出租、转让或分享您的个人数据，警方或司法机关的强制性要求除外。"
+      },
+      {
+        title: "5. 隐私权及相关权利",
+        body: "您可随时直接联系房东，行使您的访问、更正、删除、限制及反对处理您个人数据的权利。"
+      }
+    ]
+  },
+  ja: {
+    consent_title: "同意事項および法的条件",
+    consent_desc: "宿泊者登録を完了し、鍵の受け取りを有効にする death 、当社のポリシーに同意していただく必要があります。",
+    consent_accept_prefix: "私は Vila de Fenals の ",
+    consent_link_text: "利用規約およびプライバシーポリシー",
+    consent_accept_suffix: "に同意します。",
+    btn_cancel: "キャンセル",
+    btn_confirm: "確認して送信",
+    btn_sending: "送信中...",
+    terms_title: "利用規約およびプライバシーポリシー",
+    close_btn: "閉じる",
+    clauses: [
+      {
+        title: "1. 義務的な登録 (RD 933/2021)",
+        body: "スペインの王室法令 RD 933/2021 に基づき、14歳以上のすべての宿泊者は、関係当局への公式な宿泊活動の登録のため、正確な身元情報を提供する法的義務があります。"
+      },
+      {
+        title: "2. 法的遵守のためのデータ保存",
+        body: "お客様の個人データ（氏名、身分証明書、住所、署名など）は、法執行機関（カタルーニャ警察 Mossos d'Esquadra）への公式登録を遵守する目的のみに安全に保存されます。このデータは厳格なセキュリティ対策のもとで法定の3年間保存され、期間終了後は完全に消去されます。"
+      },
+      {
+        title: "3. 商業プロモーションへの同意",
+        body: "これらの条件に同意することにより、将来、当宿泊施設に関する限定オファーやカスタマイズされたプロモーション情報をお送りするために、Vila de Fenals がお客様の基本連絡先（氏名およびメールアドレス）を保存することを明示的に許可したものとみなされます。この情報を第三者に共有することは一切ありません。"
+      },
+      {
+        title: "4. 第三者への非開示の約束",
+        body: "当社は、警察または司法当局からの義務的な要請がある場合を除き、お客様の個人データを Vila de Fenals 以外のいかなる企業や第三者にも売却、賃貸、譲渡、または共有しないことを固くお約束します。"
+      },
+      {
+        title: "5. プバシに関する権利",
+        body: "お客様は、ホストに直接連絡することにより、個人データへのアクセス、訂正、削除、制限、および異議唱えを行う権利をいつでも行使することができます。"
+      }
+    ]
+  }
+};
+
 export default function RegistroViajeroPage({ params }: { params: { reservation_code: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -226,6 +583,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const dict = translations[lang] || translations['es'];
   const docTypes = docTypeTranslations[lang] || docTypeTranslations['es'];
   const supportHelp = supportHelperTranslations[lang] || supportHelperTranslations['es'];
+  const legal = legalConsentTranslations[lang] || legalConsentTranslations['es'];
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1412,13 +1770,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fade-in animate-in fade-in duration-200">
           <div className="bg-gray-950/95 backdrop-blur-xl border border-white/15 rounded-3xl p-6 max-w-sm w-full animate-in zoom-in-95 duration-200 shadow-2xl shadow-cyan-500/10 text-white space-y-4">
             <h3 className="text-base font-bold text-cyan-200 border-b border-white/10 pb-2 flex items-center gap-2">
-              <span>⚖️</span> {lang === 'en' ? 'Consent & Legal Terms' : 'Consentimiento y Términos'}
+              <span>⚖️</span> {legal.consent_title}
             </h3>
             
             <p className="text-xs text-white/80 leading-relaxed">
-              {lang === 'en'
-                ? 'To complete your traveler registration and enable key delivery, you must accept our policies.'
-                : 'Para completar su registro de viajero y poder habilitar la entrega de llaves, es obligatorio que acepte nuestras políticas.'}
+              {legal.consent_desc}
             </p>
 
             <div className="flex items-start gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
@@ -1430,31 +1786,17 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 className="w-4 h-4 rounded border-white/20 bg-black/40 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:outline-none cursor-pointer mt-0.5"
               />
               <label htmlFor="legal_checkbox" className="text-xs text-white/95 cursor-pointer leading-relaxed">
-                {lang === 'en' ? (
-                  <>
-                    I accept the{' '}
-                    <button
-                      type="button"
-                      onClick={() => setShowLegalTextModal(true)}
-                      className="text-cyan-300 hover:text-cyan-100 underline font-bold focus:outline-none"
-                    >
-                      Conditions of Use and Privacy Policy
-                    </button>{' '}
-                    of Vila de Fenals.
-                  </>
-                ) : (
-                  <>
-                    Acepto las{' '}
-                    <button
-                      type="button"
-                      onClick={() => setShowLegalTextModal(true)}
-                      className="text-cyan-300 hover:text-cyan-100 underline font-bold focus:outline-none"
-                    >
-                      Condiciones de Uso y la Política de Privacidad
-                    </button>{' '}
-                    de Vila de Fenals.
-                  </>
-                )}
+                <>
+                  {legal.consent_accept_prefix}
+                  <button
+                    type="button"
+                    onClick={() => setShowLegalTextModal(true)}
+                    className="text-cyan-300 hover:text-cyan-100 underline font-bold focus:outline-none"
+                  >
+                    {legal.consent_link_text}
+                  </button>
+                  {legal.consent_accept_suffix}
+                </>
               </label>
             </div>
 
@@ -1467,7 +1809,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 }}
                 className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold transition-all active:scale-95"
               >
-                {lang === 'en' ? 'Cancel' : 'Cancelar'}
+                {legal.btn_cancel}
               </button>
               
               <button 
@@ -1479,7 +1821,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 }}
                 className="flex-1 py-3 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-cyan-950 text-xs font-bold transition-all shadow-md active:scale-95"
               >
-                {isSubmitting ? (lang === 'en' ? 'Sending...' : 'Enviando...') : (lang === 'en' ? 'Confirm & Send' : 'Confirmar y Enviar')}
+                {isSubmitting ? legal.btn_sending : legal.btn_confirm}
               </button>
             </div>
           </div>
@@ -1493,57 +1835,16 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in animate-in fade-in duration-200">
           <div className="bg-gray-950 border border-white/15 rounded-3xl p-6 max-w-md w-full animate-in zoom-in-95 duration-200 shadow-2xl shadow-cyan-500/15 text-white space-y-4">
             <h3 className="text-base font-bold text-cyan-200 border-b border-white/10 pb-2 flex items-center gap-2">
-              <span>📋</span> {lang === 'en' ? 'Conditions of Use & Privacy Policy' : 'Condiciones de Uso y Política de Privacidad'}
+              <span>📋</span> {legal.terms_title}
             </h3>
             
             <div className="space-y-4 text-xs max-h-[60vh] overflow-y-auto pr-2 leading-relaxed text-white/90">
-              {lang === 'en' ? (
-                <>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">1. Mandatory Registration (RD 933/2021)</h4>
-                    <p>In compliance with Spanish Royal Decree 933/2021, all guests over 14 years old are legally required to provide true identity details for the official documentary registration of lodging activities before competent authorities.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">2. Data Retention for Legal Compliance</h4>
-                    <p>Your personal data (including name, ID document, address, and signature) will be stored securely for the sole purpose of complying with the official registration before the Law Enforcement Agencies (Mossos d\'Esquadra). This data will be kept under strict security measures for the legally required period of 3 years, after which it will be completely deleted.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">3. Commercial Communications Consent</h4>
-                    <p>By accepting these conditions, you expressly authorize <strong>Vila de Fenals</strong> to retain your basic contact details (name and email) to send you exclusive offers and personalized promotions about our properties in the future. We will never share this information with any third parties.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">4. No Disclosure to Third Parties</h4>
-                    <p>We firmly commit to <strong>never selling, renting, transferring, or sharing</strong> your personal data with any company or third party outside Vila de Fenals, except under mandatory request from police or judicial authorities.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">5. Privacy Rights</h4>
-                    <p>You may exercise your rights of access, rectification, erasure, limitation, and opposition at any time by contacting the host directly.</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">1. Obligatoriedad del Registro (RD 933/2021)</h4>
-                    <p>En cumplimiento del Real Decreto 933/2021, de 26 de octubre, todos los huéspedes mayores de 14 años están legalmente obligados a facilitar sus datos de identidad de forma veraz para el registro de hospedajes ante las autoridades competentes.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">2. Conservación con Fines Legales</h4>
-                    <p>Sus datos personales (incluyendo nombre, documento de identidad, dirección y firma) se conservarán de forma segura con la única finalidad de dar cumplimiento al registro oficial ante las Fuerzas y Cuerpos de Seguridad del Estado (Mossos d\'Esquadra). Estos datos serán almacenados bajo estrictas medidas de seguridad durante el plazo legal de 3 años, tras el cual se procederá a su completa destrucción.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">3. Autorización Comercial (Ofertas Personalizadas)</h4>
-                    <p>Al aceptar estas condiciones, usted autoriza expresamente a <strong>Vila de Fenals</strong> a conservar sus datos de contacto básicos (nombre y correo electrónico) para informarle en el futuro de ofertas exclusivas y promociones personalizadas sobre nuestros alojamientos, sin compartir sus datos con terceros.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">4. No Cesión a Terceros</h4>
-                    <p>Nos comprometemos firmemente a <strong>no vender, alquilar, ceder ni compartir</strong> sus datos personales con ninguna empresa o tercero ajeno a Vila de Fenals, salvo por requerimiento obligatorio de las autoridades policiales o judiciales.</p>
-                  </div>
-                  <div className="space-y-1.5">
-                    <h4 className="font-bold text-cyan-300">5. Derechos ARCO</h4>
-                    <p>En cualquier momento puede ejercer sus derechos de acceso, rectificación, supresión, limitación y oposición enviando una solicitud directa al anfitrión.</p>
-                  </div>
-                </>
-              )}
+              {legal.clauses.map((clause, idx) => (
+                <div key={idx} className="space-y-1.5">
+                  <h4 className="font-bold text-cyan-300">{clause.title}</h4>
+                  <p>{clause.body}</p>
+                </div>
+              ))}
             </div>
             
             <div className="pt-2">
@@ -1552,7 +1853,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 onClick={() => setShowLegalTextModal(false)}
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 text-cyan-950 text-xs font-bold transition-all shadow-md active:scale-95"
               >
-                {lang === 'en' ? 'Close' : 'Cerrar'}
+                {legal.close_btn}
               </button>
             </div>
           </div>
