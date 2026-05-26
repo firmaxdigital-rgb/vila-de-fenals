@@ -303,7 +303,9 @@ export default async function AccesoPage({
           <AccesoTabs 
             reservation={{
               ...reservation,
-              platform: platformName // Pass parsed platform name
+              platform: platformName, // Pass parsed platform name
+              checkInTime,
+              checkOutTime
             }}
             travelers={travelers}
             lang={lang}

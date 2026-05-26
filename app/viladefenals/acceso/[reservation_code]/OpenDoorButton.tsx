@@ -3,15 +3,47 @@
 import { useState } from 'react';
 import { Key, Unlock, CheckCircle2, AlertCircle } from 'lucide-react';
 
+const scheduleLabels: Record<string, { checkin: string; checkout: string }> = {
+  es: { checkin: 'Horario de Entrada (Check-in)', checkout: 'Horario de Salida (Check-out)' },
+  en: { checkin: 'Check-in Time', checkout: 'Check-out Time' },
+  fr: { checkin: "Heure d'arrivée (Check-in)", checkout: 'Heure de départ (Check-out)' },
+  de: { checkin: 'Check-in Zeit', checkout: 'Check-out Zeit' },
+  pl: { checkin: 'Godzina zameldowania (Check-in)', checkout: 'Godzina wymeldowania (Check-out)' },
+  nl: { checkin: 'Inchecktijd (Check-in)', checkout: 'Uitchecktijd (Check-out)' },
+  uk: { checkin: 'Час заїзду (Check-in)', checkout: 'Час виїзду (Check-out)' },
+  ru: { checkin: 'Время заезда (Check-in)', checkout: 'Время выезда (Check-out)' },
+  zh: { checkin: '入住时间 (Check-in)', checkout: '退房时间 (Check-out)' },
+  ja: { checkin: 'チェックイン時間', checkout: 'チェックアウト時間' }
+};
+
 export default function OpenDoorButton({ 
-  reservationCode, 
+  reservation, 
+  lang,
   dict 
 }: { 
-  reservationCode: string;
+  reservation: any;
+  lang: string;
   dict: any;
 }) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const reservationCode = reservation.reservation_code;
+  const checkInTime = reservation.checkInTime || '16:00';
+  const checkOutTime = reservation.checkOutTime || '10:00';
+  const schedLabel = scheduleLabels[lang] || scheduleLabels['es'];
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return dateStr;
+    }
+  };
 
   const handleOpenDoor = async () => {
     setStatus('loading');
@@ -37,8 +69,24 @@ export default function OpenDoorButton({
         setTimeout(() => setStatus('idle'), 5000);
       } else {
         setStatus('error');
-        setErrorMessage(data.message || dict.error);
-        setTimeout(() => setStatus('idle'), 5000);
+        
+        let msg = data.message || dict.error;
+        if (msg === 'Fuera del horario permitido') {
+          msg = ({
+            es: 'Fuera del horario permitido',
+            en: 'Outside permitted hours',
+            fr: 'En dehors des heures autorisées',
+            de: 'Außerhalb der erlaubten Zeiten',
+            pl: 'Poza dozwolonymi godzinami',
+            nl: 'Buiten de toegestane uren',
+            zh: '超出允许的时间段',
+            uk: 'Поза дозволеним часом',
+            ru: 'Вне разрешенного времени',
+            ja: '許可時間外です'
+          } as Record<string, string>)[lang] || 'Outside permitted hours';
+        }
+        setErrorMessage(msg);
+        setTimeout(() => setStatus('idle'), 15000); // 15s display duration to easily read scheduling
       }
     } catch (error) {
       const elapsed = Date.now() - startTime;
@@ -100,6 +148,19 @@ export default function OpenDoorButton({
           {errorMessage}
         </p>
       </div>
+
+      {status === 'error' && (
+        <div className="mt-4 w-full max-w-[280px] bg-black/35 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-xs space-y-2.5 animate-fade-in text-left shadow-inner">
+          <p className="flex justify-between items-center">
+            <span className="text-white/50">{schedLabel.checkin}:</span>
+            <span className="font-bold text-cyan-200">{formatDate(reservation.check_in)} - {checkInTime}</span>
+          </p>
+          <p className="flex justify-between items-center">
+            <span className="text-white/50">{schedLabel.checkout}:</span>
+            <span className="font-bold text-cyan-200">{formatDate(reservation.check_out)} - {checkOutTime}</span>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
