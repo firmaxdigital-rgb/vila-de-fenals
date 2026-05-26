@@ -12,6 +12,69 @@ import ShareButton from './ShareButton';
 import TasaForm from './tasa/TasaForm';
 import { translations, Lang } from './i18n';
 
+const recyclingTranslations: Record<Lang, { title: string; desc: string; room: string; instructions: string }> = {
+  es: {
+    title: "Reciclaje y Basura",
+    desc: "Por favor, clasifique sus residuos correctamente y deposítelos en los contenedores comunitarios. A continuación puede ver la ubicación del cuarto de basuras y las instrucciones de reciclaje:",
+    room: "Cuarto de Basuras",
+    instructions: "Instrucciones de Reciclaje"
+  },
+  en: {
+    title: "Recycling & Garbage",
+    desc: "Please separate your waste properly and deposit it in the community containers. You can view the garbage room location and recycling instructions below:",
+    room: "Garbage Room",
+    instructions: "Recycling Instructions"
+  },
+  fr: {
+    title: "Recyclage et Ordures",
+    desc: "Veuillez trier vos déchets correctement et les déposer dans les conteneurs communautaires. Vous pouvez voir l'emplacement du local à poubelles et les instructions de recyclage ci-dessous :",
+    room: "Local à Poubelles",
+    instructions: "Instructions de Recyclage"
+  },
+  de: {
+    title: "Recycling & Müll",
+    desc: "Bitte trennen Sie Ihren Abfall ordnungsgemäß und entsorgen Sie ihn in den Gemeinschaftscontainern. Unten finden Sie den Standort des Müllraums und die Recyclinganweisungen:",
+    room: "Müllraum",
+    instructions: "Recycling-Anweisungen"
+  },
+  pl: {
+    title: "Recykling i Śmieci",
+    desc: "Prosimy o prawidłową segregację odpadów i wrzucanie ich do wspólnych kontenerów. Poniżej znajduje się lokalizacja altany śmietnikowej oraz instrukcja recyklingu:",
+    room: "Altana Śmietnikowa",
+    instructions: "Instrukcja Recyklingu"
+  },
+  zh: {
+    title: "垃圾分类与回收",
+    desc: "请正确分类您的垃圾并放入社区垃圾箱中。您可以在下方查看垃圾房位置和垃圾分类指南：",
+    room: "垃圾房",
+    instructions: "垃圾分类指南"
+  },
+  uk: {
+    title: "Сортування та Сміття",
+    desc: "Будь ласка, правильно сортуйте відходи та викидайте їх у громадські контейнери. Нижче ви можете переглянути розташування сміттєвої кімнати та інструкції з утилізації:",
+    room: "Сміттєва Кімната",
+    instructions: "Інструкція з Сортування"
+  },
+  ru: {
+    title: "Сортировка и Мусор",
+    desc: "Пожалуйста, правильно сортируйте отходы и выбрасывайте их в общественные контейнеры. Ниже вы можете ознакомиться с расположением мусорной комнаты и инструкциями по сортировке:",
+    room: "Мусорная Комната",
+    instructions: "Инструкция по Сортировке"
+  },
+  nl: {
+    title: "Recycling & Afval",
+    desc: "Gelieve uw afval correct te sorteren en in de gemeenschappelijke containers te deponeren. U kunt de locatie van de afvalruimte en de recyclinginstructies hieronder bekijken:",
+    room: "Afvalruimte",
+    instructions: "Recycling Instructies"
+  },
+  ja: {
+    title: "リサイクルとゴミ",
+    desc: "ゴミを正しく分別し、共同のゴミ箱に入れてください。ゴミ置き場の場所とリサイクル方法の詳細は以下からご確認いただけます：",
+    room: "ゴミ置き場",
+    instructions: "リサイクル説明書"
+  }
+};
+
 interface AccesoTabsProps {
   reservation: any;
   travelers: any[];
@@ -33,6 +96,7 @@ export default function AccesoTabs({
   const searchParams = useSearchParams();
   const isSimulated = searchParams.get('simulated') === 'true';
   const dict = translations[lang] || translations['es'];
+  const rDict = recyclingTranslations[lang] || recyclingTranslations['es'];
   const decodedCode = reservation.reservation_code;
   const isTaxPaidFromDB = reservation.is_tax_paid === true;
   const [localTaxPaid, setLocalTaxPaid] = useState(false);
@@ -964,6 +1028,47 @@ export default function AccesoTabs({
                         </>
                       )}
                     </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recycling Card */}
+              <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-4">
+                <h3 className="font-semibold text-base flex items-center gap-2 text-cyan-200 border-b border-white/10 pb-1.5">
+                  <span className="text-lg">♻️</span> {rDict.title}
+                </h3>
+                
+                <p className="text-white/80 text-sm leading-relaxed">
+                  {rDict.desc}
+                </p>
+
+                <div className="flex gap-4 pt-2">
+                  <div className="flex-1 bg-black/25 border border-white/10 p-3.5 rounded-2xl text-center space-y-2">
+                    <p className="text-xs text-white/50 uppercase font-bold tracking-wider">
+                      {rDict.room}
+                    </p>
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                      <img 
+                        src="/images/recursos/Cuarto de basuras.png" 
+                        alt="Cuarto de basuras" 
+                        className="w-full h-full object-cover hover:opacity-85 transition-opacity cursor-pointer shadow-sm"
+                        onClick={() => setSelectedImage('/images/recursos/Cuarto de basuras.png')}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 bg-black/25 border border-white/10 p-3.5 rounded-2xl text-center space-y-2">
+                    <p className="text-xs text-white/50 uppercase font-bold tracking-wider">
+                      {rDict.instructions}
+                    </p>
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                      <img 
+                        src="/images/recursos/Instruciones de Reciclaje.jpg" 
+                        alt="Instrucciones de Reciclaje" 
+                        className="w-full h-full object-cover hover:opacity-85 transition-opacity cursor-pointer shadow-sm"
+                        onClick={() => setSelectedImage('/images/recursos/Instruciones de Reciclaje.jpg')}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
