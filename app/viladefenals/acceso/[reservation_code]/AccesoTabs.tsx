@@ -39,12 +39,18 @@ export default function AccesoTabs({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(`paycomet_success_${decodedCode}`) === 'true';
-      if (stored) {
-        setLocalTaxPaid(true);
+      if (reservation.is_tax_paid === false) {
+        // If the database says it's not paid, clear the local storage cache to match the DB ground truth
+        localStorage.removeItem(`paycomet_success_${decodedCode}`);
+        setLocalTaxPaid(false);
+      } else {
+        const stored = localStorage.getItem(`paycomet_success_${decodedCode}`) === 'true';
+        if (stored) {
+          setLocalTaxPaid(true);
+        }
       }
     }
-  }, [decodedCode]);
+  }, [decodedCode, reservation.is_tax_paid]);
 
   const isTaxPaid = isTaxPaidFromDB || localTaxPaid;
 
