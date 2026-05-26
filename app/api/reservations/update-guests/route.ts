@@ -47,7 +47,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 export async function POST(request: Request) {
   try {
-    const { reservation_code, total_guests, check_in_time, check_out_time } = await request.json();
+    const { reservation_code, total_guests, check_in_time, check_out_time, has_deposit, deposit_amount } = await request.json();
 
     if (!reservation_code || total_guests === undefined) {
       return NextResponse.json({ success: false, error: 'Falta reservation_code o total_guests' }, { status: 400 });
@@ -96,15 +96,29 @@ export async function POST(request: Request) {
       check_out_time: outTime
     });
 
-    console.log(`[Update Guests API] Updating reservation ${reservation_code}: guests=${guestsNum}, check-in=${inTime}, check-out=${outTime}`);
+    // Deposit configuration
+    const depositEnabled = has_deposit === true;
+    const depositAmt = depositEnabled && deposit_amount ? parseFloat(deposit_amount) : 0;
+
+    console.log(`[Update Guests API] Updating reservation ${reservation_code}: guests=${guestsNum}, check-in=${inTime}, check-out=${outTime}, deposit=${depositEnabled ? depositAmt + '€' : 'N/A'}`);
 
     // 4. Update the database reservation
+    const updatePayload: any = {
+      total_guests: guestsNum,
+      platform: updatedPlatform
+    };
+
+    // Include deposit fields (they may not exist yet in some schemas, so we try)
+    updatePayload.has_deposit = depositEnabled;
+    updatePayload.deposit_amount = depositAmt;
+    // Reset deposit_paid to 0 if the deposit amount changes significantly
+    if (depositEnabled && reservation.deposit_amount !== depositAmt) {
+      updatePayload.deposit_paid = 0;
+    }
+
     const { error: updateErr } = await supabase
       .from('reservations')
-      .update({
-        total_guests: guestsNum,
-        platform: updatedPlatform
-      })
+      .update(updatePayload)
       .eq('reservation_code', reservation_code);
 
     if (updateErr) {

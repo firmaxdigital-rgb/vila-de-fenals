@@ -25,6 +25,7 @@ const RATE_LIMITS: Record<string, number> = {
   '/api/registro-final':       10,   // Finalización de check-in
   '/api/payment/generate-link':15,   // Generación de enlaces de pago
   '/api/payment/confirm':      10,   // Confirmación de pago
+  '/api/payment/confirm-deposit': 10,  // Confirmación de pago de fianza
   '/api/reservations/update-guests': 10,
   DEFAULT:                     30,   // Límite genérico
 };
@@ -92,6 +93,7 @@ const EXTERNAL_WEBHOOK_ROUTES = [
 const INTERNAL_CALL_ROUTES = [
   '/api/registro-final',   // Llamado internamente desde webhook y travelers
   '/api/payment/confirm',  // Llamado internamente desde el flujo de pago
+  '/api/payment/confirm-deposit', // Llamado al retornar del pago de fianza
 ];
 
 // --- Dominios permitidos para validación de Origin ---

@@ -16,7 +16,7 @@ const SUPPORTED_LANGUAGES = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { reservation_code, lang = 'es', micro_charge = false, unregistered_paying_guests = 0 } = body;
+    const { reservation_code, lang = 'es', micro_charge = false, unregistered_paying_guests = 0, payment_type = 'tax', payment_amount = 0 } = body;
 
     if (!reservation_code) {
       return NextResponse.json({ success: false, error: 'Falta el código de reserva' }, { status: 400 });
@@ -78,17 +78,27 @@ export async function POST(request: Request) {
     const extraPayingGuests = parseInt(unregistered_paying_guests as any, 10) || 0;
     payingGuests += extraPayingGuests;
 
-    const rate = 1.75;
-    let totalAmount = parseFloat((payingGuests * nights * rate).toFixed(2));
+    const isDeposit = payment_type === 'deposit';
+    let totalAmount = 0;
 
-    // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
-    if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD') {
-      if (reservation_code === 'TESTPROD') {
-        console.log("TESTPROD DETECTED: Overriding total amount to 1.00€ for real payment testing.");
-        totalAmount = 1.00;
-      } else {
-        console.log("TEST MODE / MICRO-CHARGE DETECTED: Overriding total amount to 0.10€ for real payment testing.");
-        totalAmount = 0.10;
+    if (isDeposit) {
+      totalAmount = parseFloat(payment_amount);
+      if (isNaN(totalAmount) || totalAmount <= 0) {
+        return NextResponse.json({ success: false, error: 'Importe de fianza no válido' }, { status: 400 });
+      }
+    } else {
+      const rate = 1.75;
+      totalAmount = parseFloat((payingGuests * nights * rate).toFixed(2));
+
+      // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
+      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD') {
+        if (reservation_code === 'TESTPROD') {
+          console.log("TESTPROD DETECTED: Overriding total amount to 1.00€ for real payment testing.");
+          totalAmount = 1.00;
+        } else {
+          console.log("TEST MODE / MICRO-CHARGE DETECTED: Overriding total amount to 0.10€ for real payment testing.");
+          totalAmount = 0.10;
+        }
       }
     }
 
@@ -102,19 +112,30 @@ export async function POST(request: Request) {
     const proto = request.headers.get('x-forwarded-proto') || 'http';
     const baseUrl = `${proto}://${host}`;
 
-    const urlOk = `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success`;
-    const urlKo = `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=error`;
+    const urlOk = isDeposit
+      ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_success&deposit_amount=${totalAmount}`
+      : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success`;
+
+    const urlKo = isDeposit
+      ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_error`
+      : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=error`;
 
     const paycometApiKey = process.env.PAYCOMET_API_KEY;
     const paycometTerminal = process.env.PAYCOMET_TERMINAL;
 
-    console.log("Calculado total tasa turística:", totalAmount, "para", payingGuests, "huéspedes y", nights, "noches.");
+    if (isDeposit) {
+      console.log("Calculado total fianza:", totalAmount);
+    } else {
+      console.log("Calculado total tasa turística:", totalAmount, "para", payingGuests, "huéspedes y", nights, "noches.");
+    }
 
     // Fallback: If credentials are not configured, allow generating a mock return link to verify flow in development
     if (!paycometApiKey || !paycometTerminal || paycometApiKey === "" || paycometTerminal === "") {
       console.warn("PayComet credentials missing or empty in .env.local. Returning simulated checkout URL.");
       // Return a simulated checkout link that has simulated success/error paths
-      const simulatedUrl = `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success&simulated=true`;
+      const simulatedUrl = isDeposit
+        ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_success&deposit_amount=${totalAmount}&simulated=true`
+        : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success&simulated=true`;
       return NextResponse.json({
         success: true,
         url: simulatedUrl,
@@ -124,12 +145,13 @@ export async function POST(request: Request) {
     }
 
     // 6. Make request to PayComet Form API
+    const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
     const payload = {
       operationType: 1,
       language: selectedLang,
       payment: {
         terminal: parseInt(paycometTerminal),
-        order: `${reservation_code}_${Date.now()}`,
+        order: orderId,
         amount: Math.round(totalAmount * 100), // represented in cents as integer
         currency: 'EUR',
         urlOk: urlOk,

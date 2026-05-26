@@ -47,6 +47,51 @@ export default function AccesoTabs({
   }, [decodedCode]);
 
   const isTaxPaid = isTaxPaidFromDB || localTaxPaid;
+
+  const depositPaidFromDB = parseFloat(reservation.deposit_paid) || 0;
+  const [localDepositPaid, setLocalDepositPaid] = useState(depositPaidFromDB);
+  const [isSplitSelected, setIsSplitSelected] = useState(false);
+  const [cardLimit, setCardLimit] = useState('0.25');
+  const [generatingLinks, setGeneratingLinks] = useState<Record<number, boolean>>({});
+  const [hasConfirmedDeposit, setHasConfirmedDeposit] = useState(false);
+
+  useEffect(() => {
+    setLocalDepositPaid(parseFloat(reservation.deposit_paid) || 0);
+  }, [reservation.deposit_paid]);
+
+  useEffect(() => {
+    if (paymentStatus === 'deposit_success' && !hasConfirmedDeposit) {
+      const amountStr = searchParams.get('deposit_amount') || '0';
+      const parsedAmt = parseFloat(amountStr);
+      console.log(`[AccesoTabs] Deposit payment success landed. Confirming deposit amount: ${parsedAmt}€`);
+
+      setHasConfirmedDeposit(true);
+
+      const endpointsToCall = [];
+      endpointsToCall.push(
+        fetch('/api/payment/confirm-deposit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reservation_code: decodedCode, amount: parsedAmt })
+        })
+      );
+
+      Promise.all(endpointsToCall).then(async (responses) => {
+        const res = responses[0];
+        if (res.ok) {
+          const data = await res.json();
+          console.log("[AccesoTabs] Deposit confirm response:", data);
+          if (data.success) {
+            setLocalDepositPaid(data.deposit_paid);
+          }
+        }
+        router.refresh();
+      }).catch(err => {
+        console.error("[AccesoTabs] Error calling confirm-deposit API:", err);
+        router.refresh();
+      });
+    }
+  }, [paymentStatus, hasConfirmedDeposit, decodedCode, searchParams, router]);
   
   // Tab navigation state
   const [activeTab, setActiveTab] = useState('acceso');
@@ -130,7 +175,11 @@ export default function AccesoTabs({
 
   const completedForms = travelers.length;
   const isPhase1Complete = completedForms >= totalGuests;
-  const isFullyUnlocked = isPhase1Complete && isTaxPaid;
+  const hasDeposit = reservation.has_deposit === true;
+  const depositAmount = parseFloat(reservation.deposit_amount) || 0;
+  const depositPaid = Math.max(parseFloat(reservation.deposit_paid) || 0, localDepositPaid);
+  const isDepositComplete = !hasDeposit || (depositPaid >= depositAmount);
+  const isFullyUnlocked = isPhase1Complete && isTaxPaid && isDepositComplete;
 
   // Calculate nights
   const checkIn = new Date(reservation.check_in);
@@ -197,6 +246,56 @@ export default function AccesoTabs({
     navigator.clipboard.writeText('86075541');
     setWifiCopied(true);
     setTimeout(() => setWifiCopied(false), 2000);
+  };
+
+  const handlePayDeposit = async (amount: number, index: number) => {
+    setGeneratingLinks(prev => ({ ...prev, [index]: true }));
+    try {
+      const res = await fetch('/api/payment/generate-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reservation_code: decodedCode,
+          payment_type: 'deposit',
+          payment_amount: amount
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Error al generar el enlace de pago.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de conexión.');
+    } finally {
+      setGeneratingLinks(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const ContactHostButton = () => {
+    const whatsAppLink = `https://wa.me/34661690375?text=${encodeURIComponent(
+      lang === 'en'
+        ? `Hello! I have a question regarding my reservation ${decodedCode} at Vila de Fenals.`
+        : `¡Hola! Tengo una consulta sobre mi reserva ${decodedCode} en Vila de Fenals.`
+    )}`;
+
+    return (
+      <div className="pt-4 border-t border-white/5 mt-4">
+        <a
+          href={whatsAppLink}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-center gap-2.5 w-full bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-[#25D366] font-bold py-3.5 px-4 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] text-sm shadow-md"
+        >
+          <svg className="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.403.002 9.803-4.394 9.805-9.805.002-2.618-1.013-5.082-2.86-6.93C16.376 1.933 13.91 1.917 12 1.917c-5.41 0-9.809 4.398-9.813 9.815-.002 1.62.476 3.206 1.383 4.622L2.508 21.5l5.244-1.378zM17.472 14.382c-.3-.149-1.778-.878-2.057-.98-.28-.1-.484-.148-.688.15-.2.299-.778.98-.953 1.18-.175.199-.349.224-.65.075-1.125-.562-1.993-1.002-2.774-2.335-.204-.349.204-.324.582-1.077.062-.124.031-.233-.016-.332-.047-.1-.484-1.171-.662-1.602-.175-.42-.35-.362-.484-.369-.125-.007-.268-.007-.41-.007s-.375.053-.57.269c-.2.215-.757.74-.757 1.804s.774 2.09 1.88 2.24c.11.015 2.155 3.292 5.22 4.615.73.315 1.3.503 1.74.643.73.23 1.4.198 1.92.12.58-.087 1.778-.727 2.027-1.43.25-.702.25-1.3.175-1.43-.075-.13-.275-.205-.575-.355z"/>
+          </svg>
+          <span>{lang === 'en' ? 'Contact Host' : 'Contactar con el Anfitrión'}</span>
+        </a>
+      </div>
+    );
   };
 
   return (
@@ -471,6 +570,230 @@ export default function AccesoTabs({
                   </div>
                 )}
               </div>
+
+              {/* Phase 3: Fianza / Depósito de Seguridad */}
+              {hasDeposit && depositAmount > 0 && (
+                <div className="bg-black/20 border border-white/10 rounded-2xl p-4 space-y-3">
+                  <div className="flex justify-between items-center border-b border-white/10 pb-2 mb-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200 flex items-center gap-1.5">
+                      <Key size={14} className="text-cyan-400" />
+                      <span>{lang === 'en' ? '3. Security Deposit' : '3. Fianza de Seguridad'}</span>
+                    </h3>
+                    {isDepositComplete ? (
+                      <span className="text-xs font-bold text-green-400 uppercase tracking-widest bg-green-500/20 px-2 py-0.5 rounded-full border border-green-500/30">
+                        ✓ {dict.paid_text || 'Pagado'}
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold text-yellow-300 uppercase tracking-widest bg-yellow-500/20 px-2 py-0.5 rounded-full border border-yellow-500/30">
+                        {depositPaid > 0 
+                          ? `${lang === 'en' ? 'Partial' : 'Parcial'} (${depositPaid}/${depositAmount}€)`
+                          : (dict.pending_text || 'Pendiente')}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="bg-white/5 border border-white/5 rounded-xl p-3 text-xs text-white/70 leading-relaxed">
+                    {lang === 'en'
+                      ? 'For security reasons, a temporary deposit is required. It will be refunded manually after checking the apartment\'s condition at the end of your stay.'
+                      : 'Por motivos de seguridad, se requiere un depósito temporal que será devuelto manualmente tras comprobar el estado del apartamento al final de la estancia.'}
+                  </div>
+
+                  {isDepositComplete ? (
+                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-3 text-sm text-green-300 flex items-center gap-2">
+                      <CheckCircle2 size={16} className="shrink-0 text-green-400" />
+                      <div>
+                        <span className="font-bold">{lang === 'en' ? 'Deposit paid successfully.' : 'Fianza depositada correctamente.'}</span>
+                        <p className="text-[11px] text-white/60">
+                          {lang === 'en' ? 'Total amount secured.' : 'Importe total garantizado de forma segura.'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 pt-2">
+                      {/* Split limit checkbox option */}
+                      <div className="flex items-start gap-3 bg-black/20 border border-white/5 rounded-xl p-3">
+                        <input
+                          id="split_deposit_checkbox"
+                          type="checkbox"
+                          checked={isSplitSelected}
+                          onChange={(e) => setIsSplitSelected(e.target.checked)}
+                          className="w-4 h-4 rounded border-white/20 bg-black/40 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:outline-none cursor-pointer mt-0.5"
+                        />
+                        <div className="space-y-1 animate-fade-in">
+                          <label htmlFor="split_deposit_checkbox" className="text-xs text-white/90 font-medium cursor-pointer block leading-none">
+                            {lang === 'en'
+                              ? 'Does your card have a single payment limit lower than this amount?'
+                              : '¿Tu tarjeta tiene un límite por pago inferior a este importe?'}
+                          </label>
+                          <span className="text-[10px] text-white/40 block leading-tight mt-1">
+                            {lang === 'en'
+                              ? 'If checked, you can enter your card transaction limit and we will split the total fianza into multiple smaller payment links.'
+                              : 'Si lo marcas, podrás definir el límite por transacción y dividiremos el pago total en varios enlaces de menor importe.'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {isSplitSelected && (
+                        <div className="space-y-2 bg-black/10 border border-white/10 rounded-xl p-3 animate-fade-in">
+                          <label htmlFor="card_limit_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
+                            {lang === 'en' ? 'Single Payment Limit (€)' : 'Límite de pago por tarjeta (€)'}
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="card_limit_input"
+                              type="number"
+                              step="0.01"
+                              min="0.10"
+                              value={cardLimit}
+                              onChange={(e) => setCardLimit(e.target.value)}
+                              className="w-full bg-black/40 border border-white/15 rounded-xl py-2 px-3 pl-4 pr-10 text-xs font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
+                            />
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-mono text-white/40">
+                              EUR
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Display the buttons */}
+                      {(() => {
+                        const limitVal = parseFloat(cardLimit);
+                        if (isSplitSelected && limitVal > 0) {
+                          // Split logic
+                          const totalSplits: number[] = [];
+                          let tempTotal = depositAmount;
+                          while (tempTotal > 0) {
+                            if (tempTotal <= limitVal) {
+                              totalSplits.push(parseFloat(tempTotal.toFixed(2)));
+                              tempTotal = 0;
+                            } else {
+                              totalSplits.push(parseFloat(limitVal.toFixed(2)));
+                              tempTotal = parseFloat((tempTotal - limitVal).toFixed(2));
+                            }
+                          }
+
+                          let accumulatedPaid = depositPaid;
+                          const splitStatuses = totalSplits.map((splitAmt) => {
+                            if (accumulatedPaid >= splitAmt) {
+                              accumulatedPaid = parseFloat((accumulatedPaid - splitAmt).toFixed(2));
+                              return { amount: splitAmt, status: 'paid' };
+                            } else if (accumulatedPaid > 0) {
+                              const paidPartial = accumulatedPaid;
+                              accumulatedPaid = 0;
+                              return { amount: splitAmt, paidPartial, status: 'partial' };
+                            } else {
+                              return { amount: splitAmt, status: 'pending' };
+                            }
+                          });
+
+                          return (
+                            <div className="space-y-2">
+                              <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold block mb-1">
+                                {lang === 'en' ? 'Payment Parts Required:' : 'Tramos de pago requeridos:'}
+                              </p>
+                              {splitStatuses.map((split, sIdx) => {
+                                if (split.status === 'paid') {
+                                  return (
+                                    <div key={sIdx} className="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-xs">
+                                      <span className="font-semibold text-white/80">
+                                        {lang === 'en' ? 'Part' : 'Tramo'} {sIdx + 1} ({split.amount.toFixed(2)}€)
+                                      </span>
+                                      <span className="text-[10px] font-bold text-green-400 uppercase tracking-wider bg-green-500/25 px-2 py-0.5 rounded-md border border-green-500/30">
+                                        ✓ {lang === 'en' ? 'Paid' : 'Pagado'}
+                                      </span>
+                                    </div>
+                                  );
+                                } else if (split.status === 'partial') {
+                                  const partialPaid = split.paidPartial || 0;
+                                  const pendingAmt = parseFloat((split.amount - partialPaid).toFixed(2));
+                                  return (
+                                    <div key={sIdx} className="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-xs">
+                                      <div className="space-y-0.5">
+                                        <span className="font-semibold text-white/80 block">
+                                          {lang === 'en' ? 'Part' : 'Tramo'} {sIdx + 1} ({split.amount.toFixed(2)}€)
+                                        </span>
+                                        <span className="text-[10px] text-yellow-300/70 block">
+                                          {lang === 'en' ? 'Paid:' : 'Pagado:'} {partialPaid.toFixed(2)}€ | {lang === 'en' ? 'Pending:' : 'Pendiente:'} {pendingAmt.toFixed(2)}€
+                                        </span>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => handlePayDeposit(pendingAmt, sIdx)}
+                                        disabled={generatingLinks[sIdx]}
+                                        className="text-[11px] font-bold text-white bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 rounded-lg py-1.5 px-3 uppercase tracking-wider flex items-center gap-1 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-cyan-500/10"
+                                      >
+                                        {generatingLinks[sIdx] ? (
+                                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                          <span>{lang === 'en' ? `Pay Remaining (${pendingAmt.toFixed(2)}€)` : `Pagar Resto (${pendingAmt.toFixed(2)}€)`}</span>
+                                        )}
+                                      </button>
+                                    </div>
+                                  );
+                                } else {
+                                  return (
+                                    <div key={sIdx} className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs">
+                                      <span className="font-semibold text-white/80">
+                                        {lang === 'en' ? 'Part' : 'Tramo'} {sIdx + 1} ({split.amount.toFixed(2)}€)
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handlePayDeposit(split.amount, sIdx)}
+                                        disabled={generatingLinks[sIdx]}
+                                        className="text-[11px] font-bold text-white bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 rounded-lg py-1.5 px-3 uppercase tracking-wider flex items-center gap-1 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-cyan-500/10"
+                                      >
+                                        {generatingLinks[sIdx] ? (
+                                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        ) : (
+                                          <span>{lang === 'en' ? `Pay (${split.amount.toFixed(2)}€)` : `Pagar (${split.amount.toFixed(2)}€)`}</span>
+                                        )}
+                                      </button>
+                                    </div>
+                                  );
+                                }
+                              })}
+                            </div>
+                          );
+                        } else {
+                          // Single complete payment link
+                          const remainingDeposit = parseFloat((depositAmount - depositPaid).toFixed(2));
+                          return (
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs">
+                                <span className="text-white/60">
+                                  {lang === 'en' ? 'Total Remaining:' : 'Total Restante de Fianza:'}
+                                </span>
+                                <span className="font-bold text-cyan-300 font-mono text-sm">
+                                  {remainingDeposit.toFixed(2)}€
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => handlePayDeposit(remainingDeposit, 999)}
+                                disabled={generatingLinks[999]}
+                                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/15"
+                              >
+                                {generatingLinks[999] ? (
+                                  <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <span>{lang === 'en' ? 'Generating Payment Link...' : 'Generando Enlace de Pago...'}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCard size={16} />
+                                    <span>{lang === 'en' ? `Pay Security Deposit (${remainingDeposit.toFixed(2)}€)` : `Pagar Fianza Completa (${remainingDeposit.toFixed(2)}€)`}</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          );
+                        }
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : isValidTime ? (
             /* unlocked portal controls */
@@ -602,6 +925,7 @@ export default function AccesoTabs({
               </div>
             </div>
           )}
+          <ContactHostButton />
         </div>
       )}
 
@@ -673,6 +997,7 @@ export default function AccesoTabs({
               {dict.rules_link}
             </button>
           </div>
+          <ContactHostButton />
         </div>
       )}
 
@@ -757,6 +1082,7 @@ export default function AccesoTabs({
               />
             </div>
           </div>
+          <ContactHostButton />
         </div>
       )}
 

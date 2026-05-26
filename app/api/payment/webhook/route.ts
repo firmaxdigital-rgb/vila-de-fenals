@@ -72,49 +72,136 @@ export async function POST(request: Request) {
     if (responseStr.toUpperCase() === 'OK') {
       console.log(`Pago exitoso confirmado para la reserva: ${reservationCode} (Order ID: ${rawOrderId}). Actualizando base de datos.`);
 
-      // Update is_tax_paid in Supabase reservations table
-      const { data: updatedRes, error: dbError } = await supabase
-        .from('reservations')
-        .update({ is_tax_paid: true })
-        .eq('reservation_code', reservationCode)
-        .select()
-        .single();
+      const isDeposit = rawOrderId.includes('_DEP');
 
-      if (dbError) {
-        console.error("Error al actualizar is_tax_paid en la reserva:", dbError);
-        throw dbError;
-      }
+      if (isDeposit) {
+        // Extract payment amount from webhook params
+        const amountCents = params.Amount || params.amount || '0';
+        const amountPaid = parseFloat(amountCents) / 100;
 
-      console.log("Reserva actualizada en Supabase. Disparando finalización de registro y Nuki.");
-
-      // 4. Trigger Check-in Finalization
-      // We fetch internally to trigger generating Nuki PIN, registering Mossos TXT and sending Email
-      const host = request.headers.get('host') || 'localhost:3000';
-      const proto = request.headers.get('x-forwarded-proto') || 'http';
-      const baseUrl = `${proto}://${host}`;
-
-      try {
-        const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ reservation_code: reservationCode })
-        });
-
-        if (!finalizationRes.ok) {
-          const finalizationError = await finalizationRes.text();
-          console.error("Error al disparar api/registro-final:", finalizationError);
-        } else {
-          const finalizationData = await finalizationRes.json();
-          console.log("Finalización de check-in exitosa:", finalizationData);
+        if (isNaN(amountPaid) || amountPaid <= 0) {
+          console.error(`[Webhook] Importe del depósito no válido: ${amountCents} céntimos`);
+          return NextResponse.json({ success: false, error: 'Importe de fianza no válido' }, { status: 400 });
         }
-      } catch (finalError) {
-        console.error("Excepción al llamar a api/registro-final:", finalError);
-        // We do not fail the webhook since the DB was already updated successfully
-      }
 
-      return NextResponse.json({ success: true, message: 'Pago verificado y check-in finalizado.' });
+        console.log(`[Webhook] Confirmando pago de depósito de ${amountPaid}€ para la reserva ${reservationCode}`);
+
+        // Fetch current reservation
+        const { data: reservation, error: fetchErr } = await supabase
+          .from('reservations')
+          .select('deposit_amount, deposit_paid, has_deposit, total_guests, is_tax_paid, is_registered')
+          .eq('reservation_code', reservationCode)
+          .single();
+
+        if (fetchErr || !reservation) {
+          console.error(`[Webhook] Reserva no encontrada para fianza: ${reservationCode}`);
+          return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 });
+        }
+
+        const currentPaid = parseFloat(reservation.deposit_paid) || 0;
+        const depositAmt = parseFloat(reservation.deposit_amount) || 0;
+        const newPaid = Math.min(currentPaid + amountPaid, depositAmt);
+
+        const { error: updateErr } = await supabase
+          .from('reservations')
+          .update({ deposit_paid: newPaid })
+          .eq('reservation_code', reservationCode);
+
+        if (updateErr) {
+          console.error('[Webhook] Error actualizando deposit_paid:', updateErr);
+          throw updateErr;
+        }
+
+        const isDepositComplete = newPaid >= depositAmt;
+        console.log(`[Webhook] deposit_paid actualizado: ${newPaid}€ / ${depositAmt}€. Completo: ${isDepositComplete}`);
+
+        // If deposit is now complete, check if we should trigger finalization
+        if (isDepositComplete && reservation.is_tax_paid && !reservation.is_registered) {
+          // Check if all travelers are registered
+          const { data: travelers } = await supabase
+            .from('travelers')
+            .select('id')
+            .eq('reservation_code', reservationCode);
+
+          if (travelers && travelers.length >= (reservation.total_guests || 2)) {
+            console.log(`[Webhook] Todos los requisitos cumplidos. Disparando finalización para ${reservationCode}`);
+            const host = request.headers.get('host') || 'localhost:3000';
+            const proto = request.headers.get('x-forwarded-proto') || 'http';
+            const baseUrl = `${proto}://${host}`;
+
+            try {
+              await fetch(`${baseUrl}/api/registro-final`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reservation_code: reservationCode })
+              });
+            } catch (e) {
+              console.error('[Webhook] Error disparando registro-final:', e);
+            }
+          }
+        }
+
+        return NextResponse.json({ success: true, message: `Pago parcial de fianza registrado: ${amountPaid}€` });
+      } else {
+        // Normal tax payment
+        const { data: reservation, error: fetchErr } = await supabase
+          .from('reservations')
+          .select('has_deposit, deposit_amount, deposit_paid')
+          .eq('reservation_code', reservationCode)
+          .single();
+
+        const { data: updatedRes, error: dbError } = await supabase
+          .from('reservations')
+          .update({ is_tax_paid: true })
+          .eq('reservation_code', reservationCode)
+          .select()
+          .single();
+
+        if (dbError) {
+          console.error("Error al actualizar is_tax_paid en la reserva:", dbError);
+          throw dbError;
+        }
+
+        console.log("Reserva actualizada en Supabase. Comprobando si se cumplen las condiciones de finalización.");
+
+        // Check if there is a deposit that is NOT paid yet
+        const hasDeposit = reservation?.has_deposit;
+        const depositAmt = parseFloat(reservation?.deposit_amount) || 0;
+        const depositPaid = parseFloat(reservation?.deposit_paid) || 0;
+        const isDepositComplete = !hasDeposit || (depositPaid >= depositAmt);
+
+        if (!isDepositComplete) {
+          console.log("[Webhook] Pago de tasa verificado, pero falta completar la fianza. No se dispara la finalización aún.");
+          return NextResponse.json({ success: true, message: 'Pago de tasa registrado. Esperando pago de fianza.' });
+        }
+
+        // Trigger Check-in Finalization
+        const host = request.headers.get('host') || 'localhost:3000';
+        const proto = request.headers.get('x-forwarded-proto') || 'http';
+        const baseUrl = `${proto}://${host}`;
+
+        try {
+          const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reservation_code: reservationCode })
+          });
+
+          if (!finalizationRes.ok) {
+            const finalizationError = await finalizationRes.text();
+            console.error("Error al disparar api/registro-final:", finalizationError);
+          } else {
+            const finalizationData = await finalizationRes.json();
+            console.log("Finalización de check-in exitosa:", finalizationData);
+          }
+        } catch (finalError) {
+          console.error("Excepción al llamar a api/registro-final:", finalError);
+        }
+
+        return NextResponse.json({ success: true, message: 'Pago verificado y check-in finalizado.' });
+      }
     } else {
       console.log(`El pago de PayComet no fue exitoso. Estado recibido: ${responseStr}`);
       return NextResponse.json({ success: false, error: 'El pago no fue autorizado.' });

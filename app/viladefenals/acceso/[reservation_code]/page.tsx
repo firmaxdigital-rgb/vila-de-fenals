@@ -7,6 +7,59 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
+const pendingActivationTranslations: Record<string, { title: string; desc1: string; desc2: string }> = {
+  es: {
+    title: "Check-in Pendiente de Activación",
+    desc1: "¡Gracias por su reserva! La administración de Vila de Fenals está configurando los detalles y la asignación de plazas para su estancia.",
+    desc2: "El portal de registro de viajeros y liquidación de tasa turística se activará automáticamente en breve. Si tiene alguna urgencia o duda, por favor póngase en contacto con nosotros."
+  },
+  en: {
+    title: "Check-in Pending Activation",
+    desc1: "Thank you for your reservation! The Vila de Fenals administration is currently assigning the slot capacity and finalizing details for your stay.",
+    desc2: "The traveler registration and tourist tax payment portal will activate automatically once ready. If you have any urgency, please contact us."
+  },
+  fr: {
+    title: "Enregistrement en attente d'activation",
+    desc1: "Merci pour votre réservation ! L'administration de Vila de Fenals configure actuellement les détails et l'attribution des places pour votre séjour.",
+    desc2: "Le portail d'enregistrement des voyageurs et de paiement de la taxe de séjour s'activera automatiquement sous peu. Si vous avez des questions urgentes, veuillez nous contacter."
+  },
+  nl: {
+    title: "Inchecken wacht op activering",
+    desc1: "Bedankt voor uw reservering! Het beheer van Vila de Fenals is momenteel bezig met het toewijzen van de capaciteit en het afronden van de details voor uw verblijf.",
+    desc2: "Het portaal voor de registratie van reizigers en de betaling van de toeristenbelasting wordt binnenkort automatisch geactiveerd. Neem bij spoed of vragen contact met ons op."
+  },
+  de: {
+    title: "Check-in wartet auf Aktivierung",
+    desc1: "Vielen Dank für Ihre Reservierung! Die Verwaltung von Vila de Fenals konfiguriert derzeit die Details und die Zuweisung der Plätze für Ihren Aufenthalt.",
+    desc2: "Das Portal für die Registrierung von Reisenden und die Zahlung der Kurtaxe wird in Kürze automatisch aktiviert. Bei dringenden Fragen kontaktieren Sie uns bitte."
+  },
+  pl: {
+    title: "Zameldowanie oczekuje na aktywację",
+    desc1: "Dziękujemy za rezerwację! Administracja Vila de Fenals konfiguruje obecnie szczegóły i przypisuje miejsca na Twój pobyt.",
+    desc2: "Portal rejestracji podróżnych i płatności taksy klimatycznej aktywuje się automatycznie wkrótce. W razie pilnych pytań prosimy o kontakt."
+  },
+  uk: {
+    title: "Реєстрація очікує на активацію",
+    desc1: "Дякуємо за ваше бронювання! Адміністрація Vila de Fenals наразі налаштовує деталі та розподіляє місця для вашого перебування.",
+    desc2: "Портал для реєстрації мандрівників та оплати туристичного збору незабаром активується автоматично. Якщо у вас виникли термінові питання, будь ласка, зв'яжіться з нами."
+  },
+  ru: {
+    title: "Регистрация ожидает активации",
+    desc1: "Благодарим вас за бронирование! Администрация Vila de Fenals в настоящее время настраивает детали и распределяет места для вашего пребывания.",
+    desc2: "Портал для регистрации путешественников и оплаты туристического сбора активируется автоматически в ближайшее время. Если у вас возникли срочные вопросы, пожалуйста, свяжитесь с нами."
+  },
+  zh: {
+    title: "办理入住等待激活",
+    desc1: "感谢您的预订！Vila de Fenals 管理处目前正在配置细节并为您分配入住人数。",
+    desc2: "旅客登记和旅游税支付门户将在准备就绪后自动激活。如果您有任何紧急情况或疑问，请与我们联系。"
+  },
+  ja: {
+    title: "チェックインの有効化待ち",
+    desc1: "ご予約ありがとうございます！Vila de Fenals管理者は現在、ご滞在の詳細設定と定員の割り当てを行っております。",
+    desc2: "旅行者登録および宿泊税お支払いポータルは、準備が整い次第自動的に有効化されます。ご不明な点や緊急の用件がございましたら、お問い合わせください。"
+  }
+};
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 
@@ -124,6 +177,8 @@ export default async function AccesoPage({
   }
 
   if (totalGuests === 0 || totalGuests === null) {
+    const tPending = pendingActivationTranslations[lang] || pendingActivationTranslations['es'];
+
     return (
       <div className="min-h-screen text-white font-sans relative pb-20">
         <Background />
@@ -138,17 +193,13 @@ export default async function AccesoPage({
             </div>
             <div className="space-y-3">
               <h2 className="text-lg font-bold text-cyan-300">
-                {lang === 'en' ? 'Check-in Pending Activation' : 'Check-in Pendiente de Activación'}
+                {tPending.title}
               </h2>
               <p className="text-sm text-white/80 leading-relaxed">
-                {lang === 'en'
-                  ? 'Thank you for your reservation! The Vila de Fenals administration is currently assigning the slot capacity and finalizing details for your stay.'
-                  : '¡Gracias por su reserva! La administración de Vila de Fenals está configurando los detalles y la asignación de plazas para su estancia.'}
+                {tPending.desc1}
               </p>
               <p className="text-xs text-white/60 leading-relaxed pt-2">
-                {lang === 'en'
-                  ? 'The traveler registration and tourist tax payment portal will activate automatically once ready. If you have any urgency, please contact us.'
-                  : 'El portal de registro de viajeros y liquidación de tasa turística se activará automáticamente en breve. Si tiene alguna urgencia o duda, por favor póngase en contacto con nosotros.'}
+                {tPending.desc2}
               </p>
             </div>
           </div>

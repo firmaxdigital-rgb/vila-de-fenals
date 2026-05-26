@@ -36,6 +36,8 @@ export default function AdminPage() {
   const [guestsCount, setGuestsCount] = useState(0);
   const [checkInTime, setCheckInTime] = useState('14:00');
   const [checkOutTime, setCheckOutTime] = useState('12:00');
+  const [hasDeposit, setHasDeposit] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('0');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,6 +56,8 @@ export default function AdminPage() {
         } else {
           setReservation(data);
           setGuestsCount(data.total_guests || 0);
+          setHasDeposit(data.has_deposit || false);
+          setDepositAmount(data.deposit_amount ? String(data.deposit_amount) : '0');
 
           if (data.platform && data.platform.startsWith('{')) {
             try {
@@ -110,7 +114,9 @@ export default function AdminPage() {
           reservation_code: decodedCode,
           total_guests: guestsCount,
           check_in_time: checkInTime,
-          check_out_time: checkOutTime
+          check_out_time: checkOutTime,
+          has_deposit: hasDeposit,
+          deposit_amount: depositAmount
         })
       });
       const data = await res.json();
@@ -326,6 +332,54 @@ export default function AdminPage() {
                     })}
                   </select>
                 </div>
+              </div>
+            </div>
+
+            {/* Custom Fianza / Depósito Card */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5">
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-white/95">Fianza / Depósito de Seguridad</p>
+                <p className="text-[11px] text-white/50 leading-tight">
+                  Configure si esta reserva requiere un depósito de garantía reembolsable. El huésped deberá abonarlo para completar el check-in.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center justify-between bg-black/20 border border-white/10 rounded-xl p-3">
+                  <label htmlFor="has_deposit_checkbox" className="text-xs text-white/80 font-medium cursor-pointer">
+                    ¿Requiere fianza de seguridad?
+                  </label>
+                  <input
+                    id="has_deposit_checkbox"
+                    type="checkbox"
+                    checked={hasDeposit}
+                    onChange={(e) => setHasDeposit(e.target.checked)}
+                    className="w-4 h-4 rounded border-white/20 bg-black/40 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:outline-none cursor-pointer"
+                  />
+                </div>
+
+                {hasDeposit && (
+                  <div className="space-y-1.5 animate-fade-in">
+                    <label htmlFor="deposit_amount_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
+                      Importe de la Fianza (€)
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="deposit_amount_input"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={depositAmount}
+                        onChange={(e) => setDepositAmount(e.target.value)}
+                        placeholder="Ej: 300.00"
+                        className="w-full bg-black/40 border border-white/15 rounded-xl py-2.5 pl-4 pr-10 text-sm font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
+                      />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-white/40">
+                        EUR
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
