@@ -51,7 +51,7 @@ export default function AccesoTabs({
   const depositPaidFromDB = parseFloat(reservation.deposit_paid) || 0;
   const [localDepositPaid, setLocalDepositPaid] = useState(depositPaidFromDB);
   const [isSplitSelected, setIsSplitSelected] = useState(false);
-  const [cardLimit, setCardLimit] = useState('0.25');
+  const [cardLimit, setCardLimit] = useState('500');
   const [generatingLinks, setGeneratingLinks] = useState<Record<number, boolean>>({});
   const [hasConfirmedDeposit, setHasConfirmedDeposit] = useState(false);
 

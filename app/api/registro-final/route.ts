@@ -126,13 +126,13 @@ export async function POST(request: Request) {
 
       // Sync with physical Nuki lock if configured
       try {
-        let checkInTime = '14:00';
-        let checkOutTime = '12:00';
+        let checkInTime = '16:00';
+        let checkOutTime = '10:00';
         if (reservation.platform && reservation.platform.trim().startsWith('{')) {
           try {
             const parsed = JSON.parse(reservation.platform);
-            checkInTime = parsed.check_in_time || '14:00';
-            checkOutTime = parsed.check_out_time || '12:00';
+            checkInTime = parsed.check_in_time || '16:00';
+            checkOutTime = parsed.check_out_time || '10:00';
           } catch (e) {
             console.error("Error parsing platform JSON in registro-final:", e);
           }

@@ -114,7 +114,7 @@ export default async function AccesoPage({
   const lang: Lang = (['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
   const paymentStatus = resolvedSearchParams?.payment_status as string;
-  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD' || decodedCode === 'TEST7GUESTS';
+  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD' || decodedCode === 'TEST7GUESTS' || decodedCode === 'TEST250526';
 
   console.log("Cargando reserva:", decodedCode, "TestMode:", testMode);
 
@@ -163,14 +163,14 @@ export default async function AccesoPage({
 
   // Resolve platform name and custom check-in/check-out hours
   let platformName = reservation.platform || 'Airbnb';
-  let checkInTime = '14:00';
-  let checkOutTime = '12:00';
+  let checkInTime = '16:00';
+  let checkOutTime = '10:00';
   if (reservation.platform && reservation.platform.trim().startsWith('{')) {
     try {
       const parsed = JSON.parse(reservation.platform);
       platformName = parsed.name || 'Airbnb';
-      checkInTime = parsed.check_in_time || '14:00';
-      checkOutTime = parsed.check_out_time || '12:00';
+      checkInTime = parsed.check_in_time || '16:00';
+      checkOutTime = parsed.check_out_time || '10:00';
     } catch (e) {
       console.error("Error parsing platform JSON in guest page:", e);
     }

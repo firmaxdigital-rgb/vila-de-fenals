@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       totalAmount = parseFloat((payingGuests * nights * rate).toFixed(2));
 
       // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
-      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD') {
+      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD' || reservation_code === 'TEST250526') {
         if (reservation_code === 'TESTPROD') {
           console.log("TESTPROD DETECTED: Overriding total amount to 1.00€ for real payment testing.");
           totalAmount = 1.00;

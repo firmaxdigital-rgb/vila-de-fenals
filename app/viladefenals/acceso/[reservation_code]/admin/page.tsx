@@ -34,8 +34,8 @@ export default function AdminPage() {
   const [authError, setAuthError] = useState('');
   const [reservation, setReservation] = useState<any>(null);
   const [guestsCount, setGuestsCount] = useState(0);
-  const [checkInTime, setCheckInTime] = useState('14:00');
-  const [checkOutTime, setCheckOutTime] = useState('12:00');
+  const [checkInTime, setCheckInTime] = useState('16:00');
+  const [checkOutTime, setCheckOutTime] = useState('10:00');
   const [hasDeposit, setHasDeposit] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0');
   const [isSaving, setIsSaving] = useState(false);
@@ -62,8 +62,8 @@ export default function AdminPage() {
           if (data.platform && data.platform.startsWith('{')) {
             try {
               const parsed = JSON.parse(data.platform);
-              setCheckInTime(parsed.check_in_time || '14:00');
-              setCheckOutTime(parsed.check_out_time || '12:00');
+              setCheckInTime(parsed.check_in_time || '16:00');
+              setCheckOutTime(parsed.check_out_time || '10:00');
             } catch (e) {
               console.error("Error parsing platform JSON:", e);
             }

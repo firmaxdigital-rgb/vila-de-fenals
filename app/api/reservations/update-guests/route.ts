@@ -87,8 +87,8 @@ export async function POST(request: Request) {
     }
 
     // 3. Construct new platform JSON with custom hours
-    const inTime = check_in_time || '14:00';
-    const outTime = check_out_time || '12:00';
+    const inTime = check_in_time || '16:00';
+    const outTime = check_out_time || '10:00';
 
     const updatedPlatform = JSON.stringify({
       name: platformName,
