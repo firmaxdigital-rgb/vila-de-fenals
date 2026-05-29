@@ -555,13 +555,25 @@ export default function AccesoTabs({
 
   const formattedCheckInDate = (() => {
     try {
-      const d = new Date(reservation.check_in);
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
+      if (reservation.check_in && reservation.check_in.includes('-')) {
+        const parts = reservation.check_in.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return reservation.check_in;
     } catch (e) {
       return reservation.check_in;
+    }
+  })();
+
+  const formattedCheckOutDate = (() => {
+    try {
+      if (reservation.check_out && reservation.check_out.includes('-')) {
+        const parts = reservation.check_out.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return reservation.check_out;
+    } catch (e) {
+      return reservation.check_out;
     }
   })();
 
@@ -1400,11 +1412,11 @@ export default function AccesoTabs({
                 <div className="text-left bg-black/25 border border-white/10 rounded-2xl p-4 text-xs space-y-2.5">
                   <p className="flex justify-between items-center">
                     <span className="text-white/50">{aDict.check_in_label}</span>
-                    <span className="font-bold text-cyan-200">{new Date(reservation.check_in).toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    <span className="font-bold text-cyan-200">{formattedCheckInDate}, {reservation.checkInTime || '16:00'}</span>
                   </p>
                   <p className="flex justify-between items-center">
                     <span className="text-white/50">{aDict.check_out_label}</span>
-                    <span className="font-bold text-cyan-200">{new Date(reservation.check_out).toLocaleString(lang === 'en' ? 'en-US' : 'es-ES', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                    <span className="font-bold text-cyan-200">{formattedCheckOutDate}, {reservation.checkOutTime || '10:00'}</span>
                   </p>
                 </div>
               </div>

@@ -168,17 +168,29 @@ export async function GET() {
     const airbnbEvents = await fetchAndParseIcal(AIRBNB_ICAL_URL, 'Airbnb');
     const vrboEvents = await fetchAndParseIcal(VRBO_ICAL_URL, 'VRBO');
 
-    // Filtramos posibles eventos sin código o con código demasiado corto (ej. bloqueos de calendario)
-    const allEvents = [...airbnbEvents, ...vrboEvents].filter(ev => ev.reservation_code && ev.reservation_code.length > 3);
+    // Filtramos posibles eventos sin código o con código demasiado corto (ej. bloqueos de calendario),
+    // y evitamos importar bloqueos de calendario o reservas espejo/fantasmas marcadas como "Reserved", "Blocked", etc.
+    const allEvents = [...airbnbEvents, ...vrboEvents].filter(ev => {
+      if (!ev.reservation_code || ev.reservation_code.length <= 3) {
+        return false;
+      }
+      
+      const lowerCode = ev.reservation_code.toLowerCase();
+      if (lowerCode === 'reserved' || lowerCode.startsWith('reserved') || lowerCode === 'blocked' || lowerCode === 'reservado' || lowerCode === 'bloqueado') {
+        return false;
+      }
+      
+      return true;
+    });
 
     if (allEvents.length === 0) {
        return NextResponse.json({ success: true, message: 'No hay eventos para sincronizar.' });
     }
 
-    // 1. Fetch current reservations from Supabase to check if they already have a PIN
+    // 1. Fetch current reservations from Supabase to check if they already have a PIN and total_guests
     const { data: existingReservations, error: fetchError } = await supabase
       .from('reservations')
-      .select('reservation_code, nuki_pin');
+      .select('reservation_code, nuki_pin, total_guests');
       
     if (fetchError) {
       console.error('Error fetching existing reservations:', fetchError);
@@ -186,10 +198,12 @@ export async function GET() {
 
     const existingMap = new Map();
     const existsMap = new Map();
+    const existingGuestsMap = new Map();
     if (existingReservations) {
       existingReservations.forEach(r => {
         existingMap.set(r.reservation_code, r.nuki_pin);
         existsMap.set(r.reservation_code, true);
+        existingGuestsMap.set(r.reservation_code, r.total_guests);
       });
     }
 
@@ -266,7 +280,7 @@ Para establecer el número exacto de huéspedes y configurar sus horas de check-
 🔗 ENLACE DE ADMINISTRACIÓN:
 ${adminUrl}
 
-Por favor, configure esta reserva lo antes posible para habilitar el portal de check-in para el viajero.
+Por favor, configure esta reserva lo antes posible para habilitar el portal de check-in for the traveler.
 
 Atentamente,
 Portal de Check-in Automático de Vila de Fenals`;
@@ -289,14 +303,23 @@ Portal de Check-in Automático de Vila de Fenals`;
     const { data, error } = await supabase
       .from('reservations')
       .upsert(
-        allEvents.map(ev => ({
-          reservation_code: ev.reservation_code,
-          platform: ev.platform,
-          check_in: ev.check_in,
-          check_out: ev.check_out,
-          nuki_pin: ev.nuki_pin,
-          total_guests: ev.total_guests
-        })),
+        allEvents.map(ev => {
+          const existingGuests = existingGuestsMap.get(ev.reservation_code);
+          // If the reservation already exists and has total_guests > 0, preserve that value
+          // instead of resetting it to 0 from the iCal parser
+          const finalGuests = (existingGuests !== undefined && existingGuests !== null && existingGuests > 0)
+            ? existingGuests
+            : ev.total_guests;
+
+          return {
+            reservation_code: ev.reservation_code,
+            platform: ev.platform,
+            check_in: ev.check_in,
+            check_out: ev.check_out,
+            nuki_pin: ev.nuki_pin,
+            total_guests: finalGuests
+          };
+        }),
         { onConflict: 'reservation_code' }
       );
 
