@@ -13,6 +13,36 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
 });
 
+function getSpainUtcDate(dateStr: string, localHour: number): Date {
+  const checkDate = new Date(`${dateStr}T12:00:00Z`);
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Madrid',
+    hour12: false,
+    hour: 'numeric'
+  });
+  
+  const parts = formatter.formatToParts(checkDate);
+  const hourPart = parts.find(p => p.type === 'hour');
+  
+  if (!hourPart) {
+    const month = parseInt(dateStr.split('-')[1], 10);
+    const offset = (month >= 4 && month <= 10) ? 2 : 1;
+    const utcHour = localHour - offset;
+    const finalDate = new Date(`${dateStr}T00:00:00Z`);
+    finalDate.setUTCHours(utcHour, 0, 0, 0);
+    return finalDate;
+  }
+  
+  const madridHour = parseInt(hourPart.value, 10);
+  const offset = madridHour - 12;
+  const utcHour = localHour - offset;
+  
+  const finalDate = new Date(`${dateStr}T00:00:00Z`);
+  finalDate.setUTCHours(utcHour, 0, 0, 0);
+  
+  return finalDate;
+}
+
 export async function POST(request: Request) {
   try {
     const { reservation_code } = await request.json();
@@ -39,13 +69,28 @@ export async function POST(request: Request) {
 
     const now = new Date();
     
-    // Validar hora de Check-in: 2 horas antes de la hora oficial (16:00 - 2h = 14:00)
-    const checkInDate = new Date(reservation.check_in);
-    checkInDate.setHours(14, 0, 0, 0);
+    // Parse custom times from platform JSON
+    let inTime = '16:00';
+    let outTime = '10:00';
 
-    // Validar hora de Check-out: 1 hora después de la hora oficial (10:00 + 1h = 11:00)
-    const checkOutDate = new Date(reservation.check_out);
-    checkOutDate.setHours(11, 0, 0, 0);
+    if (reservation.platform && reservation.platform.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(reservation.platform);
+        if (parsed.check_in_time) inTime = parsed.check_in_time;
+        if (parsed.check_out_time) outTime = parsed.check_out_time;
+      } catch (e) {
+        console.error("Error parsing platform JSON in open-door API:", e);
+      }
+    }
+
+    const checkInHourInput = parseInt(inTime.split(':')[0], 10);
+    const checkInLocalHour = checkInHourInput - 1; // 1 hora antes de la oficial
+
+    const checkOutHourInput = parseInt(outTime.split(':')[0], 10);
+    const checkOutLocalHour = checkOutHourInput + 1; // 1 hora después de la oficial
+
+    const checkInDate = getSpainUtcDate(reservation.check_in, checkInLocalHour);
+    const checkOutDate = getSpainUtcDate(reservation.check_out, checkOutLocalHour);
 
     if (now < checkInDate || now > checkOutDate) {
       return NextResponse.json({ success: false, message: 'Fuera del horario permitido' }, { status: 403 });
