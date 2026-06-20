@@ -49,6 +49,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 const AIRBNB_ICAL_URL = 'https://www.airbnb.es/calendar/ical/669455999251966218.ics?t=4ec9256dab9c46a7ae5ddf5a7211208f';
 const VRBO_ICAL_URL = 'https://www.vrbo.com/icalendar/e05e2860e5ec4787b14614afc00383b0.ics?nonTentative';
+const BOOKING_ICAL_URL = 'https://ical.booking.com/v1/export?t=176436fc-ee08-4420-bd62-6325c435b917';
 
 async function fetchAndParseIcal(url: string, platform: string) {
   const response = await fetch(url, { 
@@ -115,6 +116,10 @@ async function fetchAndParseIcal(url: string, platform: string) {
         // VRBO often just sends "Reserved - Name". We use the first part of the UID for the URL code.
         code = ev.uid ? ev.uid.split('-')[0] : `vrbo-${Math.floor(Math.random()*1000000)}`;
       }
+    } else if (platform === 'Booking') {
+      // Booking.com iCal does NOT contain the official reservation number.
+      // We extract a clean version of the internal UID to serve as the URL code.
+      code = ev.uid ? ev.uid.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10).toUpperCase() : `BKG${Math.floor(Math.random()*1000000)}`;
     }
 
     // Combine summary and description to search comprehensively
@@ -167,10 +172,11 @@ export async function GET() {
   try {
     const airbnbEvents = await fetchAndParseIcal(AIRBNB_ICAL_URL, 'Airbnb');
     const vrboEvents = await fetchAndParseIcal(VRBO_ICAL_URL, 'VRBO');
+    const bookingEvents = await fetchAndParseIcal(BOOKING_ICAL_URL, 'Booking');
 
     // Filtramos posibles eventos sin código o con código demasiado corto (ej. bloqueos de calendario),
     // y evitamos importar bloqueos de calendario o reservas espejo/fantasmas marcadas como "Reserved", "Blocked", etc.
-    const allEvents = [...airbnbEvents, ...vrboEvents].filter(ev => {
+    const allEvents = [...airbnbEvents, ...vrboEvents, ...bookingEvents].filter(ev => {
       if (!ev.reservation_code || ev.reservation_code.length <= 3) {
         return false;
       }

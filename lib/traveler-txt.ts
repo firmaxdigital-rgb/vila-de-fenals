@@ -38,7 +38,8 @@ function formatDate(dateStr?: string): string {
 // Format text fields: uppercase, trim, remove accents or pipes if any
 function formatText(text?: string): string {
   if (!text) return '';
-  return text.trim().toUpperCase().replace(/\|/g, ' ');
+  const clean = text.trim().toUpperCase().replace(/\|/g, ' ');
+  return clean === '-' ? '' : clean;
 }
 
 // Convert ISO 2-letter country code to ISO 3166-1 Alfa-3 (3-letter code)

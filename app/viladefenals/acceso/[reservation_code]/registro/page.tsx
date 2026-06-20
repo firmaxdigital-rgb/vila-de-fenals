@@ -1071,14 +1071,16 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
       return;
     }
 
-    // Validate Second Surname for DNI (mandatory if DNI)
-    if (formData.tipo_documento === 'DNI' && !isUnder14 && !formData.segundo_apellido) {
+    // Validate Second Surname for DNI (mandatory if DNI and Spanish national)
+    const isEsp = formData.nacionalidad === 'ES';
+    if (formData.tipo_documento === 'DNI' && !isUnder14 && !formData.segundo_apellido && isEsp) {
       setError(lang === 'en' ? 'Second surname is mandatory for document type DNI/NIF.' : 'El segundo apellido es obligatorio para el tipo de documento DNI/NIF.');
       return;
     }
 
     // Validate Support Number for DNI or NIE
-    if ((formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && !isUnder14 && !formData.numero_soporte) {
+    const isSpanishDniOrNie = (formData.tipo_documento === 'DNI' && isEsp) || formData.tipo_documento === 'NIE';
+    if (isSpanishDniOrNie && !isUnder14 && !formData.numero_soporte) {
       setError(lang === 'en' ? 'Document support number (NUM SOPORT) is mandatory for DNI or NIE.' : 'El número de soporte del documento (NUM SOPORT) es obligatorio para tipo DNI o NIE.');
       return;
     }
@@ -1393,9 +1395,9 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
-                  {dict.form_second_surname} {formData.tipo_documento !== 'DNI' ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
+                  {dict.form_second_surname} {(formData.tipo_documento !== 'DNI' || formData.nacionalidad !== 'ES') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
                 </label>
-                <input name="segundo_apellido" required={formData.tipo_documento === 'DNI' && (age === null || age >= 14)} value={formData.segundo_apellido} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="García" />
+                <input name="segundo_apellido" required={formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES' && (age === null || age >= 14)} value={formData.segundo_apellido} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="García" />
               </div>
             </div>
 
@@ -1425,9 +1427,9 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <div className="space-y-1">
                 <div className="flex justify-between items-center h-4">
                   <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate">
-                    {dict.form_support_number} {(formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
+                    {dict.form_support_number} {!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
                   </label>
-                  {(formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && (
+                  {((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') && (
                     <button
                       type="button"
                       onClick={() => setShowSupportHelp(true)}
@@ -1438,13 +1440,13 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   )}
                 </div>
                 <input 
-                  disabled={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE'}
-                  required={(formData.tipo_documento === 'DNI' || formData.tipo_documento === 'NIE') && (age === null || age >= 14)} 
+                  disabled={!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE')}
+                  required={((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') && (age === null || age >= 14)} 
                   name="numero_soporte" 
-                  value={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE' ? '' : formData.numero_soporte} 
+                  value={!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') ? '' : formData.numero_soporte} 
                   onChange={handleChange} 
                   className="w-full bg-black/40 disabled:opacity-40 disabled:cursor-not-allowed border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 uppercase tracking-wider" 
-                  placeholder={formData.tipo_documento !== 'DNI' && formData.tipo_documento !== 'NIE' ? 'N/A' : 'Ej. AAA123456'}
+                  placeholder={!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') ? 'N/A' : 'Ej. AAA123456'}
                 />
               </div>
             </div>

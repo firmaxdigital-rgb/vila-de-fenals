@@ -114,7 +114,8 @@ export async function POST(request: Request) {
     }
 
     // Second surname validation (Mandatory for DNI according to PDF)
-    if (tipo_documento === 'DNI' && !isUnder14 && !segundo_apellido) {
+    const isEsp = (nacionalidad === 'ES' || nacionalidad === 'ESP');
+    if (tipo_documento === 'DNI' && !isUnder14 && !segundo_apellido && isEsp) {
       return NextResponse.json({
         success: false,
         error: 'El segundo apellido es obligatorio para el tipo de documento DNI/NIF.'
@@ -122,7 +123,8 @@ export async function POST(request: Request) {
     }
 
     // Document support number validation (Mandatory for DNI or NIE according to PDF)
-    if ((tipo_documento === 'DNI' || tipo_documento === 'NIE') && !isUnder14 && !numero_soporte) {
+    const isSpanishDniOrNie = (tipo_documento === 'DNI' && isEsp) || tipo_documento === 'NIE';
+    if (isSpanishDniOrNie && !isUnder14 && !numero_soporte) {
       return NextResponse.json({
         success: false,
         error: 'El número de soporte del documento (NUM SOPORT) es obligatorio para tipo DNI o NIE.'
@@ -187,8 +189,10 @@ export async function POST(request: Request) {
     const finalHoraEntrada = '16:00';
     const finalHoraSalida = '10:00';
 
-    // Support number is physically not applicable and forced to null if document type is not DNI or NIE
-    const cleanNumeroSoporte = (tipo_documento === 'DNI' || tipo_documento === 'NIE') && numero_soporte ? numero_soporte.trim() : null;
+    // Support number is physically not applicable and forced to null if document type is not Spanish DNI or NIE
+    const isEspClean = (nacionalidad === 'ES' || nacionalidad === 'ESP');
+    const isSpanishDniOrNieClean = (tipo_documento === 'DNI' && isEspClean) || tipo_documento === 'NIE';
+    const cleanNumeroSoporte = isSpanishDniOrNieClean && numero_soporte ? numero_soporte.trim() : null;
 
     // 1. Discover columns in DB via OpenAPI to handle missing schema variables safely
     let existingColumns: string[] = [];

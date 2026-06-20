@@ -182,15 +182,25 @@ export async function POST(request: Request) {
     
     // Map database travelers to Mossos TravelerData interface
     const formattedTravelers: TravelerData[] = parsedTravelers.map(t => {
-      // Map standard document types to first letter (DNI -> D, PASAPORTE -> P, NIE -> X or others)
+      // Map standard document types to official Mossos codes (DNI -> D, NIE -> N, PASAPORTE -> P, OTROS -> O)
       let docType = 'D';
       const rawDocType = (t.tipo_documento || '').toUpperCase();
+      const rawNac = (t.nacionalidad || 'ES').toUpperCase().trim();
+      const isEsp = rawNac === 'ES' || rawNac === 'ESP';
+      
       if (rawDocType.includes('PASAPORTE') || rawDocType.includes('PASSPORT')) {
         docType = 'P';
       } else if (rawDocType.includes('NIE') || rawDocType.includes('EXTRANJERO')) {
-        docType = 'X';
-      } else if (rawDocType.includes('CARTA') || rawDocType.includes('IDENTIDAD')) {
-        docType = 'I';
+        docType = 'N'; // Mossos code for NIE is N
+      } else if (rawDocType.includes('CARTA') || rawDocType.includes('IDENTIDAD') || rawDocType.includes('OTRO') || rawDocType.includes('OTHER')) {
+        docType = 'O'; // Others is O
+      } else {
+        // If the document is declared as DNI but traveler is not Spanish, it is a foreign ID card, so it must be 'O'
+        if (rawDocType.includes('DNI') && !isEsp) {
+          docType = 'O';
+        } else {
+          docType = isEsp ? 'D' : 'O';
+        }
       }
 
       return {
