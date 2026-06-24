@@ -12,7 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Código de reserva y contraseña requeridos.' }, { status: 400 });
     }
 
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const adminPassword = process.env.ADMIN_PIN;
 
     if (password !== adminPassword) {
       return NextResponse.json({ success: false, error: 'Contraseña incorrecta.' }, { status: 401 });
