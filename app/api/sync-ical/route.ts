@@ -254,7 +254,7 @@ export async function GET() {
           const smtpUser = process.env.SMTP_USER;
           const smtpPassword = process.env.SMTP_PASSWORD;
           const smtpFrom = process.env.SMTP_FROM || 'checkin@viladefenals.com';
-          const smtpTo = 'asesorweb@firmax.es';
+          const smtpTo = 'miguel@activavivienda.com';
 
           if (smtpHost && smtpPort && smtpUser && smtpPassword) {
             const transporter = nodemailer.createTransport({
@@ -268,6 +268,7 @@ export async function GET() {
             });
 
             const adminUrl = `https://viladefenals.activavivienda.es/viladefenals/acceso/${ev.reservation_code}/admin`;
+            const clientUrl = `https://viladefenals.activavivienda.es/viladefenals/acceso/${ev.reservation_code}`;
             const emailSubject = `[Vila de Fenals] ¡Nueva Reserva Sincronizada! - ${ev.reservation_code}`;
             const emailBody = `Se ha creado una nueva reserva en el sistema a través de iCal.
               
@@ -283,10 +284,13 @@ export async function GET() {
 ⚠️ Esta reserva se ha inicializado con 0 plazas por defecto (Pendiente de Activación).
 Para establecer el número exacto de huéspedes y configurar sus horas de check-in/check-out, haga clic en el siguiente enlace de administración:
 
-🔗 ENLACE DE ADMINISTRACIÓN:
+🔗 1. ENLACE DE ADMINISTRACIÓN (Haga clic aquí para configurar):
 ${adminUrl}
 
-Por favor, configure esta reserva lo antes posible para habilitar el portal de check-in for the traveler.
+🔗 2. ENLACE PARA EL VIAJERO (Copiar y enviar):
+${clientUrl}
+
+Por favor, configure esta reserva y copie el enlace para el viajero en su plantilla.
 
 Atentamente,
 Portal de Check-in Automático de Vila de Fenals`;
