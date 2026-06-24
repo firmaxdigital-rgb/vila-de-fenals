@@ -186,6 +186,11 @@ export async function GET() {
         return false;
       }
       
+      // Ignorar bloqueos de calendario nativos de Airbnb y eventos "espejo" de calendarios vinculados
+      if (ev.platform === 'Airbnb' && lowerCode.includes('@airbnb.com')) {
+        return false;
+      }
+      
       return true;
     });
 
