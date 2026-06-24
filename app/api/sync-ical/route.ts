@@ -343,6 +343,89 @@ Portal de Check-in Automático de Vila de Fenals`;
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
+    // 4. Overlap Detection
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data: futureRes, error: overlapErr } = await supabase
+        .from('reservations')
+        .select('reservation_code, platform, check_in, check_out')
+        .gte('check_in', today)
+        .order('check_in', { ascending: true });
+
+      if (futureRes && !overlapErr) {
+        const overlaps = [];
+        for (let i = 0; i < futureRes.length; i++) {
+          for (let j = i + 1; j < futureRes.length; j++) {
+            const resA = futureRes[i];
+            const resB = futureRes[j];
+            
+            // If resB starts after or exactly when resA ends, no overlap with resA anymore (since sorted by check_in)
+            if (resB.check_in >= resA.check_out) {
+              continue;
+            }
+            
+            // Check for real overlap
+            if (resA.check_in < resB.check_out) {
+              overlaps.push({ resA, resB });
+            }
+          }
+        }
+
+        if (overlaps.length > 0) {
+          const smtpHost = process.env.SMTP_HOST;
+          const smtpPort = process.env.SMTP_PORT;
+          const smtpUser = process.env.SMTP_USER;
+          const smtpPassword = process.env.SMTP_PASSWORD;
+          const smtpFrom = process.env.SMTP_FROM || 'checkin@viladefenals.com';
+          const smtpTo = 'asesorweb@firmax.es';
+
+          if (smtpHost && smtpPort && smtpUser && smtpPassword) {
+            const transporter = nodemailer.createTransport({
+              host: smtpHost,
+              port: parseInt(smtpPort, 10),
+              secure: parseInt(smtpPort, 10) === 465,
+              auth: { user: smtpUser, pass: smtpPassword },
+            });
+
+            let overlapText = `⚠️ ATENCIÓN: Se han detectado solapamientos de fechas en las siguientes reservas.
+Esto suele ocurrir cuando un huésped cancela y vuelve a reservar, o por una doble reserva.
+
+Por favor, revisa cada caso y elimina la reserva cancelada o errónea desde su Panel de Administración.
+
+`;
+            overlaps.forEach(({ resA, resB }, index) => {
+              const urlA = `https://viladefenals.activavivienda.es/viladefenals/acceso/${resA.reservation_code}/admin`;
+              const urlB = `https://viladefenals.activavivienda.es/viladefenals/acceso/${resB.reservation_code}/admin`;
+              
+              overlapText += `--- CONFLICTO #${index + 1} ---
+🔴 Reserva 1: [${resA.platform}] ${resA.reservation_code} (Del ${resA.check_in} al ${resA.check_out})
+👉 Administrar R1: ${urlA}
+
+🔴 Reserva 2: [${resB.platform}] ${resB.reservation_code} (Del ${resB.check_in} al ${resB.check_out})
+👉 Administrar R2: ${urlB}
+
+`;
+            });
+
+            overlapText += `Para eliminar la reserva incorrecta, entra en su enlace de administración y pulsa el botón rojo "Eliminar Reserva" al final de la página.
+
+Atentamente,
+Portal de Check-in Automático de Vila de Fenals`;
+
+            await transporter.sendMail({
+              from: smtpFrom,
+              to: smtpTo,
+              subject: '[Vila de Fenals] ⚠️ ALERTA: Reservas Solapadas Detectadas',
+              text: overlapText
+            });
+            console.log(`[Overlap Detection] Alerta de solapamiento enviada con ${overlaps.length} conflictos.`);
+          }
+        }
+      }
+    } catch (overlapDetectionError) {
+      console.error('[Overlap Detection] Error:', overlapDetectionError);
+    }
+
     return NextResponse.json({ success: true, count: allEvents.length });
   } catch (error: any) {
     console.error('Error general en sync-ical:', error);

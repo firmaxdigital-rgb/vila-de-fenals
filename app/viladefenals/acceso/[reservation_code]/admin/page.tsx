@@ -163,6 +163,33 @@ export default function AdminPage() {
     }
   };
 
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteReservation = async () => {
+    const pwd = window.prompt("⚠️ ATENCIÓN: Esta acción es irreversible.\\nIntroduzca la Contraseña de Administrador para confirmar la eliminación de esta reserva:");
+    if (!pwd) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch('/api/delete-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reservationCode: decodedCode, password: pwd })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Reserva eliminada con éxito.');
+        router.push('/');
+      } else {
+        alert(data.error || 'Contraseña incorrecta o error al eliminar la reserva.');
+      }
+    } catch (err) {
+      alert('Error de red al intentar eliminar la reserva.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const handleToggleOptOut = async (travelerId: string, currentVal: boolean) => {
     setIsUpdatingOptOut(prev => ({ ...prev, [travelerId]: true }));
     const newVal = !currentVal;
@@ -559,6 +586,24 @@ export default function AdminPage() {
               >
                 Ir al portal del viajero
               </button>
+
+              <div className="pt-6 mt-4 border-t border-red-500/20">
+                <button
+                  type="button"
+                  onClick={handleDeleteReservation}
+                  disabled={isDeleting}
+                  className="w-full py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isDeleting ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                      <span>Eliminando...</span>
+                    </>
+                  ) : (
+                    <span>Eliminar Reserva</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
