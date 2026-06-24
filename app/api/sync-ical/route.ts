@@ -254,7 +254,7 @@ export async function GET() {
           const smtpUser = process.env.SMTP_USER;
           const smtpPassword = process.env.SMTP_PASSWORD;
           const smtpFrom = process.env.SMTP_FROM || 'checkin@viladefenals.com';
-          const smtpTo = 'miguel@activavivienda.com';
+          const smtpTo = 'asesorweb@firmax.es';
 
           if (smtpHost && smtpPort && smtpUser && smtpPassword) {
             const transporter = nodemailer.createTransport({
