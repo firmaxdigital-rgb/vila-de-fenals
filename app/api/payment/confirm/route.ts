@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     // Check if traveler forms are already complete to trigger final check-in processing
     const { data: resData, error: resErr } = await supabase
       .from('reservations')
-      .select('total_guests')
+      .select('total_guests, has_deposit, deposit_amount, deposit_paid')
       .eq('reservation_code', reservation_code)
       .single();
 
@@ -46,27 +46,38 @@ export async function POST(request: Request) {
 
       if (!travErr && travelersData) {
         const totalGuests = resData.total_guests || 2;
+        
+        // Verify deposit is complete
+        const hasDeposit = resData.has_deposit === true;
+        const depositAmt = parseFloat(resData.deposit_amount) || 0;
+        const depositPaid = parseFloat(resData.deposit_paid) || 0;
+        const isDepositComplete = !hasDeposit || (depositPaid >= depositAmt);
+
         if (travelersData.length >= totalGuests) {
-          console.log(`[Confirm API] Formularios completos (${travelersData.length}/${totalGuests}). Disparando api/registro-final.`);
-          const host = request.headers.get('host') || 'localhost:3000';
-          const proto = request.headers.get('x-forwarded-proto') || 'http';
-          const baseUrl = `${proto}://${host}`;
+          if (isDepositComplete) {
+            console.log(`[Confirm API] Formularios completos (${travelersData.length}/${totalGuests}) y fianza pagada. Disparando api/registro-final.`);
+            const host = request.headers.get('host') || 'localhost:3000';
+            const proto = request.headers.get('x-forwarded-proto') || 'http';
+            const baseUrl = `${proto}://${host}`;
 
-          try {
-            const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ reservation_code })
-            });
+            try {
+              const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reservation_code })
+              });
 
-            if (!finalizationRes.ok) {
-              const finalizationError = await finalizationRes.text();
-              console.error("[Confirm API] Error al disparar api/registro-final:", finalizationError);
-            } else {
-              console.log("[Confirm API] api/registro-final completado con éxito.");
+              if (!finalizationRes.ok) {
+                const finalizationError = await finalizationRes.text();
+                console.error("[Confirm API] Error al disparar api/registro-final:", finalizationError);
+              } else {
+                console.log("[Confirm API] api/registro-final completado con éxito.");
+              }
+            } catch (finalError) {
+              console.error("[Confirm API] Excepción al disparar api/registro-final:", finalError);
             }
-          } catch (finalError) {
-            console.error("[Confirm API] Excepción al disparar api/registro-final:", finalError);
+          } else {
+            console.log(`[Confirm API] Formularios completos pero falta pagar fianza. No se dispara finalización todavía.`);
           }
         } else {
           console.log(`[Confirm API] Formularios incompletos (${travelersData.length}/${totalGuests}). No se dispara finalización todavía.`);

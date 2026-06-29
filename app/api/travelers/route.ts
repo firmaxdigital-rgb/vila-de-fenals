@@ -326,7 +326,7 @@ export async function POST(request: Request) {
     try {
       const { data: resData, error: resErr } = await supabase
         .from('reservations')
-        .select('total_guests, is_tax_paid')
+        .select('total_guests, is_tax_paid, has_deposit, deposit_amount, deposit_paid')
         .eq('reservation_code', reservation_code)
         .single();
 
@@ -338,18 +338,34 @@ export async function POST(request: Request) {
 
         if (!travErr && allTravelers) {
           const totalGuests = resData.total_guests || 2;
-          if (allTravelers.length >= totalGuests && resData.is_tax_paid) {
-            console.log(`Registration completed and tax already paid for ${reservation_code}. Triggering finalization.`);
+          if (allTravelers.length >= totalGuests) {
+            console.log(`Registration forms completed for ${reservation_code}. Triggering Mossos email.`);
             const host = request.headers.get('host') || 'localhost:3000';
             const proto = request.headers.get('x-forwarded-proto') || 'http';
             const baseUrl = `${proto}://${host}`;
             
-            // Invoke registration finalization in background
-            fetch(`${baseUrl}/api/registro-final`, {
+            // 1. ALWAYS trigger Mossos email when forms are complete
+            fetch(`${baseUrl}/api/mossos-send`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ reservation_code })
-            }).catch(e => console.error("Error triggering registration finalization asynchronously:", e));
+            }).catch(e => console.error("Error triggering Mossos send asynchronously:", e));
+
+            // 2. Check if payments are ALSO complete to trigger Nuki finalization
+            const hasDeposit = resData.has_deposit === true;
+            const depositAmount = parseFloat(resData.deposit_amount as any) || 0;
+            const depositPaid = parseFloat(resData.deposit_paid as any) || 0;
+            const isDepositComplete = !hasDeposit || (depositPaid >= depositAmount);
+
+            if (resData.is_tax_paid && isDepositComplete) {
+              console.log(`Payments also completed for ${reservation_code}. Triggering Nuki finalization.`);
+              // Invoke registration finalization in background
+              fetch(`${baseUrl}/api/registro-final`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reservation_code })
+              }).catch(e => console.error("Error triggering registration finalization asynchronously:", e));
+            }
           }
         }
       }

@@ -40,52 +40,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Esta reserva no tiene fianza configurada.' }, { status: 400 });
     }
 
-    // Add the paid amount to the current deposit_paid
+    // Calculamos el nuevo total de manera optimista para devolverlo al cliente.
+    // IMPORTANTE: NO guardamos en la BD aquí para evitar duplicar el saldo (condición de carrera con el Webhook).
+    // El Webhook de PayComet es la única fuente de verdad autorizada para modificar deposit_paid.
     const currentPaid = parseFloat(reservation.deposit_paid) || 0;
-    const newPaid = Math.min(currentPaid + parsedAmount, parseFloat(reservation.deposit_amount) || 0);
+    const depositAmount = parseFloat(reservation.deposit_amount) || 0;
+    const newPaid = Math.min(currentPaid + parsedAmount, depositAmount);
 
-    const { error: updateErr } = await supabase
-      .from('reservations')
-      .update({ deposit_paid: newPaid })
-      .eq('reservation_code', reservation_code);
+    const isDepositComplete = newPaid >= depositAmount;
+    console.log(`[Confirm Deposit] Calculado (optimista): ${newPaid}€ / ${depositAmount}€. Completo: ${isDepositComplete}`);
 
-    if (updateErr) {
-      console.error('[Confirm Deposit] Error updating deposit_paid:', updateErr);
-      throw updateErr;
-    }
-
-    const isDepositComplete = newPaid >= (parseFloat(reservation.deposit_amount) || 0);
-    console.log(`[Confirm Deposit] deposit_paid actualizado: ${newPaid}€ / ${reservation.deposit_amount}€. Completo: ${isDepositComplete}`);
-
-    // If deposit is now complete, check if we should trigger finalization
-    if (isDepositComplete) {
-      const { data: fullRes } = await supabase
-        .from('reservations')
-        .select('total_guests, is_tax_paid, is_registered')
-        .eq('reservation_code', reservation_code)
-        .single();
-
-      if (fullRes && fullRes.is_tax_paid && !fullRes.is_registered) {
-        // Check if all travelers are registered
-        const { data: travelers } = await supabase
-          .from('travelers')
-          .select('id')
-          .eq('reservation_code', reservation_code);
-
-        if (travelers && travelers.length >= (fullRes.total_guests || 2)) {
-          console.log(`[Confirm Deposit] All conditions met. Triggering finalization for ${reservation_code}`);
-          const host = request.headers.get('host') || 'localhost:3000';
-          const proto = request.headers.get('x-forwarded-proto') || 'http';
-          const baseUrl = `${proto}://${host}`;
-
-          fetch(`${baseUrl}/api/registro-final`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reservation_code })
-          }).catch(e => console.error('[Confirm Deposit] Error triggering finalization:', e));
-        }
-      }
-    }
+    // Eliminado el update() en DB y la lógica de registro final que se disparaba aquí erróneamente.
+    // La responsabilidad de disparar el check-in final recae sobre el webhook de PayComet al procesar el pago real.
 
     return NextResponse.json({
       success: true,
