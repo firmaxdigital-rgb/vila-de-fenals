@@ -28,9 +28,23 @@ Las reservas se importan automáticamente leyendo los archivos iCal de **Airbnb,
 - **Airbnb:** Las URLs se envían 100% de forma automática usando las plantillas de Airbnb y la variable `[reservation_code]`.
 - **Booking y VRBO (Gestión Manual):** Dado que Booking y VRBO ocultan el código de reserva en su iCal, sus URLs no se pueden automatizar en sus respectivas plantillas. Cuando llega la notificación al correo (a las 21:45h o por sincronización manual), el administrador debe copiar el "Enlace para el viajero" del email y pegarlo manualmente en el chat del cliente en la plataforma correspondiente.
 
-## Registro y Mossos (Decoupled)
-- **Ficheros Mossos (`app/api/mossos-send/route.ts`)**: Se genera el archivo de texto y se envía el correo a **asesorweb@firmax.es** de forma inmediata y automática **tan pronto como todos los viajeros hayan completado sus formularios** (no espera a los pagos).
-- **Código Nuki (`app/api/registro-final/route.ts`)**: La generación del PIN de Nuki y el desbloqueo final de la web app solo ocurren cuando, además de los formularios, se hayan pagado tanto la **tasa turística** como la **fianza** (si corresponde).
+## Registro y Mossos (Arquitectura Desacoplada)
+Para asegurar el cumplimiento legal sin bloquear la experiencia del usuario, el sistema separa la comunicación con las autoridades de la generación de accesos físicos. El orden en el que el huésped realiza las acciones es **irrelevante**; el sistema evalúa y dispara cada evento de forma independiente:
+
+- **1. Envío Inmediato a Mossos (`app/api/mossos-send/route.ts`)**: 
+  - Se genera el archivo TXT oficial y se envía el correo a **asesorweb@firmax.es**.
+  - **Condición**: Ocurre automática e instantáneamente *tan pronto como todos los viajeros han completado sus formularios*.
+  - **Nota**: No espera a que los pagos estén completados. Si el huésped edita un viajero posteriormente, se volverá a disparar para enviar la versión actualizada.
+
+- **2. Desbloqueo y Código Nuki (`app/api/registro-final/route.ts`)**:
+  - Genera el PIN de la cerradura Nuki y marca la reserva como `is_registered = true` (lo cual es requisito para que la web app muestre la llave virtual).
+  - **Condición**: Ocurre única y exclusivamente cuando se cumplen **TODAS** las condiciones:
+    1. Formularios de viajero al 100% (igual o mayor al `total_guests`).
+    2. Tasa turística pagada (`is_tax_paid = true`).
+    3. Fianza pagada en su totalidad (o reserva marcada sin fianza).
+  - **Independencia del Orden**: 
+    - *Si paga primero y rellena después*: El sistema guarda los pagos. Al terminar el último formulario, se dispara `mossos-send` e inmediatamente después `registro-final`.
+    - *Si rellena primero y paga después*: Al terminar el último formulario, se dispara `mossos-send`. Luego, cuando realiza el último pago necesario (webhook/confirm), el sistema detecta que los formularios ya estaban listos y dispara `registro-final`.
 
 ## Variables de Entorno Clave (`.env.local`)
 - `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`
