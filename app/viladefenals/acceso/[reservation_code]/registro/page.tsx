@@ -15,11 +15,23 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 import { COUNTRIES as rawCountries } from '../../../../../lib/countries';
 const getSortedCountries = (lang: string) => {
-  return [...rawCountries].sort((a, b) => {
-    const nameA = lang === 'en' ? a.nameEn : a.nameEs;
-    const nameB = lang === 'en' ? b.nameEn : b.nameEs;
-    return nameA.localeCompare(nameB);
-  });
+  let displayNames: Intl.DisplayNames;
+  try {
+    displayNames = new Intl.DisplayNames([lang], { type: 'region' });
+  } catch (e) {
+    displayNames = new Intl.DisplayNames(['es'], { type: 'region' });
+  }
+
+  return [...rawCountries].map(c => {
+    let localizedName = c.nameEs;
+    try {
+      const translated = displayNames.of(c.code);
+      if (translated) localizedName = translated;
+    } catch (e) {}
+    // Ensure capitalized first letter
+    localizedName = localizedName.charAt(0).toUpperCase() + localizedName.slice(1);
+    return { ...c, localizedName };
+  }).sort((a, b) => a.localizedName.localeCompare(b.localizedName, lang));
 };
 
 const uploadBtnTranslations: Record<string, { search: string; take: string }> = {
@@ -1538,7 +1550,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 >
                   {sortedCountries.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {lang === 'en' ? c.nameEn : c.nameEs} ({c.code})
+                      {c.localizedName} ({c.code})
                     </option>
                   ))}
                 </select>
@@ -1650,7 +1662,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 >
                   {sortedCountries.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {lang === 'en' ? c.nameEn : c.nameEs} ({c.code})
+                      {c.localizedName} ({c.code})
                     </option>
                   ))}
                 </select>
