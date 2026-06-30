@@ -47,8 +47,16 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 
 
+import { checkRateLimit } from '../../../lib/rateLimit';
+
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
+    const isAllowed = await checkRateLimit(ip);
+    if (!isAllowed) {
+      return NextResponse.json({ success: false, error: 'Demasiados intentos. Por favor espere 5 minutos.' }, { status: 429 });
+    }
+
     const { reservation_code } = await request.json();
 
     if (!reservation_code) {

@@ -51,9 +51,17 @@ export async function GET(request: Request) {
   }
 }
 
+import { checkRateLimit } from '../../../lib/rateLimit';
+
 // POST: Add or Edit a traveler with validations
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
+    const isAllowed = await checkRateLimit(ip);
+    if (!isAllowed) {
+      return NextResponse.json({ success: false, error: 'Demasiados intentos. Por favor espere 5 minutos.' }, { status: 429 });
+    }
+
     const body = await request.json();
     const {
       id, // Present if we are editing
@@ -224,7 +232,7 @@ export async function POST(request: Request) {
       'telefono', 'email', 'parentesco', 'adulto_responsable_id',
       'segundo_apellido', 'numero_soporte', 'provincia',
       'relacion_viajeros', 'firma_menor_16', 'hora_entrada', 'hora_salida',
-      'has_accepted_terms', 'opt_out'
+      'has_accepted_terms', 'opt_out', 'data_scanned'
     ].filter(col => !existingColumns.includes(col));
 
     let finalFirma = firma;
@@ -246,6 +254,7 @@ export async function POST(request: Request) {
       if (firma_menor_16 !== undefined) serializedExtra.firma_menor_16 = firma_menor_16;
       if (body.has_accepted_terms !== undefined) serializedExtra.has_accepted_terms = body.has_accepted_terms;
       if (body.opt_out !== undefined) serializedExtra.opt_out = body.opt_out;
+      if (body.data_scanned !== undefined) serializedExtra.data_scanned = body.data_scanned;
       serializedExtra.hora_entrada = finalHoraEntrada;
       serializedExtra.hora_salida = finalHoraSalida;
 
@@ -280,6 +289,7 @@ export async function POST(request: Request) {
       firma_menor_16: firma_menor_16 !== undefined ? firma_menor_16 : false,
       has_accepted_terms: body.has_accepted_terms !== undefined ? body.has_accepted_terms : false,
       opt_out: body.opt_out !== undefined ? body.opt_out : false,
+      data_scanned: body.data_scanned !== undefined ? body.data_scanned : false,
       hora_entrada: finalHoraEntrada,
       hora_salida: finalHoraSalida
     };

@@ -421,6 +421,7 @@ export default function AccesoTabs({
   const aDict = accesoTranslations[lang] || accesoTranslations['es'];
   const decodedCode = reservation.reservation_code;
   const isTaxPaidFromDB = reservation.is_tax_paid === true;
+  const taxPaidAmount = parseFloat(reservation.tax_paid || '0');
   const [localTaxPaid, setLocalTaxPaid] = useState(false);
 
   useEffect(() => {
@@ -438,7 +439,8 @@ export default function AccesoTabs({
     }
   }, [decodedCode, reservation.is_tax_paid]);
 
-  const isTaxPaid = isTaxPaidFromDB || localTaxPaid;
+  // isTaxPaid will be calculated below after remainingTax
+  // const isTaxPaid = isTaxPaidFromDB || localTaxPaid;
 
   const depositPaidFromDB = parseFloat(reservation.deposit_paid) || 0;
   const [localDepositPaid, setLocalDepositPaid] = useState(depositPaidFromDB);
@@ -660,6 +662,8 @@ export default function AccesoTabs({
   
   const rate = 1.75;
   const calculatedTax = parseFloat((payingGuests * nights * rate).toFixed(2));
+  const remainingTax = Math.max(0, parseFloat((calculatedTax - taxPaidAmount).toFixed(2)));
+  const isTaxPaid = (isTaxPaidFromDB && remainingTax <= 0) || localTaxPaid;
 
   // Build travelers checklist slots
   const guestSlots = [];
@@ -989,15 +993,20 @@ export default function AccesoTabs({
                         <p className="text-[11px] text-white/50">
                           {payingGuests} {dict.de_text || 'de'} {totalGuests} {dict.subjects_tax_text || 'huéspedes sujetos a tasa (≥16 años)'}
                         </p>
+                        {taxPaidAmount > 0 && remainingTax > 0 && (
+                          <p className="text-[11px] text-yellow-400 mt-1">
+                            Abonado: {taxPaidAmount.toFixed(2)}€ | Falta: {remainingTax.toFixed(2)}€
+                          </p>
+                        )}
                       </div>
-                      <p className="text-lg font-light text-cyan-300 font-mono">{(testMode ? 0.10 : calculatedTax).toFixed(2)}€</p>
+                      <p className="text-lg font-light text-cyan-300 font-mono">{(testMode ? 0.10 : remainingTax).toFixed(2)}€</p>
                     </div>
 
                     <TasaForm 
                       reservationCode={decodedCode}
                       payingGuests={payingGuests}
                       nights={nights}
-                      totalAmount={calculatedTax}
+                      totalAmount={remainingTax}
                       unregisteredPayingGuests={unregisteredPayingCount}
                     />
                   </div>

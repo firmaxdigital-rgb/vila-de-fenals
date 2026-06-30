@@ -159,7 +159,8 @@ export async function POST(request: Request) {
     // Build a readable textual summary of all data collected from the travelers
     let travelersDetails = '';
     formattedTravelers.forEach((t, idx) => {
-      travelersDetails += `\n---------------- HUÉSPED #${idx + 1} ----------------\n`;
+      const ocrIcon = t.data_scanned ? '[✔️ Escaneado]' : '[✍️ Manual]';
+      travelersDetails += `\n---------------- HUÉSPED #${idx + 1} ${ocrIcon} ----------------\n`;
       travelersDetails += `👤 Nombre Completo:  ${t.nombre} ${t.apellidos} ${t.segundo_apellido || ''}\n`;
       travelersDetails += `🎂 F. Nacimiento:   ${t.fecha_nacimiento}\n`;
       travelersDetails += `🧬 Sexo:            ${t.sexo === 'M' ? 'Masculino' : t.sexo === 'F' ? 'Femenino' : t.sexo}\n`;

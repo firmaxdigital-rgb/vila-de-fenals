@@ -144,15 +144,21 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, message: `Pago parcial de fianza registrado: ${amountPaid}€` });
       } else {
         // Normal tax payment
+        const amountCents = params.Amount || params.amount || '0';
+        const amountPaid = parseFloat(amountCents) / 100;
+
         const { data: reservation, error: fetchErr } = await supabase
           .from('reservations')
-          .select('has_deposit, deposit_amount, deposit_paid')
+          .select('has_deposit, deposit_amount, deposit_paid, tax_paid')
           .eq('reservation_code', reservationCode)
           .single();
 
+        const currentTaxPaid = parseFloat(reservation?.tax_paid || '0');
+        const newTaxPaid = currentTaxPaid + (isNaN(amountPaid) ? 0 : amountPaid);
+
         const { data: updatedRes, error: dbError } = await supabase
           .from('reservations')
-          .update({ is_tax_paid: true })
+          .update({ is_tax_paid: true, tax_paid: newTaxPaid })
           .eq('reservation_code', reservationCode)
           .select()
           .single();

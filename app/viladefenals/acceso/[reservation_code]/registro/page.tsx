@@ -646,6 +646,8 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     // Minors fields
     parentesco: '',
     adulto_responsable_id: '',
+    // Data origin
+    data_scanned: false,
     // Extra custom fields
     relacion_viajeros: 'Family',
     firma_menor_16: false,
@@ -1044,6 +1046,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         fecha_nacimiento: parsed.fecha_nacimiento || prev.fecha_nacimiento,
         sexo: parsed.sexo || prev.sexo,
         nacionalidad: parsed.nacionalidad ? parsed.nacionalidad.substring(0, 2).toUpperCase() : prev.nacionalidad,
+        data_scanned: true,
       }));
 
       setOcrSuccess(true);
