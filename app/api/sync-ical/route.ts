@@ -43,8 +43,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholde
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'; // Usar el Service Role Key para tener permisos de escritura
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false }, global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) },
-  global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
+  auth: { persistSession: false }, global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
 });
 
 const AIRBNB_ICAL_URL = 'https://www.airbnb.es/calendar/ical/669455999251966218.ics?t=4ec9256dab9c46a7ae5ddf5a7211208f';

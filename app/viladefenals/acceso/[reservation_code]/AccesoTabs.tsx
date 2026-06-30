@@ -585,37 +585,8 @@ export default function AccesoTabs({
   const depositAmount = parseFloat(reservation.deposit_amount) || 0;
   const depositPaid = Math.max(parseFloat(reservation.deposit_paid) || 0, localDepositPaid);
   const isDepositComplete = !hasDeposit || (depositPaid >= depositAmount);
-  const isFullyUnlocked = isPhase1Complete && isTaxPaid && isDepositComplete;
 
   const [isFinalizingFallback, setIsFinalizingFallback] = useState(false);
-
-  // Client-side fallback to finalize registration if fully unlocked but Nuki PIN is missing
-  useEffect(() => {
-    if (isFullyUnlocked && !reservation.nuki_pin && !isFinalizingFallback) {
-      setIsFinalizingFallback(true);
-      console.log("[AccesoTabs] All conditions met but Nuki PIN is missing. Triggering finalization fallback...");
-      fetch('/api/registro-final', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reservation_code: decodedCode })
-      })
-      .then(async (res) => {
-        if (res.ok) {
-          const data = await res.json();
-          console.log("[AccesoTabs] Fallback finalization succeeded:", data);
-          router.refresh();
-        } else {
-          const errText = await res.text();
-          console.error("[AccesoTabs] Fallback finalization API returned error:", errText);
-          setIsFinalizingFallback(false);
-        }
-      })
-      .catch(err => {
-        console.error("[AccesoTabs] Error in fallback finalization:", err);
-        setIsFinalizingFallback(false);
-      });
-    }
-  }, [isFullyUnlocked, reservation.nuki_pin, isFinalizingFallback, decodedCode, router]);
 
   // Calculate nights
   const checkIn = new Date(reservation.check_in);
@@ -664,6 +635,36 @@ export default function AccesoTabs({
   const calculatedTax = parseFloat((payingGuests * nights * rate).toFixed(2));
   const remainingTax = Math.max(0, parseFloat((calculatedTax - taxPaidAmount).toFixed(2)));
   const isTaxPaid = (isTaxPaidFromDB && remainingTax <= 0) || localTaxPaid;
+
+  const isFullyUnlocked = isPhase1Complete && isTaxPaid && isDepositComplete;
+
+  // Client-side fallback to finalize registration if fully unlocked but Nuki PIN is missing
+  useEffect(() => {
+    if (isFullyUnlocked && !reservation.nuki_pin && !isFinalizingFallback) {
+      setIsFinalizingFallback(true);
+      console.log("[AccesoTabs] All conditions met but Nuki PIN is missing. Triggering finalization fallback...");
+      fetch('/api/registro-final', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reservation_code: decodedCode })
+      })
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          console.log("[AccesoTabs] Fallback finalization succeeded:", data);
+          router.refresh();
+        } else {
+          const errText = await res.text();
+          console.error("[AccesoTabs] Fallback finalization API returned error:", errText);
+          setIsFinalizingFallback(false);
+        }
+      })
+      .catch(err => {
+        console.error("[AccesoTabs] Fallback finalization API exception:", err);
+        setIsFinalizingFallback(false);
+      });
+    }
+  }, [isFullyUnlocked, reservation.nuki_pin, isFinalizingFallback, decodedCode, router]);
 
   // Build travelers checklist slots
   const guestSlots = [];

@@ -769,6 +769,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               firma_menor_16: traveler.firma_menor_16 || false,
               hora_entrada: traveler.hora_entrada || '16:00',
               hora_salida: traveler.hora_salida || '10:00',
+              data_scanned: traveler.data_scanned || false,
             });
 
             // Pre-load digital signature on canvas

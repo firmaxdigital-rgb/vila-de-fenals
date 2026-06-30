@@ -9,8 +9,7 @@ const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
 const IFTTT_WEBHOOK_URL = process.env.IFTTT_WEBHOOK_URL || 'placeholder';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false }, global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) },
-  global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
+  auth: { persistSession: false }, global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) }
 });
 
 function getSpainUtcDate(dateStr: string, localHour: number): Date {
