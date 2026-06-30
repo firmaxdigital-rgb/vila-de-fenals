@@ -577,6 +577,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showLegalTextModal, setShowLegalTextModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   // Scroll to top when an error occurs so the user sees it
   useEffect(() => {
@@ -1055,8 +1056,63 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     }
   };
 
+  const isFieldInvalid = (fieldName: keyof typeof formData) => {
+    if (!hasAttemptedSubmit) return false;
+    
+    const isUnder14 = age !== null && age < 14;
+    const isUnder18 = age !== null && age < 18;
+    const isEsp = formData.nacionalidad === 'ES';
+
+    switch (fieldName) {
+      case 'nombre':
+      case 'apellidos':
+      case 'tipo_documento':
+      case 'fecha_expedicion':
+      case 'fecha_nacimiento':
+      case 'nacionalidad':
+      case 'sexo':
+        return !formData[fieldName];
+      
+      case 'numero_documento':
+        return !isUnder14 && !formData.numero_documento;
+
+      case 'segundo_apellido':
+        return formData.tipo_documento === 'DNI' && isEsp && !isUnder14 && !formData.segundo_apellido;
+
+      case 'numero_soporte':
+        const isSpanishDniOrNie = (formData.tipo_documento === 'DNI' && isEsp) || formData.tipo_documento === 'NIE';
+        return isSpanishDniOrNie && !isUnder14 && !formData.numero_soporte;
+
+      case 'parentesco':
+      case 'adulto_responsable_id':
+        return isUnder18 && !formData[fieldName];
+
+      case 'direccion':
+      case 'codigo_postal':
+      case 'municipio':
+      case 'pais_residencia':
+      case 'telefono':
+      case 'email':
+        return !isUnder18 && !formData[fieldName];
+
+      case 'provincia':
+        return !isUnder18 && formData.pais_residencia === 'ES' && !formData.provincia;
+
+      default:
+        return false;
+    }
+  };
+
+  const getFieldClass = (fieldName: keyof typeof formData, isSelect = false) => {
+    const base = `w-full bg-black/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 ${isSelect ? '[&>option]:bg-gray-900' : '[color-scheme:dark]'}`;
+    const invalid = 'border-2 border-red-500/80 focus:border-red-500 focus:ring-red-500/50';
+    const valid = 'border border-white/10 focus:ring-white/30';
+    return `${base} ${isFieldInvalid(fieldName) ? invalid : valid}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
     setError('');
 
     // Check age logic limits
@@ -1390,24 +1446,24 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_name}</label>
-                <input required name="nombre" value={formData.nombre} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Juan" />
+                <input name="nombre" value={formData.nombre} onChange={handleChange} className={getFieldClass('nombre', false)} placeholder="Juan" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_surnames}</label>
-                <input required name="apellidos" value={formData.apellidos} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Pérez" />
+                <input name="apellidos" value={formData.apellidos} onChange={handleChange} className={getFieldClass('apellidos', false)} placeholder="Pérez" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
                   {dict.form_second_surname} {(formData.tipo_documento !== 'DNI' || formData.nacionalidad !== 'ES') ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
                 </label>
-                <input name="segundo_apellido" required={formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES' && (age === null || age >= 14)} value={formData.segundo_apellido} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="García" />
+                <input name="segundo_apellido" value={formData.segundo_apellido} onChange={handleChange} className={getFieldClass('segundo_apellido', false)} placeholder="García" />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_doc_type}</label>
-                <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900">
+                <select name="tipo_documento" value={formData.tipo_documento} onChange={handleChange} className={getFieldClass('tipo_documento', true)}>
                   <option value="DNI">{docTypes.DNI}</option>
                   <option value="NIE">{docTypes.NIE}</option>
                   <option value="PASAPORTE">{docTypes.PASAPORTE}</option>
@@ -1420,11 +1476,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   {dict.form_doc_num} {age !== null && age < 14 ? `(${lang === 'en' ? 'Minor' : 'Menor'})` : ''}
                 </label>
                 <input 
-                  required={age === null || age >= 14} 
+                 
                   name="numero_documento" 
                   value={formData.numero_documento} 
                   onChange={handleChange} 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 uppercase tracking-wider" 
+                  className={getFieldClass('numero_documento', false)} 
                   placeholder="Ej. 12345678A"
                 />
               </div>
@@ -1445,11 +1501,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 </div>
                 <input 
                   disabled={!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE')}
-                  required={((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') && (age === null || age >= 14)} 
+                 
                   name="numero_soporte" 
                   value={!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') ? '' : formData.numero_soporte} 
                   onChange={handleChange} 
-                  className="w-full bg-black/40 disabled:opacity-40 disabled:cursor-not-allowed border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 uppercase tracking-wider" 
+                  className={getFieldClass('numero_soporte', false)} 
                   placeholder={!((formData.tipo_documento === 'DNI' && formData.nacionalidad === 'ES') || formData.tipo_documento === 'NIE') ? 'N/A' : 'Ej. AAA123456'}
                 />
               </div>
@@ -1458,27 +1514,27 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_exp_date}</label>
-                <input type="date" name="fecha_expedicion" required value={formData.fecha_expedicion} onChange={handleChange} className={`w-full bg-black/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 [color-scheme:dark] ${!formData.fecha_expedicion ? 'border-2 border-red-500/80 focus:border-red-500 focus:ring-red-500/50' : 'border border-white/10 focus:ring-white/30'}`} />
+                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className={getFieldClass('fecha_expedicion')} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cad_date || 'F. Caducidad'}</label>
-                <input type="date" name="fecha_caducidad" value={formData.fecha_caducidad} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]" />
+                <input type="date" name="fecha_caducidad" value={formData.fecha_caducidad} onChange={handleChange} className={getFieldClass('fecha_caducidad', false)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_birth_date}</label>
-                <input required type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]" />
+                <input type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className={getFieldClass('fecha_nacimiento', false)} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_nationality}</label>
                 <select 
-                  required 
+                  
                   name="nacionalidad" 
                   value={formData.nacionalidad} 
                   onChange={handleChange} 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
+                  className={getFieldClass('nacionalidad', true)}
                 >
                   {sortedCountries.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -1492,7 +1548,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold">{dict.form_gender}</label>
-                <select name="sexo" value={formData.sexo} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900">
+                <select name="sexo" value={formData.sexo} onChange={handleChange} className={getFieldClass('sexo', true)}>
                   <option value="M">{dict.form_gender_m}</option>
                   <option value="F">{dict.form_gender_f}</option>
                 </select>
@@ -1519,7 +1575,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-[10px] text-yellow-100 uppercase tracking-wider font-semibold">{dict.minor_parentesco}</label>
-                  <select required name="parentesco" value={formData.parentesco} onChange={handleChange} className="w-full bg-black/40 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-900">
+                  <select name="parentesco" value={formData.parentesco} onChange={handleChange} className={getFieldClass('parentesco', true)}>
                     <option value="">{dict.minor_parentesco_select}</option>
                     <option value="Hijo/a">Hijo / Hija</option>
                     <option value="Tutorado/a">Tutorado / Tutorada</option>
@@ -1529,7 +1585,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] text-yellow-100 uppercase tracking-wider font-semibold">{dict.minor_adult_resp}</label>
-                  <select required name="adulto_responsable_id" value={formData.adulto_responsable_id} onChange={handleChange} className="w-full bg-black/40 border border-yellow-500/25 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-yellow-400 [&>option]:bg-gray-900">
+                  <select name="adulto_responsable_id" value={formData.adulto_responsable_id} onChange={handleChange} className={getFieldClass('adulto_responsable_id', true)}>
                     <option value="">{dict.minor_adult_select}</option>
                     {adultsList.map((a) => (
                       <option key={a.id} value={a.id}>{a.nombre} {a.apellidos}</option>
@@ -1555,28 +1611,28 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
 
             <div className="space-y-1">
               <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_address}</label>
-              <input required name="direccion" value={formData.direccion} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Ej. Calle Gran Vía 12, 3º B" />
+              <input name="direccion" value={formData.direccion} onChange={handleChange} className={getFieldClass('direccion', false)} placeholder="Ej. Calle Gran Vía 12, 3º B" />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cp}</label>
-                <input required name="codigo_postal" value={formData.codigo_postal} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="E.g. 08001" />
+                <input name="codigo_postal" value={formData.codigo_postal} onChange={handleChange} className={getFieldClass('codigo_postal', false)} placeholder="E.g. 08001" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_city}</label>
-                <input required name="municipio" value={formData.municipio} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Ej. Barcelona" />
+                <input name="municipio" value={formData.municipio} onChange={handleChange} className={getFieldClass('municipio', false)} placeholder="Ej. Barcelona" />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
                   {dict.form_province} {formData.pais_residencia !== 'ES' ? `(${lang === 'en' ? 'Opt.' : 'Opc.'})` : ''}
                 </label>
                 <input 
-                  required={formData.pais_residencia === 'ES'} 
+                 
                   name="provincia" 
                   value={formData.provincia} 
                   onChange={handleChange} 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" 
+                  className={getFieldClass('provincia', false)} 
                   placeholder="Ej. Barcelona" 
                 />
               </div>
@@ -1586,11 +1642,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_country}</label>
                 <select 
-                  required 
+                  
                   name="pais_residencia" 
                   value={formData.pais_residencia} 
                   onChange={handleChange} 
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
+                  className={getFieldClass('pais_residencia', true)}
                 >
                   {sortedCountries.map((c) => (
                     <option key={c.code} value={c.code}>
@@ -1604,7 +1660,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   {lang === 'en' ? 'Kinship / Relation' : 'Relación viajeros'}
                 </label>
                 <select 
-                  required 
+                  
                   name="relacion_viajeros" 
                   value={formData.relacion_viajeros} 
                   onChange={handleChange} 
@@ -1619,13 +1675,13 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_phone}</label>
-                <input required name="telefono" value={formData.telefono} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="Ej. +34600112233" />
+                <input name="telefono" value={formData.telefono} onChange={handleChange} className={getFieldClass('telefono', false)} placeholder="Ej. +34600112233" />
               </div>
             </div>
 
             <div className="space-y-1">
               <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_email}</label>
-              <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/30" placeholder="ejemplo@correo.com" />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className={getFieldClass('email', false)} placeholder="ejemplo@correo.com" />
             </div>
           </div>
 
@@ -1664,7 +1720,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                       {lang === 'en' ? 'Adult signing on behalf' : 'Adulto que firma en su nombre'}
                     </label>
                     <select 
-                      required={formData.firma_menor_16} 
+                     
                       name="adulto_responsable_id" 
                       value={formData.adulto_responsable_id} 
                       onChange={handleChange} 

@@ -1008,6 +1008,8 @@ export default function AccesoTabs({
                       payingGuests={payingGuests}
                       nights={nights}
                       totalAmount={remainingTax}
+                      calculatedTax={calculatedTax}
+                      taxPaidAmount={taxPaidAmount}
                       unregisteredPayingGuests={unregisteredPayingCount}
                     />
                   </div>

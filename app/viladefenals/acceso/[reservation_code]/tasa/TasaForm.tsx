@@ -9,10 +9,12 @@ interface TasaFormProps {
   payingGuests: number;
   nights: number;
   totalAmount: number;
+  calculatedTax?: number;
+  taxPaidAmount?: number;
   unregisteredPayingGuests?: number;
 }
 
-export default function TasaForm({ reservationCode, payingGuests, nights, totalAmount, unregisteredPayingGuests }: TasaFormProps) {
+export default function TasaForm({ reservationCode, payingGuests, nights, totalAmount, calculatedTax = 0, taxPaidAmount = 0, unregisteredPayingGuests }: TasaFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') || 'es';
@@ -126,7 +128,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Finalizar Check-in (0.00€)',
       exempt_processing: 'Finalizando Check-in...',
       gateway_title: 'Pasarela de Pago'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `Hemos detectado que sois ${g} huéspedes sujetos a tasa (${t}€). Ya has abonado ${p}€ previamente. El importe pendiente de pago es ${r}€.`},
     en: {
       total: 'Total to pay:',
       secure_hint: 'High-security encrypted connection by PayComet',
@@ -139,7 +142,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Finalize Check-in (0.00€)',
       exempt_processing: 'Finalizing Check-in...',
       gateway_title: 'Payment Gateway'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `We detected ${g} guests subject to the tax (${t}€). You have already paid ${p}€. The pending amount to pay is ${r}€.`},
     fr: {
       total: 'Total à payer:',
       secure_hint: 'Connexion cryptée haute sécurité par PayComet',
@@ -152,7 +156,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Finaliser le Check-in (0.00€)',
       exempt_processing: 'Finalisation du Check-in...',
       gateway_title: 'Passerelle de paiement'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `Nous avons détecté ${g} clients assujettis à la taxe (${t}€). Vous avez déjà payé ${p}€. Le montant restant à payer est de ${r}€.`},
     de: {
       total: 'Gesamtbetrag:',
       secure_hint: 'Hochsichere verschlüsselte Verbindung von PayComet',
@@ -165,7 +170,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Check-in abschließen (0.00€)',
       exempt_processing: 'Check-in wird abgeschlossen...',
       gateway_title: 'Zahlungsportal'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `Wir haben ${g} steuerpflichtige Gäste festgestellt (${t}€). Sie haben bereits ${p}€ bezahlt. Der ausstehende Betrag beträgt ${r}€.`},
     nl: {
       total: 'Totaal te betalen:',
       secure_hint: 'Gecodeerde verbinding met hoge beveiliging van PayComet',
@@ -178,7 +184,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Check-in afronden (0.00€)',
       exempt_processing: 'Check-in afronden...',
       gateway_title: 'Betalingspoort'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `We hebben ${g} belastingplichtige gasten gedetecteerd (${t}€). U heeft al ${p}€ betaald. Het openstaande bedrag is ${r}€.`},
     pl: {
       total: 'Razem do zapłaty:',
       secure_hint: 'Szyfrowane połączenie o wysokim bezpieczeństwie PayComet',
@@ -191,7 +198,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Sfinalizuj zameldowanie (0.00€)',
       exempt_processing: 'Finalizowanie zameldowania...',
       gateway_title: 'Bramka płatnicza'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `Wykryliśmy ${g} gości podlegających opłacie (${t}€). Zapłaciłeś już ${p}€. Pozostała kwota do zapłaty to ${r}€.`},
     zh: {
       total: '应付总额：',
       secure_hint: 'PayComet 高安全加密连接',
@@ -204,7 +212,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: '完成入住登记 (0.00€)',
       exempt_processing: '正在完成入住登记...',
       gateway_title: '支付网关'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `我们检测到 ${g} 位需缴纳税费的客人 (${t}€)。您已经支付了 ${p}€。剩余待支付金额为 ${r}€。`},
     uk: {
       total: 'Всього до сплати:',
       secure_hint: 'Високозахищене шифроване з’єднання PayComet',
@@ -217,7 +226,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Завершити реєстрацію (0.00€)',
       exempt_processing: 'Завершення реєстрації...',
       gateway_title: 'Платіжний шлюз'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `Ми виявили ${g} гостей, які підлягають оподаткуванню (${t}€). Ви вже сплатили ${p}€. Сума, що залишилася до сплати, становить ${r}€.`},
     ru: {
       total: 'Всего к оплате:',
       secure_hint: 'Высокозащищенное шифрованное соединение PayComet',
@@ -230,7 +240,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'Завершить регистрацию (0.00€)',
       exempt_processing: 'Завершение регистрации...',
       gateway_title: 'Платежный шлюз'
-    },
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `Мы обнаружили ${g} гостей, подлежащих налогообложению (${t}€). Вы уже заплатили ${p}€. Оставшаяся сумма к оплате составляет ${r}€.`},
     ja: {
       total: 'お支払い合計：',
       secure_hint: 'PayCometによる高セキュリティ暗号化接続',
@@ -243,7 +254,8 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
       exempt_btn: 'チェックインを完了する (0.00€)',
       exempt_processing: 'チェックインを完了中...',
       gateway_title: '決済ゲートウェイ'
-    }
+    ,
+      partial_payment: (g: any, t: any, p: any, r: any) => `税の対象となる宿泊客が${g}名検出されました（${t}€）。すでに${p}€お支払い済みです。残りの支払い金額は${r}€です。`}
   };
 
   // Fallback to Spanish or English dictionary
@@ -281,6 +293,13 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
             <span className="text-base text-white/70">{dict.total}</span>
             <span className="text-4xl font-extralight text-white tracking-tight">{formattedTotal}€</span>
           </div>
+
+          {taxPaidAmount > 0 && calculatedTax > taxPaidAmount && (
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-3 text-sm text-yellow-200/90 leading-relaxed">
+              <AlertCircle className="w-4 h-4 inline-block mr-1.5 -mt-0.5 text-yellow-400" />
+              {dict.partial_payment(payingGuests, calculatedTax.toFixed(2), taxPaidAmount.toFixed(2), formattedTotal)}
+            </div>
+          )}
 
           {/* Premium Informative Billing Card */}
           <div className="space-y-3 bg-black/25 rounded-2xl p-4 border border-white/10 text-white/80">
