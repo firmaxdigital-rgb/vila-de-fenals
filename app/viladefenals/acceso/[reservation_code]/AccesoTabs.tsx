@@ -523,20 +523,12 @@ export default function AccesoTabs({
 
       // Invoke simulated webhook if requested, and also update general confirmation in DB
       const endpointsToCall = [];
-      if (isSimulated && !isTaxPaidFromDB) {
-        endpointsToCall.push(
-          fetch('/api/paycomet/simulate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reservation_code: decodedCode, status: 'PAID' })
-          })
-        );
-      } else if (!isTaxPaidFromDB) {
+      if (!isTaxPaidFromDB) {
         endpointsToCall.push(
           fetch('/api/payment/confirm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reservation_code: decodedCode })
+            body: JSON.stringify({ reservation_code: decodedCode, amount: remainingTax })
           })
         );
       }

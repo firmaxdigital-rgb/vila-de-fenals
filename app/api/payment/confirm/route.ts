@@ -12,7 +12,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 export async function POST(request: Request) {
   try {
-    const { reservation_code } = await request.json();
+    const { reservation_code, amount } = await request.json();
 
     if (!reservation_code) {
       return NextResponse.json({ success: false, error: 'Falta el reservation_code' }, { status: 400 });
@@ -20,10 +20,21 @@ export async function POST(request: Request) {
 
     console.log(`[Confirm API] Confirmando pago para la reserva: ${reservation_code}`);
 
-    // Update is_tax_paid to true in the database
+    // Fetch current tax_paid to accumulate the new amount
+    const { data: currentRes } = await supabase
+      .from('reservations')
+      .select('tax_paid')
+      .eq('reservation_code', reservation_code)
+      .single();
+
+    const currentTaxPaid = parseFloat(currentRes?.tax_paid || '0');
+    const paymentAmount = amount ? parseFloat(amount) : 0;
+    const newTaxPaid = currentTaxPaid + paymentAmount;
+
+    // Update is_tax_paid to true in the database and save the accumulated tax_paid
     const { error: updateError } = await supabase
       .from('reservations')
-      .update({ is_tax_paid: true })
+      .update({ is_tax_paid: true, tax_paid: newTaxPaid })
       .eq('reservation_code', reservation_code);
 
     if (updateError) {
