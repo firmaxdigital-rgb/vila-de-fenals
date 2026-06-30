@@ -14,7 +14,13 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 import { COUNTRIES as rawCountries } from '../../../../../lib/countries';
-const countries = [...rawCountries].sort((a, b) => a.nameEs.localeCompare(b.nameEs));
+const getSortedCountries = (lang: string) => {
+  return [...rawCountries].sort((a, b) => {
+    const nameA = lang === 'en' ? a.nameEn : a.nameEs;
+    const nameB = lang === 'en' ? b.nameEn : b.nameEs;
+    return nameA.localeCompare(nameB);
+  });
+};
 
 const uploadBtnTranslations: Record<string, { search: string; take: string }> = {
   es: { search: 'Buscar Archivos', take: 'Hacer Foto' },
@@ -557,7 +563,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const docTypes = docTypeTranslations[lang] || docTypeTranslations['es'];
   const supportHelp = supportHelperTranslations[lang] || supportHelperTranslations['es'];
   const legal = legalConsentTranslations[lang] || legalConsentTranslations['es'];
-
+  const sortedCountries = React.useMemo(() => getSortedCountries(lang), [lang]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -571,6 +577,13 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showLegalTextModal, setShowLegalTextModal] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+
+  // Scroll to top when an error occurs so the user sees it
+  useEffect(() => {
+    if (error) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [error]);
   
   // OCR processing states
   const [isOcrProcessing, setIsOcrProcessing] = useState(false);
@@ -877,7 +890,14 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const next = { ...prev, [name]: value };
+      if (name === 'nacionalidad') {
+        next.pais_residencia = value;
+      }
+      return next;
+    });
   };
 
   // Process files helper with compression
@@ -1020,6 +1040,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         fecha_nacimiento: parsed.fecha_nacimiento || prev.fecha_nacimiento,
         sexo: parsed.sexo || prev.sexo,
         nacionalidad: parsed.nacionalidad ? parsed.nacionalidad.substring(0, 2).toUpperCase() : prev.nacionalidad,
+        pais_residencia: parsed.nacionalidad ? parsed.nacionalidad.substring(0, 2).toUpperCase() : prev.pais_residencia,
         data_scanned: true,
       }));
 
@@ -1043,6 +1064,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     const isUnder18 = age !== null && age < 18;
 
     // Validate DNI requirement
+    if (!formData.fecha_expedicion) {
+      setError(lang === 'en' ? 'Document issue date is mandatory.' : 'La fecha de expedición del documento es obligatoria.');
+      return;
+    }
+
     if (!isUnder14 && !formData.numero_documento) {
       setError(lang === 'en' ? 'Document number is mandatory for guests older than 14.' : 'El número de documento es obligatorio para mayores de 14 años.');
       return;
@@ -1432,7 +1458,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_exp_date}</label>
-                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [color-scheme:dark]" />
+                <input type="date" name="fecha_expedicion" required value={formData.fecha_expedicion} onChange={handleChange} className={`w-full bg-black/40 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 [color-scheme:dark] ${!formData.fecha_expedicion ? 'border-2 border-red-500/80 focus:border-red-500 focus:ring-red-500/50' : 'border border-white/10 focus:ring-white/30'}`} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cad_date || 'F. Caducidad'}</label>
@@ -1454,7 +1480,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   onChange={handleChange} 
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                 >
-                  {countries.map((c) => (
+                  {sortedCountries.map((c) => (
                     <option key={c.code} value={c.code}>
                       {lang === 'en' ? c.nameEn : c.nameEs} ({c.code})
                     </option>
@@ -1566,7 +1592,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   onChange={handleChange} 
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                 >
-                  {countries.map((c) => (
+                  {sortedCountries.map((c) => (
                     <option key={c.code} value={c.code}>
                       {lang === 'en' ? c.nameEn : c.nameEs} ({c.code})
                     </option>
