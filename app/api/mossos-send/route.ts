@@ -156,11 +156,35 @@ export async function POST(request: Request) {
       });
     });
 
+    // Helper to calculate age at check-in
+    const getAgeAtCheckin = (birthDateStr: string, checkInStr: string): number | null => {
+      if (!birthDateStr || !checkInStr) return null;
+      const birthDate = new Date(birthDateStr);
+      const checkInDate = new Date(checkInStr);
+      if (isNaN(birthDate.getTime()) || isNaN(checkInDate.getTime())) return null;
+      let age = checkInDate.getFullYear() - birthDate.getFullYear();
+      const m = checkInDate.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && checkInDate.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    let minorsCount = 0;
+    let adultsCount = 0;
+
     // Build a readable textual summary of all data collected from the travelers
     let travelersDetails = '';
     formattedTravelers.forEach((t, idx) => {
+      const age = getAgeAtCheckin(t.fecha_nacimiento, reservation.check_in);
+      const isMinor = age !== null && age < 18;
+      
+      if (isMinor) minorsCount++;
+      else adultsCount++;
+
       const ocrIcon = t.data_scanned ? '[✔️ Escaneado]' : '[✍️ Manual]';
-      travelersDetails += `\n---------------- HUÉSPED #${idx + 1} ${ocrIcon} ----------------\n`;
+      const minorTag = isMinor ? ' (MENOR DE EDAD)' : '';
+      travelersDetails += `\n---------------- HUÉSPED #${idx + 1} ${ocrIcon}${minorTag} ----------------\n`;
       travelersDetails += `👤 Nombre Completo:  ${t.nombre} ${t.apellidos} ${t.segundo_apellido || ''}\n`;
       travelersDetails += `🎂 F. Nacimiento:   ${t.fecha_nacimiento}\n`;
       travelersDetails += `🧬 Sexo:            ${t.sexo === 'M' ? 'Masculino' : t.sexo === 'F' ? 'Femenino' : t.sexo}\n`;
@@ -182,8 +206,13 @@ export async function POST(request: Request) {
       }
     });
 
+    let minorsWarning = '';
+    if (minorsCount > 0) {
+      minorsWarning = `\n\n⚠️ ATENCIÓN: Se ha detectado que hay ${adultsCount} adulto(s) y ${minorsCount} menor(es) de 18 años. Por favor, verifique las autorizaciones de los menores.`;
+    }
+
     const emailSubject = `[Vila de Fenals] Registro Completado y Ficheros Mossos - Reserva ${reservation_code}`;
-    const emailBody = `Se ha completado satisfactoriamente la cumplimentación de formularios de viajero para la reserva: ${reservation_code}.
+    const emailBody = `Se ha completado satisfactoriamente la cumplimentación de formularios de viajero para la reserva: ${reservation_code}.${minorsWarning}
 
 ============================================================
 📋 RESUMEN DETALLADO DE VIAJEROS REGISTRADOS
