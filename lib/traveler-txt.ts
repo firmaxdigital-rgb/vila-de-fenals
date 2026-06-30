@@ -27,6 +27,7 @@ export interface TravelerData {
   check_out_date?: string; // YYYY-MM-DD
   hora_entrada?: string; // HH:MM
   hora_salida?: string; // HH:MM
+  data_scanned?: boolean;
 }
 
 // Convert YYYY-MM-DD to AAAAMMDD
