@@ -13,35 +13,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: false },
 });
 
-const countries = [
-  { code: 'ES', nameEs: 'España', nameEn: 'Spain' },
-  { code: 'FR', nameEs: 'Francia', nameEn: 'France' },
-  { code: 'DE', nameEs: 'Alemania', nameEn: 'Germany' },
-  { code: 'GB', nameEs: 'Reino Unido', nameEn: 'United Kingdom' },
-  { code: 'IT', nameEs: 'Italia', nameEn: 'Italy' },
-  { code: 'US', nameEs: 'Estados Unidos', nameEn: 'United States' },
-  { code: 'PT', nameEs: 'Portugal', nameEn: 'Portugal' },
-  { code: 'BE', nameEs: 'Bélgica', nameEn: 'Belgium' },
-  { code: 'NL', nameEs: 'Países Bajos', nameEn: 'Netherlands' },
-  { code: 'CH', nameEs: 'Suiza', nameEn: 'Switzerland' },
-  { code: 'AD', nameEs: 'Andorra', nameEn: 'Andorra' },
-  { code: 'AR', nameEs: 'Argentina', nameEn: 'Argentina' },
-  { code: 'AT', nameEs: 'Austria', nameEn: 'Austria' },
-  { code: 'AU', nameEs: 'Australia', nameEn: 'Australia' },
-  { code: 'BR', nameEs: 'Brasil', nameEn: 'Brazil' },
-  { code: 'CA', nameEs: 'Canadá', nameEn: 'Canada' },
-  { code: 'CL', nameEs: 'Chile', nameEn: 'Chile' },
-  { code: 'CN', nameEs: 'China', nameEn: 'China' },
-  { code: 'CO', nameEs: 'Colombia', nameEn: 'Colombia' },
-  { code: 'DK', nameEs: 'Dinamarca', nameEn: 'Denmark' },
-  { code: 'IE', nameEs: 'Irlanda', nameEn: 'Ireland' },
-  { code: 'MX', nameEs: 'México', nameEn: 'Mexico' },
-  { code: 'NO', nameEs: 'Noruega', nameEn: 'Norway' },
-  { code: 'PL', nameEs: 'Polonia', nameEn: 'Poland' },
-  { code: 'SE', nameEs: 'Suecia', nameEn: 'Sweden' },
-  { code: 'UY', nameEs: 'Uruguay', nameEn: 'Uruguay' },
-  { code: 'VE', nameEs: 'Venezuela', nameEn: 'Venezuela' }
-].sort((a, b) => a.nameEs.localeCompare(b.nameEs));
+import { COUNTRIES as rawCountries } from '../../../../../lib/countries';
+const countries = [...rawCountries].sort((a, b) => a.nameEs.localeCompare(b.nameEs));
 
 const uploadBtnTranslations: Record<string, { search: string; take: string }> = {
   es: { search: 'Buscar Archivos', take: 'Hacer Foto' },
@@ -92,16 +65,16 @@ interface AdultCandidate {
 }
 
 const docTypeTranslations = {
-  es: { DNI: 'DNI (Español)', NIE: 'NIE (Español)', PASAPORTE: 'Pasaporte', OTRO: 'Otro Documento / ID Europeo (NO Español)' },
-  en: { DNI: 'DNI (Spanish)', NIE: 'NIE (Spanish)', PASAPORTE: 'Passport', OTRO: 'Other Document / European ID (Non-Spanish)' },
-  fr: { DNI: 'DNI (Espagnol)', NIE: 'NIE (Espagnol)', PASAPORTE: 'Passeport', OTRO: 'Autre document / ID européen (Non espagnol)' },
-  de: { DNI: 'DNI (Spanisch)', NIE: 'NIE (Spanisch)', PASAPORTE: 'Reisepass', OTRO: 'Anderes Dokument / Europäischer Ausweis (Nicht spanisch)' },
-  pl: { DNI: 'DNI (Hiszpański)', NIE: 'NIE (Hiszpański)', PASAPORTE: 'Paszport', OTRO: 'Inny document / Europejski dowód tożsamości (Niehiszpański)' },
-  zh: { DNI: 'DNI (西班牙)', NIE: 'NIE (西班牙)', PASAPORTE: '护照', OTRO: '其他文件 / 欧洲身份证 (非西班牙)' },
-  uk: { DNI: 'DNI (Іспанський)', NIE: 'NIE (Іспанський)', PASAPORTE: 'Паспорт', OTRO: 'Інший документ / Європейське посвідчення (Не іспанське)' },
-  ru: { DNI: 'DNI (Испанский)', NIE: 'NIE (Испанский)', PASAPORTE: 'Паспорт', OTRO: 'Другой документ / Европейское удостоверение (Не испанское)' },
-  nl: { DNI: 'DNI (Spaans)', NIE: 'NIE (Spaans)', PASAPORTE: 'Paspoort', OTRO: 'Ander document / Europees ID (Niet Spaans)' },
-  ja: { DNI: 'DNI (スペイン)', NIE: 'NIE (スペイン)', PASAPORTE: 'パスポート', OTRO: 'その他の書類 / 欧州身分証 (非スペイン)' },
+  es: { DNI: 'DNI (Español)', NIE: 'NIE (Español)', PASAPORTE: 'Pasaporte', CARTA_IDENTIDAD: 'Carta de Identidad (ID Europeo/Extranjero)', OTRO: 'Otro Documento' },
+  en: { DNI: 'DNI (Spanish)', NIE: 'NIE (Spanish)', PASAPORTE: 'Passport', CARTA_IDENTIDAD: 'Identity Card (European/Foreign ID)', OTRO: 'Other Document' },
+  fr: { DNI: 'DNI (Espagnol)', NIE: 'NIE (Espagnol)', PASAPORTE: 'Passeport', CARTA_IDENTIDAD: "Carte d'identité (ID européen/étranger)", OTRO: 'Autre document' },
+  de: { DNI: 'DNI (Spanisch)', NIE: 'NIE (Spanisch)', PASAPORTE: 'Reisepass', CARTA_IDENTIDAD: 'Personalausweis (Europäischer/Ausländischer Ausweis)', OTRO: 'Anderes Dokument' },
+  pl: { DNI: 'DNI (Hiszpański)', NIE: 'NIE (Hiszpański)', PASAPORTE: 'Paszport', CARTA_IDENTIDAD: 'Dowód tożsamości (Europejski/Zagraniczny ID)', OTRO: 'Inny document' },
+  zh: { DNI: 'DNI (西班牙)', NIE: 'NIE (西班牙)', PASAPORTE: '护照', CARTA_IDENTIDAD: '身份证 (欧洲/外国身份证)', OTRO: '其他文件' },
+  uk: { DNI: 'DNI (Іспанський)', NIE: 'NIE (Іспанський)', PASAPORTE: 'Паспорт', CARTA_IDENTIDAD: 'Посвідчення особи (Європейське/Іноземне ID)', OTRO: 'Інший документ' },
+  ru: { DNI: 'DNI (Испанский)', NIE: 'NIE (Испанский)', PASAPORTE: 'Паспорт', CARTA_IDENTIDAD: 'Удостоверение личности (Европейское/Иностранное ID)', OTRO: 'Другой документ' },
+  nl: { DNI: 'DNI (Spaans)', NIE: 'NIE (Spaans)', PASAPORTE: 'Paspoort', CARTA_IDENTIDAD: 'Identiteitskaart (Europees/Buitenlands ID)', OTRO: 'Ander document' },
+  ja: { DNI: 'DNI (スペイン)', NIE: 'NIE (スペイン)', PASAPORTE: 'パスポート', CARTA_IDENTIDAD: '身分証明書 (欧州/外国身分証)', OTRO: 'その他の書類' },
 };
 
 const supportHelperTranslations = {
@@ -1412,6 +1385,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   <option value="DNI">{docTypes.DNI}</option>
                   <option value="NIE">{docTypes.NIE}</option>
                   <option value="PASAPORTE">{docTypes.PASAPORTE}</option>
+                  <option value="CARTA_IDENTIDAD">{docTypes.CARTA_IDENTIDAD}</option>
                   <option value="OTRO">{docTypes.OTRO}</option>
                 </select>
               </div>

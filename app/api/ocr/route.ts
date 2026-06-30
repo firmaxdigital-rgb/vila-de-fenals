@@ -100,14 +100,14 @@ Campos a extraer:
 - nombre: Nombre del titular (sin apellidos).
 - apellidos: Primer apellido del titular.
 - segundo_apellido: Segundo apellido del titular (especialmente si es de España y tiene dos apellidos). Si no tiene segundo apellido, déjalo vacío "".
-- tipo_documento: Tipo de documento. Mapear obligatoriamente a uno de estos: "DNI" o "PASAPORTE" o "NIE".
+- tipo_documento: Tipo de documento. Mapear obligatoriamente a uno de estos: "DNI" (si es documento español), "NIE" (si es NIE español), "PASAPORTE" (si es pasaporte de cualquier país), "CARTA_IDENTIDAD" (si es documento de identidad extranjero o ID Card).
 - numero_documento: Número de documento (incluir letras si aplica, sin espacios ni guiones).
 - numero_soporte: Número de soporte del documento (ej: "NUM SOPORT" de 9 caracteres en DNI español, o el número que empieza por E o C en el NIE). Si no aplica o no se ve, déjalo vacío "".
 - fecha_expedicion: Fecha de expedición en formato "YYYY-MM-DD". Si no aparece, deja en blanco.
 - fecha_caducidad: Fecha de caducidad en formato "YYYY-MM-DD".
 - fecha_nacimiento: Fecha de nacimiento en formato "YYYY-MM-DD".
 - sexo: Sexo o género del titular (mapear obligatoriamente a "M" para masculino, "F" para femenino).
-- nacionalidad: Nacionalidad del titular. Devuelve siempre el código de dos letras ISO (ej: "ES" para España, "FR" para Francia, "DE" para Alemania, "GB" para Reino Unido, etc.). Si no estás seguro, usa el código de dos letras del país correspondiente.
+- nacionalidad: Nacionalidad del titular. Devuelve siempre el código de dos letras ISO (ej: "ES" para España, "EE" para Estonia, "FR" para Francia, "DE" para Alemania, "GB" para Reino Unido, etc.). Si no estás seguro, usa el código de dos letras del país correspondiente.
 
 Reglas críticas:
 1. Responde ÚNICAMENTE con el objeto JSON solicitado, sin bloques de código Markdown ni explicaciones adicionales.

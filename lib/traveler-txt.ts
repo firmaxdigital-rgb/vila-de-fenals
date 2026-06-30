@@ -43,41 +43,14 @@ function formatText(text?: string): string {
   return clean === '-' ? '' : clean;
 }
 
+import { COUNTRIES, getAlpha3FromCode } from './countries';
+
 // Convert ISO 2-letter country code to ISO 3166-1 Alfa-3 (3-letter code)
 function getAlpha3(code: string): string {
   const clean = (code || '').toUpperCase().trim();
-  const map: Record<string, string> = {
-    'ES': 'ESP', 'SP': 'ESP',
-    'US': 'USA', 'USA': 'USA',
-    'FR': 'FRA',
-    'GB': 'GBR', 'UK': 'GBR',
-    'DE': 'DEU',
-    'IT': 'ITA',
-    'NL': 'NLD',
-    'BE': 'BEL',
-    'PT': 'PRT',
-    'CA': 'CAN',
-    'MX': 'MEX',
-    'AR': 'ARG',
-    'BR': 'BRA',
-    'CO': 'COL',
-    'CL': 'CHL',
-    'CN': 'CHN',
-    'RU': 'RUS',
-    'JP': 'JPN',
-    'CH': 'CHE',
-    'AT': 'AUT',
-    'DK': 'DNK',
-    'FI': 'FIN',
-    'IE': 'IRL',
-    'NO': 'NOR',
-    'SE': 'SWE',
-    'PL': 'POL',
-    'GR': 'GRC',
-  };
-  if (map[clean]) return map[clean];
-  if (clean.length === 3) return clean;
-  return 'ESP'; // Default fallback
+  const alpha3 = getAlpha3FromCode(clean);
+  if (alpha3) return alpha3;
+  return clean.length >= 3 ? clean.substring(0, 3) : 'ESP';
 }
 
 // Map guest relationship to official Mossos 2-letter codes
