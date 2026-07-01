@@ -129,8 +129,9 @@ export async function POST(request: Request) {
       } else {
         console.log(`Generated and updated memorable Nuki PIN for reservation ${reservation_code}: ${nukiPin}`);
       }
+    }
 
-      // Sync with physical Nuki lock if configured
+    // Sync with physical Nuki lock if configured (always sync to ensure it exists on the device)
       try {
         let checkInTime = '16:00';
         let checkOutTime = '10:00';
@@ -171,7 +172,6 @@ export async function POST(request: Request) {
       } catch (nukiErr: any) {
         console.error("Nuki physical sync error:", nukiErr);
         nukiSyncStatus = `error: ${nukiErr.message}`;
-      }
     }
 
     // Update reservation state to fully registered
