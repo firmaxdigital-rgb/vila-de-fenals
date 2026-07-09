@@ -94,6 +94,7 @@ const INTERNAL_CALL_ROUTES = [
   '/api/registro-final',   // Llamado internamente desde webhook y travelers
   '/api/payment/confirm',  // Llamado internamente desde el flujo de pago
   '/api/payment/confirm-deposit', // Llamado al retornar del pago de fianza
+  '/api/mossos-send',      // Llamado internamente al finalizar el registro
 ];
 
 // --- Dominios permitidos para validación de Origin ---

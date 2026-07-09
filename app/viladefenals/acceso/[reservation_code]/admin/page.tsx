@@ -137,11 +137,8 @@ export default function AdminPage() {
   payingGuests += unregisteredCount; // Assume unregistered are adults
   const calculatedTax = (payingGuests * nights * 1.75).toFixed(2);
 
-  useEffect(() => {
-    if (calculatedTax && !taxOverrideAmount) {
-      setTaxOverrideAmount(calculatedTax);
-    }
-  }, [calculatedTax, taxOverrideAmount]);
+  // Use calculatedTax if user hasn't overridden
+  const displayTaxAmount = taxOverrideAmount === '' ? calculatedTax : taxOverrideAmount;
 
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -216,7 +213,7 @@ export default function AdminPage() {
           pin,
           reservation_code: decodedCode,
           payment_method: taxPaymentMethod,
-          amount: parseFloat(taxOverrideAmount || '0')
+          amount: parseFloat(displayTaxAmount || '0')
         })
       });
       const data = await res.json();
@@ -587,7 +584,7 @@ export default function AdminPage() {
                       <input
                         type="number"
                         step="0.01"
-                        value={taxOverrideAmount}
+                        value={displayTaxAmount}
                         onChange={(e) => setTaxOverrideAmount(e.target.value)}
                         className="w-full bg-black/40 border border-white/15 rounded-xl py-2 px-3 text-center text-sm font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
                         placeholder={calculatedTax}
