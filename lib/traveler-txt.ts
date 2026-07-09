@@ -39,8 +39,25 @@ function formatDate(dateStr?: string): string {
 // Format text fields: uppercase, trim, remove accents or pipes if any
 function formatText(text?: string): string {
   if (!text) return '';
-  const clean = text.trim().toUpperCase().replace(/\|/g, ' ');
-  return clean === '-' ? '' : clean;
+  let clean = text.trim().toUpperCase();
+  
+  // Replace specific characters that might cause issues or not normalize well
+  clean = clean.replace(/Ł/g, 'L')
+               .replace(/Ø/g, 'O')
+               .replace(/Æ/g, 'AE')
+               .replace(/Œ/g, 'OE')
+               .replace(/ß/g, 'SS');
+
+  // Normalize to separate diacritics and remove them (e.g. Ń -> N, Ś -> S)
+  clean = clean.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Replace pipe which is the field delimiter
+  clean = clean.replace(/\|/g, ' ');
+
+  // Remove any remaining non-ASCII printable characters to prevent validation errors
+  clean = clean.replace(/[^\x20-\x7E]/g, '');
+
+  return clean === '-' ? '' : clean.trim();
 }
 
 import { COUNTRIES, getAlpha3FromCode } from './countries';

@@ -33,6 +33,8 @@ Para asegurar el cumplimiento legal sin bloquear la experiencia del usuario, el 
 
 - **1. Envío Inmediato a Mossos (`app/api/mossos-send/route.ts`)**: 
   - Se genera el archivo TXT oficial y se envía el correo a **asesorweb@firmax.es**.
+    - **Mejoras de formato (TXT)**: El sistema implementa una estricta normalización de caracteres, eliminando acentos (ej. Ń -> N, Ś -> S) y reemplazando caracteres especiales (ej. Ł -> L, Ø -> O) para evitar errores de validación por "caracteres no imprimibles" en el portal policial.
+    - **Mejoras del correo (Resumen y Tasa)**: El correo incluye ahora un aviso resaltado sobre la presencia de menores (para control de autorizaciones) y un desglose detallado de la **Tasa Turística** (mostrando noches computables, tarifa aplicable, y exenciones de menores de 16 años) vinculado al huésped titular para facilitar la facturación desde administración.
   - **Condición**: Ocurre automática e instantáneamente *tan pronto como todos los viajeros han completado sus formularios*.
   - **Nota**: No espera a que los pagos estén completados. Si el huésped edita un viajero posteriormente, se volverá a disparar para enviar la versión actualizada.
 

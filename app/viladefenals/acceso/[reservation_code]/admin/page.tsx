@@ -43,6 +43,9 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [travelers, setTravelers] = useState<any[]>([]);
   const [isUpdatingOptOut, setIsUpdatingOptOut] = useState<Record<string, boolean>>({});
+  const [taxPaymentMethod, setTaxPaymentMethod] = useState('');
+  const [isUpdatingTax, setIsUpdatingTax] = useState(false);
+  const [taxUpdateSuccess, setTaxUpdateSuccess] = useState(false);
 
   useEffect(() => {
     async function loadReservationAndTravelers() {
@@ -65,6 +68,9 @@ export default function AdminPage() {
               const parsed = JSON.parse(data.platform);
               setCheckInTime(parsed.check_in_time || '16:00');
               setCheckOutTime(parsed.check_out_time || '10:00');
+              if (data.is_tax_paid && parsed.tax_payment_method) {
+                setTaxPaymentMethod(parsed.tax_payment_method);
+              }
             } catch (e) {
               console.error("Error parsing platform JSON:", e);
             }
@@ -160,6 +166,40 @@ export default function AdminPage() {
       alert('Error de red al guardar.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleOverrideTax = async () => {
+    if (!taxPaymentMethod) {
+      alert("Por favor, selecciona un método de pago.");
+      return;
+    }
+    setIsUpdatingTax(true);
+    try {
+      const res = await fetch('/api/admin/override-tax', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pin,
+          reservation_code: decodedCode,
+          payment_method: taxPaymentMethod
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTaxUpdateSuccess(true);
+        setReservation((prev: any) => ({ ...prev, is_tax_paid: true }));
+        setTimeout(() => {
+          setTaxUpdateSuccess(false);
+        }, 2000);
+      } else {
+        alert(data.error || 'Error al actualizar la tasa.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red.');
+    } finally {
+      setIsUpdatingTax(false);
     }
   };
 
@@ -466,6 +506,57 @@ export default function AdminPage() {
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-white/40">
                         EUR
                       </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Estado Tasa Turística Card */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5">
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-white/95">Estado Tasa Turística</p>
+                <p className="text-[11px] text-white/50 leading-tight">
+                  Gestione manualmente el pago de la tasa turística si el huésped utilizó una vía alternativa a Paycomet.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-2">
+                {reservation?.is_tax_paid ? (
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+                    <p className="text-green-400 font-bold text-xs uppercase">Pagada</p>
+                    {taxPaymentMethod && (
+                      <p className="text-green-200/70 text-[10px] mt-1">Vía: {taxPaymentMethod}</p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-center">
+                      <p className="text-yellow-400 font-bold text-xs uppercase">Pendiente de Pago</p>
+                    </div>
+                    
+                    <div className="space-y-2 pt-2">
+                      <label className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">Marcar como pagada por otra vía</label>
+                      <select
+                        value={taxPaymentMethod}
+                        onChange={(e) => setTaxPaymentMethod(e.target.value)}
+                        className="w-full bg-black/40 border border-white/15 rounded-xl py-2.5 px-3 text-sm text-cyan-200 focus:outline-none focus:border-cyan-400 cursor-pointer"
+                      >
+                        <option value="" className="bg-neutral-900">Selecciona método...</option>
+                        <option value="Airbnb" className="bg-neutral-900">Airbnb</option>
+                        <option value="Efectivo (Alojamiento)" className="bg-neutral-900">Efectivo (Alojamiento)</option>
+                        <option value="Transferencia Bancaria" className="bg-neutral-900">Transferencia Bancaria</option>
+                        <option value="Otro método" className="bg-neutral-900">Otro método</option>
+                      </select>
+                      
+                      <button
+                        type="button"
+                        onClick={handleOverrideTax}
+                        disabled={isUpdatingTax || !taxPaymentMethod}
+                        className="w-full py-2.5 mt-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isUpdatingTax ? 'Actualizando...' : taxUpdateSuccess ? '¡Actualizado!' : 'Confirmar Pago Manual'}
+                      </button>
                     </div>
                   </div>
                 )}

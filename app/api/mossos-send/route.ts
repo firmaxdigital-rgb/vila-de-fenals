@@ -172,6 +172,8 @@ export async function POST(request: Request) {
 
     let minorsCount = 0;
     let adultsCount = 0;
+    let payingGuests = 0;
+    let exemptGuests = 0;
 
     // Build a readable textual summary of all data collected from the travelers
     let travelersDetails = '';
@@ -181,6 +183,12 @@ export async function POST(request: Request) {
       
       if (isMinor) minorsCount++;
       else adultsCount++;
+
+      if (age !== null && age >= 16) {
+        payingGuests++;
+      } else {
+        exemptGuests++;
+      }
 
       const ocrIcon = t.data_scanned ? '[✔️ Escaneado]' : '[✍️ Manual]';
       const minorTag = isMinor ? ' (MENOR DE EDAD)' : '';
@@ -211,6 +219,17 @@ export async function POST(request: Request) {
       minorsWarning = `\n\n⚠️ ATENCIÓN: Se ha detectado que hay ${adultsCount} adulto(s) y ${minorsCount} menor(es) de 18 años. Por favor, verifique las autorizaciones de los menores.`;
     }
 
+    // Calculate nights for tax
+    const checkInDateObj = new Date(reservation.check_in);
+    const checkOutDateObj = new Date(reservation.check_out);
+    const diffTime = Math.abs(checkOutDateObj.getTime() - checkInDateObj.getTime());
+    let nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (nights > 7) nights = 7;
+    if (nights < 1) nights = 1;
+    const rate = 1.75;
+    const totalTax = parseFloat((payingGuests * nights * rate).toFixed(2));
+    const mainGuest = formattedTravelers[0];
+
     const emailSubject = `[Vila de Fenals] Registro Completado y Ficheros Mossos - Reserva ${reservation_code}`;
     const emailBody = `Se ha completado satisfactoriamente la cumplimentación de formularios de viajero para la reserva: ${reservation_code}.${minorsWarning}
 
@@ -218,6 +237,22 @@ export async function POST(request: Request) {
 📋 RESUMEN DETALLADO DE VIAJEROS REGISTRADOS
 ============================================================
 ${travelersDetails}
+============================================================
+
+============================================================
+💶 CÁLCULO DE LA TASA TURÍSTICA
+============================================================
+Huésped principal (Titular de factura): ${mainGuest.nombre} ${mainGuest.apellidos} ${mainGuest.segundo_apellido || ''}
+Identificación: ${mainGuest.tipo_documento} ${mainGuest.numero_documento}
+Dirección: ${mainGuest.direccion}, ${mainGuest.codigo_postal} ${mainGuest.municipio} (${mainGuest.pais_residencia})
+
+Sistema de cálculo:
+- Noches computables: ${nights} (Máximo 7 noches facturables)
+- Huéspedes sujetos a tasa (≥16 años): ${payingGuests}
+- Huéspedes exentos (<16 años): ${exemptGuests}
+- Tarifa aplicable: ${rate}€ por huésped/noche
+
+Importe total de Tasa Turística: ${totalTax}€
 ============================================================
 
 A continuación se detalla la partición y el desglose de los huéspedes registrados en cada uno de los archivos reglamentarios adjuntos (máximo 5 por archivo según normativa):

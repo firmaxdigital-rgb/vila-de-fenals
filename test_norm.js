@@ -1,0 +1,1 @@
+const s = 'POWSTANCÓW SLASKICH Lódz'; const s2 = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/L/g, 'L').replace(/l/g, 'l'); console.log(s2); console.log([...s2].map(c => c.charCodeAt(0)));
