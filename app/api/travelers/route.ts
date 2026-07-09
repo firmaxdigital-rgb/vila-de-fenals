@@ -356,11 +356,17 @@ export async function POST(request: Request) {
             const baseUrl = `${proto}://${host}`;
             
             // 1. ALWAYS trigger Mossos email when forms are complete
-            fetch(`${baseUrl}/api/mossos-send`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ reservation_code })
-            }).catch(e => console.error("Error triggering Mossos send asynchronously:", e));
+            try {
+              console.log("Awaiting mossos-send...");
+              const mRes = await fetch(`${baseUrl}/api/mossos-send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reservation_code })
+              });
+              if (!mRes.ok) console.error("mossos-send returned error status:", await mRes.text());
+            } catch (e) {
+              console.error("Error triggering Mossos send:", e);
+            }
 
             // 2. Check if payments are ALSO complete to trigger Nuki finalization
             const hasDeposit = resData.has_deposit === true;
@@ -370,12 +376,16 @@ export async function POST(request: Request) {
 
             if (resData.is_tax_paid && isDepositComplete) {
               console.log(`Payments also completed for ${reservation_code}. Triggering Nuki finalization.`);
-              // Invoke registration finalization in background
-              fetch(`${baseUrl}/api/registro-final`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reservation_code })
-              }).catch(e => console.error("Error triggering registration finalization asynchronously:", e));
+              try {
+                const fRes = await fetch(`${baseUrl}/api/registro-final`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ reservation_code })
+                });
+                if (!fRes.ok) console.error("registro-final returned error status:", await fRes.text());
+              } catch (e) {
+                console.error("Error triggering registration finalization:", e);
+              }
             }
           }
         }

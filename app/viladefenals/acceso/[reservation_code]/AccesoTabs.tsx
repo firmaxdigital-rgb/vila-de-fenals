@@ -626,8 +626,7 @@ export default function AccesoTabs({
   const rate = 1.75;
   const calculatedTax = parseFloat((payingGuests * nights * rate).toFixed(2));
   const remainingTax = Math.max(0, parseFloat((calculatedTax - taxPaidAmount).toFixed(2)));
-  // If the tax is marked as paid in the DB (either via webhook or manual override), consider it paid.
-  const isTaxPaid = isTaxPaidFromDB || localTaxPaid;
+  const isTaxPaid = (isTaxPaidFromDB && remainingTax <= 0) || localTaxPaid;
 
   const isFullyUnlocked = isPhase1Complete && isTaxPaid && isDepositComplete;
 

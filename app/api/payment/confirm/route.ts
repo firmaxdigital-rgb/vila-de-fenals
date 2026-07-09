@@ -72,6 +72,18 @@ export async function POST(request: Request) {
             const baseUrl = `${proto}://${host}`;
 
             try {
+              console.log("[Confirm API] Awaiting mossos-send...");
+              const mRes = await fetch(`${baseUrl}/api/mossos-send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reservation_code })
+              });
+              if (!mRes.ok) console.error("[Confirm API] Error mossos-send:", await mRes.text());
+            } catch (mErr) {
+              console.error("[Confirm API] Excepción en mossos-send:", mErr);
+            }
+
+            try {
               const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
