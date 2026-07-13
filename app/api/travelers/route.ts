@@ -399,7 +399,7 @@ export async function DELETE(request: Request) {
       console.error('Error running sync engine in traveler DELETE:', triggerErr);
     }
 
-    return NextResponse.json({ success: true, message: 'Viajero eliminado con éxito' });
+    return NextResponse.json({ success: true, message: 'Viajero eliminado con ï¿½xito' });
   } catch (error: any) {
     console.error('Error deleting traveler:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

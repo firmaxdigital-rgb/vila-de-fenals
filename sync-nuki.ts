@@ -72,8 +72,9 @@ async function run() {
   console.log('Syncing to Nuki for:', nukiName, 'PIN:', nukiPin);
   await deleteNukiKeypadCodesByReservation(reservation_code);
   
-  const result = await createNukiKeypadCode(
-    nukiName,
+  const result = await upsertNukiKeypadCode(
+    reservation_code,
+    res.summary,
     checkInDateObj,
     checkOutDateObj,
     nukiPin

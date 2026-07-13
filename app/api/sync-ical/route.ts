@@ -239,7 +239,7 @@ export async function GET() {
           await deleteNukiKeypadCodesByReservation(ev.reservation_code);
 
           console.log(`Creating Nuki code ${newPin} for reservation ${ev.reservation_code} as ${nukiName}`);
-          await createNukiKeypadCode(nukiName, checkInDate, checkOutDate, newPin);
+          await upsertNukiKeypadCode(ev.reservation_code, ev.summary, checkInDate, checkOutDate, newPin);
           ev.nuki_pin = newPin; // We set it only if Nuki creation succeeded!
         } catch (err) {
           console.error(`Failed to create Nuki code for ${ev.reservation_code}:`, err);
