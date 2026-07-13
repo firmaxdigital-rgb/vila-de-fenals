@@ -22,10 +22,10 @@ export async function POST(request: Request) {
       auth: { persistSession: false }, global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) },
     });
 
-    // Get current reservation to safely update the platform JSON and check current tax_paid
+    // Get current reservation to safely update the platform JSON and check current deposit_paid
     const { data: reservation, error: fetchError } = await supabase
       .from('reservations')
-      .select('platform, tax_paid, total_guests, has_deposit, deposit_amount, deposit_paid')
+      .select('platform, deposit_paid, deposit_amount')
       .eq('reservation_code', reservation_code)
       .single();
 
@@ -42,23 +42,22 @@ export async function POST(request: Request) {
       }
     }
 
-    platformObj.tax_payment_method = payment_method;
+    platformObj.deposit_payment_method = payment_method;
 
-    const currentTaxPaid = parseFloat(reservation.tax_paid || '0');
+    const currentDepositPaid = parseFloat(reservation.deposit_paid || '0');
     const paymentAmount = amount ? parseFloat(amount) : 0;
-    const newTaxPaid = currentTaxPaid + paymentAmount;
+    const newDepositPaid = currentDepositPaid + paymentAmount;
 
     const { error: updateError } = await supabase
       .from('reservations')
       .update({ 
-        is_tax_paid: true, 
-        tax_paid: newTaxPaid,
+        deposit_paid: newDepositPaid,
         platform: JSON.stringify(platformObj) 
       })
       .eq('reservation_code', reservation_code);
 
     if (updateError) {
-      console.error('Error updating tax override:', updateError);
+      console.error('Error updating deposit override:', updateError);
       return NextResponse.json({ success: false, error: 'Error al actualizar la base de datos.' }, { status: 500 });
     }
 
@@ -67,12 +66,12 @@ export async function POST(request: Request) {
       const { syncReservationState } = require('../../../../lib/sync');
       await syncReservationState(reservation_code);
     } catch (triggerErr) {
-      console.error("Error running sync engine in override-tax:", triggerErr);
+      console.error("Error running sync engine in override-deposit:", triggerErr);
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Error en override-tax:', error);
+    console.error('Error en override-deposit:', error);
     return NextResponse.json({ success: false, error: 'Error interno.' }, { status: 500 });
   }
 }

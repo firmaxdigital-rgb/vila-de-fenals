@@ -42,70 +42,12 @@ export async function POST(request: Request) {
       throw updateError;
     }
 
-    // Check if traveler forms are already complete to trigger final check-in processing
-    const { data: resData, error: resErr } = await supabase
-      .from('reservations')
-      .select('total_guests, has_deposit, deposit_amount, deposit_paid')
-      .eq('reservation_code', reservation_code)
-      .single();
-
-    if (!resErr && resData) {
-      const { data: travelersData, error: travErr } = await supabase
-        .from('travelers')
-        .select('id')
-        .eq('reservation_code', reservation_code);
-
-      if (!travErr && travelersData) {
-        const totalGuests = resData.total_guests || 2;
-        
-        // Verify deposit is complete
-        const hasDeposit = resData.has_deposit === true;
-        const depositAmt = parseFloat(resData.deposit_amount) || 0;
-        const depositPaid = parseFloat(resData.deposit_paid) || 0;
-        const isDepositComplete = !hasDeposit || (depositPaid >= depositAmt);
-
-        if (travelersData.length >= totalGuests) {
-          if (isDepositComplete) {
-            console.log(`[Confirm API] Formularios completos (${travelersData.length}/${totalGuests}) y fianza pagada. Disparando api/registro-final.`);
-            const host = request.headers.get('host') || 'localhost:3000';
-            const proto = request.headers.get('x-forwarded-proto') || 'http';
-            const baseUrl = `${proto}://${host}`;
-
-            try {
-              console.log("[Confirm API] Awaiting mossos-send...");
-              const mRes = await fetch(`${baseUrl}/api/mossos-send`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reservation_code })
-              });
-              if (!mRes.ok) console.error("[Confirm API] Error mossos-send:", await mRes.text());
-            } catch (mErr) {
-              console.error("[Confirm API] Excepción en mossos-send:", mErr);
-            }
-
-            try {
-              const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reservation_code })
-              });
-
-              if (!finalizationRes.ok) {
-                const finalizationError = await finalizationRes.text();
-                console.error("[Confirm API] Error al disparar api/registro-final:", finalizationError);
-              } else {
-                console.log("[Confirm API] api/registro-final completado con éxito.");
-              }
-            } catch (finalError) {
-              console.error("[Confirm API] Excepción al disparar api/registro-final:", finalError);
-            }
-          } else {
-            console.log(`[Confirm API] Formularios completos pero falta pagar fianza. No se dispara finalización todavía.`);
-          }
-        } else {
-          console.log(`[Confirm API] Formularios incompletos (${travelersData.length}/${totalGuests}). No se dispara finalización todavía.`);
-        }
-      }
+    // Sync State Engine
+    try {
+      const { syncReservationState } = require('../../../../lib/sync');
+      await syncReservationState(reservation_code);
+    } catch (triggerErr) {
+      console.error("[Confirm API] Error running sync engine:", triggerErr);
     }
 
     return NextResponse.json({ success: true, message: 'Pago confirmado y guardado.' });

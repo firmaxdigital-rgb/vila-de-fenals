@@ -89,14 +89,6 @@ const EXTERNAL_WEBHOOK_ROUTES = [
   '/api/sync-ical',        // Vercel Cron llama a este endpoint
 ];
 
-// --- Rutas internas que se llaman entre sí (server-to-server) ---
-const INTERNAL_CALL_ROUTES = [
-  '/api/registro-final',   // Llamado internamente desde webhook y travelers
-  '/api/payment/confirm',  // Llamado internamente desde el flujo de pago
-  '/api/payment/confirm-deposit', // Llamado al retornar del pago de fianza
-  '/api/mossos-send',      // Llamado internamente al finalizar el registro
-];
-
 // --- Dominios permitidos para validación de Origin ---
 function isAllowedOrigin(origin: string | null, host: string | null): boolean {
   if (!origin) return false;
@@ -154,10 +146,8 @@ export function middleware(request: NextRequest) {
   if (method === 'POST') {
     // Los webhooks externos no envían Origin del navegador
     const isExternalWebhook = EXTERNAL_WEBHOOK_ROUTES.some(r => pathname.startsWith(r));
-    // Las llamadas internas server-to-server tampoco envían Origin
-    const isInternalCall = INTERNAL_CALL_ROUTES.some(r => pathname.startsWith(r));
 
-    if (!isExternalWebhook && !isInternalCall) {
+    if (!isExternalWebhook) {
       const origin = request.headers.get('origin');
       const referer = request.headers.get('referer');
       const host = request.headers.get('host');

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { getCleanNukiName, deleteNukiKeypadCodesByReservation, createNukiKeypadCode } from './lib/nuki';
+import { getCleanNukiName, deleteNukiKeypadCodesByReservation, upsertNukiKeypadCode } from './lib/nuki';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const reservation_code = 'HMDRKRWQSK';

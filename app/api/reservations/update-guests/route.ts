@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { deleteNukiKeypadCodesByReservation, createNukiKeypadCode, getCleanNukiName } from '../../../../lib/nuki';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,43 +125,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: updateErr.message }, { status: 500 });
     }
 
-    // 5. Re-provision Nuki keypad code with dynamic offsets if Nuki PIN already exists
-    let nukiSyncStatus = 'no_nuki_pin_yet';
-    if (reservation.nuki_pin) {
-      try {
-        console.log(`[Update Guests API] Re-syncing Nuki for ${reservation_code} with new custom hours`);
-
-        // Check-in Spain local hour: input hour - 1 (offset)
-        const checkInHourInput = parseInt(inTime.split(':')[0], 10);
-        const checkInLocalHour = checkInHourInput - 1;
-
-        // Check-out Spain local hour: input hour + 1 (offset)
-        const checkOutHourInput = parseInt(outTime.split(':')[0], 10);
-        const checkOutLocalHour = checkOutHourInput + 1;
-
-        // Calculate exact validity dates using Spain local time conversion
-        const checkInDateObj = getSpainUtcDate(reservation.check_in, checkInLocalHour);
-        const checkOutDateObj = getSpainUtcDate(reservation.check_out, checkOutLocalHour);
-
-        const nukiName = getCleanNukiName(reservation_code, reservation.summary);
-
-        // Delete any existing Nuki keypad authorization for this reservation
-        await deleteNukiKeypadCodesByReservation(reservation_code);
-
-        // Create the new Nuki authorization
-        await createNukiKeypadCode(nukiName, checkInDateObj, checkOutDateObj, reservation.nuki_pin);
-        nukiSyncStatus = 'success';
-        console.log(`[Update Guests API] Successfully re-synced Nuki for ${reservation_code} with validity from ${checkInDateObj.toISOString()} to ${checkOutDateObj.toISOString()}`);
-      } catch (nukiErr: any) {
-        console.error(`[Update Guests API] Failed to re-sync Nuki lock:`, nukiErr);
-        nukiSyncStatus = `error: ${nukiErr.message}`;
-      }
+    // 5. Sync State Engine (handles Mossos, Nuki, DB flags)
+    try {
+      const { syncReservationState } = require('../../../../lib/sync');
+      await syncReservationState(reservation_code);
+    } catch (triggerErr) {
+      console.error("[Update Guests API] Error running sync engine:", triggerErr);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Reserva actualizada con éxito.',
-      nuki_sync: nukiSyncStatus
+      message: 'Reserva actualizada con éxito.'
     });
   } catch (error: any) {
     console.error('[Update Guests API] General error:', error);

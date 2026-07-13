@@ -333,65 +333,12 @@ export async function POST(request: Request) {
       dbResult = data?.[0];
     }
 
-    // Check if registration is now complete and tax is already paid to trigger automatic finalization
+    // Sync State Engine
     try {
-      const { data: resData, error: resErr } = await supabase
-        .from('reservations')
-        .select('total_guests, is_tax_paid, has_deposit, deposit_amount, deposit_paid')
-        .eq('reservation_code', reservation_code)
-        .single();
-
-      if (!resErr && resData) {
-        const { data: allTravelers, error: travErr } = await supabase
-          .from('travelers')
-          .select('id')
-          .eq('reservation_code', reservation_code);
-
-        if (!travErr && allTravelers) {
-          const totalGuests = resData.total_guests || 2;
-          if (allTravelers.length >= totalGuests) {
-            console.log(`Registration forms completed for ${reservation_code}. Triggering Mossos email.`);
-            const host = request.headers.get('host') || 'localhost:3000';
-            const proto = request.headers.get('x-forwarded-proto') || 'http';
-            const baseUrl = `${proto}://${host}`;
-            
-            // 1. ALWAYS trigger Mossos email when forms are complete
-            try {
-              console.log("Awaiting mossos-send...");
-              const mRes = await fetch(`${baseUrl}/api/mossos-send`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reservation_code })
-              });
-              if (!mRes.ok) console.error("mossos-send returned error status:", await mRes.text());
-            } catch (e) {
-              console.error("Error triggering Mossos send:", e);
-            }
-
-            // 2. Check if payments are ALSO complete to trigger Nuki finalization
-            const hasDeposit = resData.has_deposit === true;
-            const depositAmount = parseFloat(resData.deposit_amount as any) || 0;
-            const depositPaid = parseFloat(resData.deposit_paid as any) || 0;
-            const isDepositComplete = !hasDeposit || (depositPaid >= depositAmount);
-
-            if (resData.is_tax_paid && isDepositComplete) {
-              console.log(`Payments also completed for ${reservation_code}. Triggering Nuki finalization.`);
-              try {
-                const fRes = await fetch(`${baseUrl}/api/registro-final`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ reservation_code })
-                });
-                if (!fRes.ok) console.error("registro-final returned error status:", await fRes.text());
-              } catch (e) {
-                console.error("Error triggering registration finalization:", e);
-              }
-            }
-          }
-        }
-      }
+      const { syncReservationState } = require('../../../lib/sync');
+      await syncReservationState(reservation_code);
     } catch (triggerErr) {
-      console.error("Error checking for auto-finalization in traveler POST:", triggerErr);
+      console.error("Error running sync engine in traveler POST:", triggerErr);
     }
 
     // Return parsed result
@@ -423,3 +370,39 @@ export async function POST(request: Request) {
     }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const reservation_code = searchParams.get('reservation_code');
+
+    if (!id || !reservation_code) {
+      return NextResponse.json({ success: false, error: 'Falta id o reservation_code' }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('travelers')
+      .delete()
+      .eq('id', id)
+      .eq('reservation_code', reservation_code);
+
+    if (error) {
+      throw error;
+    }
+
+    // Sync State Engine
+    try {
+      const { syncReservationState } = require('../../../lib/sync');
+      await syncReservationState(reservation_code);
+    } catch (triggerErr) {
+      console.error('Error running sync engine in traveler DELETE:', triggerErr);
+    }
+
+    return NextResponse.json({ success: true, message: 'Viajero eliminado con éxito' });
+  } catch (error: any) {
+    console.error('Error deleting traveler:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+

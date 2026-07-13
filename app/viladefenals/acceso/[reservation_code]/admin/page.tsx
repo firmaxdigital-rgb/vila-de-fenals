@@ -47,6 +47,15 @@ export default function AdminPage() {
   const [isUpdatingTax, setIsUpdatingTax] = useState(false);
   const [taxUpdateSuccess, setTaxUpdateSuccess] = useState(false);
   const [taxOverrideAmount, setTaxOverrideAmount] = useState<string>('');
+  
+  const [depositPaymentMethod, setDepositPaymentMethod] = useState('');
+  const [isUpdatingDeposit, setIsUpdatingDeposit] = useState(false);
+  const [depositUpdateSuccess, setDepositUpdateSuccess] = useState(false);
+  const [depositOverrideAmount, setDepositOverrideAmount] = useState<string>('');
+  
+  const [showDeleteTravelerModal, setShowDeleteTravelerModal] = useState(false);
+  const [travelerToDelete, setTravelerToDelete] = useState<string>('');
+  const [isDeletingTraveler, setIsDeletingTraveler] = useState(false);
 
   useEffect(() => {
     async function loadReservationAndTravelers() {
@@ -71,6 +80,9 @@ export default function AdminPage() {
               setCheckOutTime(parsed.check_out_time || '10:00');
               if (data.is_tax_paid && parsed.tax_payment_method) {
                 setTaxPaymentMethod(parsed.tax_payment_method);
+              }
+              if (parsed.deposit_payment_method) {
+                setDepositPaymentMethod(parsed.deposit_payment_method);
               }
             } catch (e) {
               console.error("Error parsing platform JSON:", e);
@@ -137,7 +149,13 @@ export default function AdminPage() {
   payingGuests += unregisteredCount; // Assume unregistered are adults
   const calculatedTax = (payingGuests * nights * 1.75).toFixed(2);
 
-  // Use calculatedTax if user hasn't overridden
+  // Synchronize the input state with the calculated tax automatically when it becomes available
+  useEffect(() => {
+    if (calculatedTax && calculatedTax !== '0.00' && taxOverrideAmount === '') {
+      setTaxOverrideAmount(calculatedTax);
+    }
+  }, [calculatedTax, taxOverrideAmount]);
+
   const displayTaxAmount = taxOverrideAmount === '' ? calculatedTax : taxOverrideAmount;
 
   const [isVerifying, setIsVerifying] = useState(false);
@@ -167,36 +185,11 @@ export default function AdminPage() {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const res = await fetch('/api/reservations/update-guests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          reservation_code: decodedCode,
-          total_guests: guestsCount,
-          check_in_time: checkInTime,
-          check_out_time: checkOutTime,
-          has_deposit: hasDeposit,
-          deposit_amount: depositAmount
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSaveSuccess(true);
-        setTimeout(() => {
-          setSaveSuccess(false);
-          router.refresh();
-        }, 1500);
-      } else {
-        alert(data.error || 'Error al guardar los huéspedes.');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error de red al guardar.');
-    } finally {
-      setIsSaving(false);
+    if (guestsCount < travelers.length) {
+      setShowDeleteTravelerModal(true);
+      return;
     }
+    await actuallySave();
   };
 
   const handleOverrideTax = async () => {
@@ -231,6 +224,107 @@ export default function AdminPage() {
       alert('Error de red.');
     } finally {
       setIsUpdatingTax(false);
+    }
+  };
+
+  const handleOverrideDeposit = async () => {
+    if (!depositPaymentMethod) {
+      alert("Por favor, selecciona un método de pago.");
+      return;
+    }
+    setIsUpdatingDeposit(true);
+    try {
+      const amountToRegister = parseFloat(depositOverrideAmount || depositAmount);
+      const res = await fetch('/api/admin/override-deposit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pin,
+          reservation_code: decodedCode,
+          payment_method: depositPaymentMethod,
+          amount: amountToRegister
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDepositUpdateSuccess(true);
+        setReservation((prev: any) => ({ 
+          ...prev, 
+          deposit_paid: (parseFloat(prev.deposit_paid || '0') + amountToRegister)
+        }));
+        setTimeout(() => {
+          setDepositUpdateSuccess(false);
+        }, 2000);
+      } else {
+        alert(data.error || 'Error al actualizar la fianza.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red.');
+    } finally {
+      setIsUpdatingDeposit(false);
+    }
+  };
+
+  const handleDeleteSelectedTraveler = async () => {
+    if (!travelerToDelete) {
+      alert('Seleccione un viajero para eliminar.');
+      return;
+    }
+    setIsDeletingTraveler(true);
+    try {
+      const res = await fetch(`/api/travelers?id=${travelerToDelete}&reservation_code=${decodedCode}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTravelers(prev => prev.filter(t => t.id !== travelerToDelete));
+        setTravelerToDelete('');
+        setShowDeleteTravelerModal(false);
+        // Ahora podemos intentar guardar de nuevo
+        alert('Viajero eliminado. Ahora guardando la configuración de la reserva...');
+        await actuallySave(); // We'll extract the fetch logic into actuallySave
+      } else {
+        alert(data.error || 'Error al eliminar el viajero.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al eliminar el viajero.');
+    } finally {
+      setIsDeletingTraveler(false);
+    }
+  };
+
+  const actuallySave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/reservations/update-guests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reservation_code: decodedCode,
+          total_guests: guestsCount,
+          check_in_time: checkInTime,
+          check_out_time: checkOutTime,
+          has_deposit: hasDeposit,
+          deposit_amount: depositAmount
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSaveSuccess(true);
+        setTimeout(() => {
+          setSaveSuccess(false);
+          router.refresh();
+        }, 1500);
+      } else {
+        alert(data.error || 'Error al guardar los huéspedes.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error de red al guardar.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -606,6 +700,78 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* Estado Fianza Card */}
+            {hasDeposit && (
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5">
+                <div className="text-center space-y-1">
+                  <p className="text-sm font-semibold text-white/95">Estado Fianza / Depósito</p>
+                  <p className="text-[11px] text-white/50 leading-tight">
+                    Gestione manualmente el pago de la fianza si el huésped utilizó una vía alternativa o si el sistema de Paycomet falló al reportarlo.
+                  </p>
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  <div className="bg-black/20 border border-white/10 rounded-xl p-3 flex justify-between items-center text-xs">
+                    <span className="text-white/60">Fianza Requerida:</span>
+                    <span className="text-white font-mono">{parseFloat(depositAmount).toFixed(2)} €</span>
+                  </div>
+                  <div className="bg-black/20 border border-white/10 rounded-xl p-3 flex justify-between items-center text-xs">
+                    <span className="text-white/60">Fianza Pagada Actual:</span>
+                    <span className="text-cyan-300 font-bold font-mono">{parseFloat(reservation?.deposit_paid || '0').toFixed(2)} €</span>
+                  </div>
+                  
+                  {parseFloat(reservation?.deposit_paid || '0') >= parseFloat(depositAmount || '0') ? (
+                    <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+                      <p className="text-green-400 font-bold text-xs uppercase">Completada</p>
+                      {depositPaymentMethod && (
+                        <p className="text-green-200/70 text-[10px] mt-1">Vía: {depositPaymentMethod}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="space-y-2 pt-2 border-t border-white/10 mt-2">
+                        <label className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">Marcar pago parcial o total</label>
+                        <select
+                          value={depositPaymentMethod}
+                          onChange={(e) => setDepositPaymentMethod(e.target.value)}
+                          className="w-full bg-black/40 border border-white/15 rounded-xl py-2.5 px-3 text-sm text-cyan-200 focus:outline-none focus:border-cyan-400 cursor-pointer"
+                        >
+                          <option value="" className="bg-neutral-900">Selecciona método...</option>
+                          <option value="Paycomet (Fallo Webhook)" className="bg-neutral-900">Paycomet (Forzar Pago)</option>
+                          <option value="Airbnb" className="bg-neutral-900">Airbnb</option>
+                          <option value="Efectivo (Alojamiento)" className="bg-neutral-900">Efectivo (Alojamiento)</option>
+                          <option value="Transferencia Bancaria" className="bg-neutral-900">Transferencia Bancaria</option>
+                          <option value="Otro método" className="bg-neutral-900">Otro método</option>
+                        </select>
+
+                        <label className="text-[10px] text-white/50 uppercase tracking-widest font-bold block mt-2 pt-2">Importe cobrado (€)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={depositOverrideAmount}
+                          onChange={(e) => setDepositOverrideAmount(e.target.value)}
+                          className="w-full bg-black/40 border border-white/15 rounded-xl py-2 px-3 text-center text-sm font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
+                          placeholder={(parseFloat(depositAmount) - parseFloat(reservation?.deposit_paid || '0')).toFixed(2)}
+                        />
+                        <p className="text-[10px] text-white/40 text-center mt-1">
+                          Sugerido restante: {(parseFloat(depositAmount) - parseFloat(reservation?.deposit_paid || '0')).toFixed(2)} €
+                        </p>
+                        
+                        <button
+                          type="button"
+                          onClick={handleOverrideDeposit}
+                          disabled={isUpdatingDeposit || !depositPaymentMethod}
+                          className="w-full py-2.5 mt-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isUpdatingDeposit ? 'Actualizando...' : depositUpdateSuccess ? '¡Actualizado!' : 'Añadir Importe Cobrado'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Huéspedes Registrados & Consentimiento (Opt-Out) Card */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
               <div className="text-center space-y-1">
@@ -742,6 +908,56 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {showDeleteTravelerModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#111] border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
+            <h3 className="text-xl font-bold text-white mb-2">Reducción de Huéspedes</h3>
+            <p className="text-sm text-gray-400 mb-6">
+              Has indicado {guestsCount} huéspedes, pero actualmente hay {travelers.length} viajeros registrados. Selecciona el viajero que deseas eliminar para continuar.
+            </p>
+
+            <div className="space-y-3 mb-6 max-h-[40vh] overflow-y-auto pr-2">
+              {travelers.map((t: any) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTravelerToDelete(t.id)}
+                  className={`w-full text-left p-3 rounded-xl border transition-all ${travelerToDelete === t.id ? 'bg-red-500/20 border-red-500 text-white' : 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10'}`}
+                >
+                  <div className="font-semibold">{t.nombre} {t.apellidos}</div>
+                  <div className="text-xs opacity-60">Doc: {t.numero_documento}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowDeleteTravelerModal(false);
+                  setTravelerToDelete('');
+                  // Restore guests count to avoid getting stuck
+                  setGuestsCount(travelers.length);
+                }}
+                disabled={isDeletingTraveler}
+                className="flex-1 bg-white/10 hover:bg-white/20 text-white font-medium py-3 px-4 rounded-xl transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeleteSelectedTraveler}
+                disabled={!travelerToDelete || isDeletingTraveler}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-medium py-3 px-4 rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center"
+              >
+                {isDeletingTraveler ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  'Eliminar Viajero'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

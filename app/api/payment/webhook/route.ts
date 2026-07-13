@@ -115,30 +115,12 @@ export async function POST(request: Request) {
         const isDepositComplete = newPaid >= depositAmt;
         console.log(`[Webhook] deposit_paid actualizado: ${newPaid}€ / ${depositAmt}€. Completo: ${isDepositComplete}`);
 
-        // If deposit is now complete, check if we should trigger finalization
-        if (isDepositComplete && reservation.is_tax_paid && !reservation.is_registered) {
-          // Check if all travelers are registered
-          const { data: travelers } = await supabase
-            .from('travelers')
-            .select('id')
-            .eq('reservation_code', reservationCode);
-
-          if (travelers && travelers.length >= (reservation.total_guests || 2)) {
-            console.log(`[Webhook] Todos los requisitos cumplidos. Disparando finalización para ${reservationCode}`);
-            const host = request.headers.get('host') || 'localhost:3000';
-            const proto = request.headers.get('x-forwarded-proto') || 'http';
-            const baseUrl = `${proto}://${host}`;
-
-            try {
-              await fetch(`${baseUrl}/api/registro-final`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ reservation_code: reservationCode })
-              });
-            } catch (e) {
-              console.error('[Webhook] Error disparando registro-final:', e);
-            }
-          }
+        // Sync State Engine
+        try {
+          const { syncReservationState } = require('../../../../lib/sync');
+          await syncReservationState(reservationCode);
+        } catch (e) {
+          console.error('[Webhook] Error disparando sync engine:', e);
         }
 
         return NextResponse.json({ success: true, message: `Pago parcial de fianza registrado: ${amountPaid}€` });
@@ -181,29 +163,12 @@ export async function POST(request: Request) {
           return NextResponse.json({ success: true, message: 'Pago de tasa registrado. Esperando pago de fianza.' });
         }
 
-        // Trigger Check-in Finalization
-        const host = request.headers.get('host') || 'localhost:3000';
-        const proto = request.headers.get('x-forwarded-proto') || 'http';
-        const baseUrl = `${proto}://${host}`;
-
+        // Sync State Engine
         try {
-          const finalizationRes = await fetch(`${baseUrl}/api/registro-final`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ reservation_code: reservationCode })
-          });
-
-          if (!finalizationRes.ok) {
-            const finalizationError = await finalizationRes.text();
-            console.error("Error al disparar api/registro-final:", finalizationError);
-          } else {
-            const finalizationData = await finalizationRes.json();
-            console.log("Finalización de check-in exitosa:", finalizationData);
-          }
-        } catch (finalError) {
-          console.error("Excepción al llamar a api/registro-final:", finalError);
+          const { syncReservationState } = require('../../../../lib/sync');
+          await syncReservationState(reservationCode);
+        } catch (e) {
+          console.error('[Webhook] Error disparando sync engine:', e);
         }
 
         return NextResponse.json({ success: true, message: 'Pago verificado y check-in finalizado.' });
