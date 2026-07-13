@@ -613,8 +613,9 @@ export default function AdminPage() {
                 </div>
 
                 {hasDeposit && (
-                  <div className="space-y-1.5 animate-fade-in">
-                    <label htmlFor="deposit_amount_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
+                  <>
+                    <div className="space-y-1.5 animate-fade-in">
+                      <label htmlFor="deposit_amount_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
                       Importe de la Fianza (€)
                     </label>
                     <div className="relative">
@@ -690,6 +691,7 @@ export default function AdminPage() {
                       </div>
                     )}
                   </div>
+                  </>
                 )}
               </div>
             </div>
