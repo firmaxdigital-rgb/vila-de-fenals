@@ -200,7 +200,7 @@ export async function GET() {
     // 1. Fetch current reservations from Supabase to check if they already have a PIN and total_guests
     const { data: existingReservations, error: fetchError } = await supabase
       .from('reservations')
-      .select('reservation_code, nuki_pin, total_guests');
+      .select('reservation_code, nuki_pin, total_guests, platform');
       
     if (fetchError) {
       console.error('Error fetching existing reservations:', fetchError);
@@ -209,11 +209,13 @@ export async function GET() {
     const existingMap = new Map();
     const existsMap = new Map();
     const existingGuestsMap = new Map();
+    const existingPlatformMap = new Map();
     if (existingReservations) {
       existingReservations.forEach(r => {
         existingMap.set(r.reservation_code, r.nuki_pin);
         existsMap.set(r.reservation_code, true);
         existingGuestsMap.set(r.reservation_code, r.total_guests);
+        existingPlatformMap.set(r.reservation_code, r.platform);
       });
     }
 
@@ -250,66 +252,10 @@ export async function GET() {
         ev.nuki_pin = currentPin;
       }
 
-      // Enviar correo de notificación para nuevas reservas
+      // El correo electrónico ahora se envía de manera independiente (decoupled)
+      // a través de un cron secundario. Simplemente marcaremos la nueva reserva.
       if (!existsInDb) {
-        try {
-          const smtpHost = process.env.SMTP_HOST;
-          const smtpPort = process.env.SMTP_PORT;
-          const smtpUser = process.env.SMTP_USER;
-          const smtpPassword = process.env.SMTP_PASSWORD;
-          const smtpFrom = process.env.SMTP_FROM || 'checkin@viladefenals.com';
-          const smtpTo = 'asesorweb@firmax.es';
-
-          if (smtpHost && smtpPort && smtpUser && smtpPassword) {
-            const transporter = nodemailer.createTransport({
-              host: smtpHost,
-              port: parseInt(smtpPort, 10),
-              secure: parseInt(smtpPort, 10) === 465,
-              auth: {
-                user: smtpUser,
-                pass: smtpPassword,
-              },
-            });
-
-            const adminUrl = `https://viladefenals.activavivienda.es/viladefenals/acceso/${ev.reservation_code}/admin`;
-            const clientUrl = `https://viladefenals.activavivienda.es/viladefenals/acceso/${ev.reservation_code}`;
-            const emailSubject = `[Vila de Fenals] ¡Nueva Reserva Sincronizada! - ${ev.reservation_code}`;
-            const emailBody = `Se ha creado una nueva reserva en el sistema a través de iCal.
-              
---------------------------------------------------
-📋 DETALLES DE LA RESERVA
---------------------------------------------------
-🔑 Código de Reserva:  ${ev.reservation_code}
-🌍 Plataforma:         ${ev.platform}
-📅 Fecha de Entrada:   ${ev.check_in}
-📅 Fecha de Salida:    ${ev.check_out}
---------------------------------------------------
-
-⚠️ Esta reserva se ha inicializado con 0 plazas por defecto (Pendiente de Activación).
-Para establecer el número exacto de huéspedes y configurar sus horas de check-in/check-out, haga clic en el siguiente enlace de administración:
-
-🔗 1. ENLACE DE ADMINISTRACIÓN (Haga clic aquí para configurar):
-${adminUrl}
-
-🔗 2. ENLACE PARA EL VIAJERO (Copiar y enviar):
-${clientUrl}
-
-Por favor, configure esta reserva y copie el enlace para el viajero en su plantilla.
-
-Atentamente,
-Portal de Check-in Automático de Vila de Fenals`;
-
-            await transporter.sendMail({
-              from: smtpFrom,
-              to: smtpTo,
-              subject: emailSubject,
-              text: emailBody
-            });
-            console.log(`[iCal Sync Notification] Email successfully sent to ${smtpTo} for new reservation ${ev.reservation_code}.`);
-          }
-        } catch (emailErr) {
-          console.error(`[iCal Sync Notification] Error sending notification email for ${ev.reservation_code}:`, emailErr);
-        }
+        console.log(`[iCal Sync Notification] Nueva reserva detectada (${ev.reservation_code}). Marcada para notificación.`);
       }
     }
 
@@ -325,9 +271,16 @@ Portal de Check-in Automático de Vila de Fenals`;
             ? existingGuests
             : ev.total_guests;
 
+          const existingPlatform = existingPlatformMap.get(ev.reservation_code);
+          let finalPlatform = existingPlatform;
+          if (!finalPlatform) {
+            // New reservation: Add admin_notified: false flag
+            finalPlatform = JSON.stringify({ name: ev.platform, admin_notified: false });
+          }
+
           return {
             reservation_code: ev.reservation_code,
-            platform: ev.platform,
+            platform: finalPlatform,
             check_in: ev.check_in,
             check_out: ev.check_out,
             nuki_pin: ev.nuki_pin,

@@ -186,7 +186,9 @@ export function generateMossosTxtFiles(
       const exitDate = formatDate(traveler.check_out_date || traveler.check_in_date || checkInDate);
       const exitTime = traveler.hora_salida ? traveler.hora_salida.replace(/:/g, '').trim() : '1000'; // HHmm
       
-      const contractDate = entryDate; // Must be equal or anterior to today's date
+      // Fecha Contrato must be equal or anterior to today's date (creationDateStr)
+      // If entryDate is in the future, we cap it to creationDateStr to avoid Mossos error
+      const contractDate = entryDate > creationDateStr ? creationDateStr : entryDate; 
       const contractType = 'C'; // 'C' for Contrato en curso, 'R' for Reserva
       const contractNum = formatText(traveler.numero_documento).substring(0, 20); // Contract/Reservation Reference
       
