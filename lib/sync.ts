@@ -85,7 +85,10 @@ export async function syncReservationState(reservationCode: string) {
     if (reservation.platform && typeof reservation.platform === 'string') {
       try {
         platformData = JSON.parse(reservation.platform);
-      } catch (e) {}
+      } catch (e) {
+        // If it's a plain string like "VRBO", preserve it inside an object
+        platformData = { name: reservation.platform };
+      }
     } else if (reservation.platform && typeof reservation.platform === 'object') {
         platformData = reservation.platform;
     }
@@ -155,6 +158,17 @@ export async function syncReservationState(reservationCode: string) {
       platformNeedsUpdate = true;
     }
 
+    let checkInTime = platformData.check_in_time || '16:00';
+    let checkOutTime = platformData.check_out_time || '10:00';
+
+    const checkInHourInput = parseInt(checkInTime.split(':')[0], 10);
+    const checkInLocalHour = checkInHourInput - 1;
+    const checkOutHourInput = parseInt(checkOutTime.split(':')[0], 10);
+    const checkOutLocalHour = checkOutHourInput + 1;
+
+    const checkInDateObj = getSpainUtcDate(reservation.check_in, checkInLocalHour);
+    const checkOutDateObj = getSpainUtcDate(reservation.check_out, checkOutLocalHour);
+
     // 5. Action: NUKI
     if (isFullyUnlocked) {
       console.log(`[Sync Engine] Reserva totalmente desbloqueada. Sincronizando Nuki...`);
@@ -165,17 +179,6 @@ export async function syncReservationState(reservationCode: string) {
         updatePayload.nuki_pin = nukiPin;
       }
 
-      let checkInTime = platformData.check_in_time || '16:00';
-      let checkOutTime = platformData.check_out_time || '10:00';
-
-      const checkInHourInput = parseInt(checkInTime.split(':')[0], 10);
-      const checkInLocalHour = checkInHourInput - 1;
-      const checkOutHourInput = parseInt(checkOutTime.split(':')[0], 10);
-      const checkOutLocalHour = checkOutHourInput + 1;
-
-      const checkInDateObj = getSpainUtcDate(reservation.check_in, checkInLocalHour);
-      const checkOutDateObj = getSpainUtcDate(reservation.check_out, checkOutLocalHour);
-
       const nukiRes = await upsertNukiKeypadCode(reservationCode, reservation.summary, checkInDateObj, checkOutDateObj, nukiPin);
       
       if (!reservation.is_registered) {
@@ -183,10 +186,18 @@ export async function syncReservationState(reservationCode: string) {
       }
     } else {
       console.log(`[Sync Engine] Reserva NO desbloqueada. (Forms: ${formsComplete}, Tax: ${taxComplete}, Deposit: ${depositComplete}).`);
-      // Revoke Nuki if exists
-      await deleteNukiKeypadCodesByReservation(reservationCode);
-      if (reservation.is_registered) {
-        updatePayload.is_registered = false;
+      
+      // Option B Protection: Do not revoke Nuki keys if the reservation was previously unlocked AND check-in time has already passed
+      const now = new Date();
+      if (reservation.is_registered && now >= checkInDateObj) {
+        console.log(`[Sync Engine] PROTECCIÓN: La reserva pasó a estado bloqueado (por recálculo), pero las llaves NO se revocarán porque el check-in ya ha comenzado.`);
+        // We keep the keys active and do not update is_registered to false
+      } else {
+        // Revoke Nuki if exists
+        await deleteNukiKeypadCodesByReservation(reservationCode);
+        if (reservation.is_registered) {
+          updatePayload.is_registered = false;
+        }
       }
     }
 

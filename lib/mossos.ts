@@ -12,7 +12,17 @@ export async function sendMossosForReservation(reservation: any, parsedTravelers
 
   // Generate Mossos d'Esquadra TXT Files
   // Map database travelers to Mossos TravelerData interface
-  const formattedTravelers: TravelerData[] = parsedTravelers.map(t => {
+  const formattedTravelers: TravelerData[] = parsedTravelers.map(tRaw => {
+    let t = { ...tRaw };
+    if (t.firma && typeof t.firma === 'string' && t.firma.trim().startsWith('{')) {
+      try {
+        const extra = JSON.parse(t.firma);
+        t = { ...t, ...extra };
+      } catch (e) {
+        console.error("[Mossos] Error parsing traveler serialized JSON from firma field:", e);
+      }
+    }
+
     // Map standard document types to official Mossos codes (DNI -> D, NIE -> N, PASAPORTE -> P, OTROS -> O)
     let docType = 'D';
     const rawDocType = (t.tipo_documento || '').toUpperCase();

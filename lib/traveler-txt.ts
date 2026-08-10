@@ -239,7 +239,7 @@ export function generateMossosTxtFiles(
         contractDate,         // 16. Fecha contrato
         contractType,         // 17. Tipo contrato
         contractNum,          // 18. Número contrato
-        totalGuests.toString(), // 19. Número viajeros (Total in booking)
+        chunk.length.toString(), // 19. Número viajeros (Total in booking)
         roomsNum,             // 20. Número habitaciones
         hasInternet,          // 21. Internet (S/N)
         paymentType,          // 22. Tipo pago

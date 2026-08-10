@@ -631,6 +631,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     numero_documento: '',
     fecha_expedicion: '',
     fecha_caducidad: '',
+    sin_caducidad: false,
     fecha_nacimiento: '',
     sexo: 'M',
     nacionalidad: 'ES',
@@ -752,6 +753,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               numero_documento: traveler.numero_documento || '',
               fecha_expedicion: traveler.fecha_expedicion || '',
               fecha_caducidad: traveler.fecha_caducidad || '',
+              sin_caducidad: false,
               fecha_nacimiento: traveler.fecha_nacimiento || '',
               sexo: traveler.sexo || 'M',
               nacionalidad: traveler.nacionalidad || 'ES',
@@ -903,13 +905,16 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prev => {
-      const next = { ...prev, [name]: value };
+      const next = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value };
       if (name === 'nacionalidad') {
         next.pais_residencia = value;
       }
-      return next;
+      if (name === 'sin_caducidad' && next.sin_caducidad) {
+        next.fecha_caducidad = ''; // Clear expiration date if they check "no expiration"
+      }
+      return next as typeof prev;
     });
   };
 
@@ -1084,6 +1089,9 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
       case 'nacionalidad':
       case 'sexo':
         return !formData[fieldName];
+
+      case 'fecha_caducidad':
+        return !formData.sin_caducidad && !formData.fecha_caducidad;
       
       case 'numero_documento':
         return !isUnder14 && !formData.numero_documento;
@@ -1131,10 +1139,28 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     const isUnder14 = age !== null && age < 14;
     const isUnder18 = age !== null && age < 18;
 
-    // Validate DNI requirement
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Validate Expedicion Date (Must be present or past)
     if (!formData.fecha_expedicion) {
       setError(lang === 'en' ? 'Document issue date is mandatory.' : 'La fecha de expedición del documento es obligatoria.');
       return;
+    }
+    if (formData.fecha_expedicion > todayStr) {
+      setError(lang === 'en' ? 'Invalid issue date. It must be a present or past date.' : 'Fecha de expedición no válida. Debe ser una fecha presente o pasada.');
+      return;
+    }
+
+    // Validate Caducidad Date (Must be present or future, unless no expiry)
+    if (!formData.sin_caducidad) {
+      if (!formData.fecha_caducidad) {
+        setError(lang === 'en' ? 'Document expiration date is mandatory. If it has no expiration, check the "No expiration" box.' : 'La fecha de caducidad es obligatoria. Si no tiene, marque la casilla "Sin caducidad".');
+        return;
+      }
+      if (formData.fecha_caducidad < todayStr) {
+        setError(lang === 'en' ? 'Document has expired. Expiration date must be present or future.' : 'El documento ha caducado. La fecha de caducidad debe ser presente o futura.');
+        return;
+      }
     }
 
     if (!isUnder14 && !formData.numero_documento) {
@@ -1526,18 +1552,27 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_exp_date}</label>
-                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} className={getFieldClass('fecha_expedicion')} />
+                <input type="date" name="fecha_expedicion" value={formData.fecha_expedicion} onChange={handleChange} max={new Date().toISOString().split('T')[0]} className={getFieldClass('fecha_expedicion')} />
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_cad_date || 'F. Caducidad'}</label>
-                <input type="date" name="fecha_caducidad" value={formData.fecha_caducidad} onChange={handleChange} className={getFieldClass('fecha_caducidad', false)} />
+                <div className="flex justify-between items-center h-4">
+                  <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate">{dict.form_cad_date || 'F. Caducidad'}</label>
+                  <label className="text-[9px] text-white/60 flex items-center gap-1 cursor-pointer hover:text-white shrink-0">
+                    <input type="checkbox" name="sin_caducidad" checked={formData.sin_caducidad} onChange={handleChange} className="w-2.5 h-2.5 bg-white/5 border-white/20 rounded-sm focus:ring-cyan-500 focus:ring-offset-0" />
+                    Sin caducidad
+                  </label>
+                </div>
+                <input type="date" name="fecha_caducidad" disabled={formData.sin_caducidad} value={formData.fecha_caducidad} onChange={handleChange} min={new Date().toISOString().split('T')[0]} className={getFieldClass('fecha_caducidad', false)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_birth_date}</label>
-                <input type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} className={getFieldClass('fecha_nacimiento', false)} />
+                <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4 flex items-center gap-1">
+                  {dict.form_birth_date}
+                  {age !== null && <span className="text-cyan-300 font-bold normal-case">(Edad: {age} años)</span>}
+                </label>
+                <input type="date" name="fecha_nacimiento" value={formData.fecha_nacimiento} onChange={handleChange} max={new Date().toISOString().split('T')[0]} className={getFieldClass('fecha_nacimiento', false)} />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">{dict.form_nationality}</label>
