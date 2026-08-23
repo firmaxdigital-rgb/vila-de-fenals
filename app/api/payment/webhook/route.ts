@@ -57,8 +57,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Configuración de pago incompleta.' }, { status: 500 });
     }
 
+    const amountStr = params.Amount || params.amount || '';
     const md5Password = crypto.createHash('md5').update(paycometApiKey).digest('hex');
-    const signatureSource = `${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${dateTime}${md5Password}`;
+    const signatureSource = `${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${amountStr}${dateTime}${md5Password}`;
     const computedSignature = crypto.createHash('sha512').update(signatureSource).digest('hex');
 
     isSignatureValid = (computedSignature.toLowerCase() === signature.toLowerCase());
