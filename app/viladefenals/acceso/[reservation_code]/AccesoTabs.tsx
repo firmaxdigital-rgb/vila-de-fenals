@@ -1090,9 +1090,11 @@ export default function AccesoTabs({
                       {(() => {
                         const limitVal = parseFloat(cardLimit);
                         if (isSplitSelected && limitVal > 0) {
-                          // Split logic
+                          // Split logic based ONLY on the remaining amount
+                          const remainingDeposit = parseFloat((depositAmount - depositPaid).toFixed(2));
                           const totalSplits: number[] = [];
-                          let tempTotal = depositAmount;
+                          let tempTotal = remainingDeposit;
+                          
                           while (tempTotal > 0) {
                             if (tempTotal <= limitVal) {
                               totalSplits.push(parseFloat(tempTotal.toFixed(2)));
@@ -1103,85 +1105,41 @@ export default function AccesoTabs({
                             }
                           }
 
-                          let accumulatedPaid = depositPaid;
-                          const splitStatuses = totalSplits.map((splitAmt) => {
-                            if (accumulatedPaid >= splitAmt) {
-                              accumulatedPaid = parseFloat((accumulatedPaid - splitAmt).toFixed(2));
-                              return { amount: splitAmt, status: 'paid' };
-                            } else if (accumulatedPaid > 0) {
-                              const paidPartial = accumulatedPaid;
-                              accumulatedPaid = 0;
-                              return { amount: splitAmt, paidPartial, status: 'partial' };
-                            } else {
-                              return { amount: splitAmt, status: 'pending' };
-                            }
-                          });
-
                           return (
-                            <div className="space-y-2">
+                            <div className="space-y-3">
+                              {depositPaid > 0 && (
+                                <div className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs mb-2">
+                                  <span className="text-white/60">
+                                    {aDict.fianza_remaining_label}
+                                  </span>
+                                  <span className="font-bold text-cyan-300 font-mono text-sm">
+                                    {remainingDeposit.toFixed(2)}€
+                                  </span>
+                                </div>
+                              )}
                               <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold block mb-1">
                                 {aDict.fianza_parts_label}
                               </p>
-                              {splitStatuses.map((split, sIdx) => {
-                                if (split.status === 'paid') {
-                                  return (
-                                    <div key={sIdx} className="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-xs">
-                                      <span className="font-semibold text-white/80">
-                                        {aDict.fianza_part} {sIdx + 1} ({split.amount.toFixed(2)}€)
-                                      </span>
-                                      <span className="text-[10px] font-bold text-green-400 uppercase tracking-wider bg-green-500/25 px-2 py-0.5 rounded-md border border-green-500/30">
-                                        ✓ {aDict.fianza_paid}
-                                      </span>
-                                    </div>
-                                  );
-                                } else if (split.status === 'partial') {
-                                  const partialPaid = split.paidPartial || 0;
-                                  const pendingAmt = parseFloat((split.amount - partialPaid).toFixed(2));
-                                  return (
-                                    <div key={sIdx} className="flex justify-between items-center bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 text-xs">
-                                      <div className="space-y-0.5">
-                                        <span className="font-semibold text-white/80 block">
-                                          {aDict.fianza_part} {sIdx + 1} ({split.amount.toFixed(2)}€)
-                                        </span>
-                                        <span className="text-[10px] text-yellow-300/70 block">
-                                          {aDict.fianza_paid}: {partialPaid.toFixed(2)}€ | {dict.pending_text || 'Pendiente'}: {pendingAmt.toFixed(2)}€
-                                        </span>
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => handlePayDeposit(pendingAmt, sIdx)}
-                                        disabled={generatingLinks[sIdx]}
-                                        className="text-[11px] font-bold text-white bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 rounded-lg py-1.5 px-3 uppercase tracking-wider flex items-center gap-1 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-cyan-500/10"
-                                      >
-                                        {generatingLinks[sIdx] ? (
-                                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        ) : (
-                                          <span>{aDict.fianza_pay_remaining} ({pendingAmt.toFixed(2)}€)</span>
-                                        )}
-                                      </button>
-                                    </div>
-                                  );
-                                } else {
-                                  return (
-                                    <div key={sIdx} className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs">
-                                      <span className="font-semibold text-white/80">
-                                        {aDict.fianza_part} {sIdx + 1} ({split.amount.toFixed(2)}€)
-                                      </span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handlePayDeposit(split.amount, sIdx)}
-                                        disabled={generatingLinks[sIdx]}
-                                        className="text-[11px] font-bold text-white bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 rounded-lg py-1.5 px-3 uppercase tracking-wider flex items-center gap-1 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-cyan-500/10"
-                                      >
-                                        {generatingLinks[sIdx] ? (
-                                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        ) : (
-                                          <span>{aDict.fianza_pay} ({split.amount.toFixed(2)}€)</span>
-                                        )}
-                                      </button>
-                                    </div>
-                                  );
-                                }
+                              {totalSplits.map((splitAmt, sIdx) => {
+                                return (
+                                  <div key={sIdx} className="flex justify-between items-center bg-white/5 border border-white/5 rounded-xl p-3 text-xs">
+                                    <span className="font-semibold text-white/80">
+                                      {aDict.fianza_part} {sIdx + 1} ({splitAmt.toFixed(2)}€)
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handlePayDeposit(splitAmt, sIdx)}
+                                      disabled={generatingLinks[sIdx]}
+                                      className="text-[11px] font-bold text-white bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-300 hover:to-cyan-400 rounded-lg py-1.5 px-3 uppercase tracking-wider flex items-center gap-1 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-cyan-500/10"
+                                    >
+                                      {generatingLinks[sIdx] ? (
+                                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                      ) : (
+                                        <span>{aDict.fianza_pay} ({splitAmt.toFixed(2)}€)</span>
+                                      )}
+                                    </button>
+                                  </div>
+                                );
                               })}
                             </div>
                           );
