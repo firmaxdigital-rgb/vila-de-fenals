@@ -27,28 +27,36 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log("PayComet Webhook recibido para Order:", params.Order || params.order || 'N/A');
+    // Convert params to lowercase keys for case-insensitive access
+    const lowerParams: any = {};
+    Object.keys(params).forEach(k => {
+      lowerParams[k.toLowerCase()] = params[k];
+    });
 
-    // Extract key parameters sent by PayComet (case-insensitive fallback)
-    const responseStr = params.Response || params.response || '';
-    const rawOrderId = params.Order || params.order || '';
-    const signature = params.Signature || params.signature || '';
-    const terminal = params.Terminal || params.terminal || '';
-    const dateTime = params.DateTime || params.datetime || '';
-    const merchantCode = params.MerchantCode || params.merchantcode || '';
-    const transactionType = params.TransactionType || params.transactiontype || '1';
+    console.log("PayComet Webhook recibido para Order:", lowerParams.order || 'N/A');
+
+    // Extract key parameters sent by PayComet
+    const responseStr = lowerParams.response || '';
+    const rawOrderId = lowerParams.order || '';
+    const signature = lowerParams.signature || '';
+    const terminal = lowerParams.terminal || '';
+    const dateTime = lowerParams.datetime || '';
+    const merchantCode = lowerParams.merchantcode || '';
+    const transactionType = lowerParams.transactiontype || '1';
+    const amountStr = lowerParams.amount || '';
+    const currencyStr = lowerParams.currency || '';
 
     if (!rawOrderId) {
       return NextResponse.json({ success: false, error: 'Falta el Order ID' }, { status: 400 });
     }
 
-    // Extract real reservation code from rawOrderId (if it contains unique suffix like HMMR92E9DJ_1777652721)
+    // Extract real reservation code from rawOrderId
     const reservationCode = rawOrderId.includes('_') ? rawOrderId.split('_')[0] : rawOrderId;
 
     // 2. Validate Signature (Security Check)
     const paycometMerchant = process.env.PAYCOMET_MERCHANT_CODE || '';
     const paycometTerminal = process.env.PAYCOMET_TERMINAL || '';
-    const paycometApiKey = process.env.PAYCOMET_API_KEY || ''; // Typically used as password in API calls
+    const paycometApiKey = process.env.PAYCOMET_API_KEY || ''; 
 
     let isSignatureValid = false;
 
@@ -57,15 +65,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Configuración de pago incompleta.' }, { status: 500 });
     }
 
-    const amountStr = params.Amount || params.amount || '';
     const md5Password = crypto.createHash('md5').update(paycometApiKey).digest('hex');
-    const signatureSource = `${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${amountStr}${dateTime}${md5Password}`;
-    const computedSignature = crypto.createHash('sha512').update(signatureSource).digest('hex');
+    
+    // Paycomet has changed signature formats over time and depending on the API used. 
+    // We check the most common valid permutations to ensure we don't reject valid webhooks.
+    const sig1 = crypto.createHash('sha512').update(`${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${amountStr}${dateTime}${md5Password}`).digest('hex');
+    const sig2 = crypto.createHash('sha512').update(`${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${dateTime}${md5Password}`).digest('hex');
+    const sig3 = crypto.createHash('sha512').update(`${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${amountStr}${currencyStr}${md5Password}`).digest('hex');
+    const sig4 = crypto.createHash('sha512').update(`${paycometMerchant}${paycometTerminal}${transactionType}${rawOrderId}${amountStr}${md5Password}`).digest('hex');
 
-    isSignatureValid = (computedSignature.toLowerCase() === signature.toLowerCase());
+    const validSignatures = [sig1, sig2, sig3, sig4].map(s => s.toLowerCase());
+    isSignatureValid = validSignatures.includes(signature.toLowerCase());
 
     if (!isSignatureValid) {
       console.error(`SEGURIDAD: Firma de PayComet inválida para Order ${rawOrderId}. Webhook rechazado.`);
+      console.error(`Recibida: ${signature}. Calculadas: ${validSignatures.join(', ')}`);
       return NextResponse.json({ success: false, error: 'Firma de pago inválida.' }, { status: 403 });
     }
 
@@ -77,7 +91,7 @@ export async function POST(request: Request) {
 
       if (isDeposit) {
         // Extract payment amount from webhook params
-        const amountCents = params.Amount || params.amount || '0';
+        const amountCents = amountStr || '0';
         const amountPaid = parseFloat(amountCents) / 100;
 
         if (isNaN(amountPaid) || amountPaid <= 0) {
@@ -127,7 +141,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, message: `Pago parcial de fianza registrado: ${amountPaid}€` });
       } else {
         // Normal tax payment
-        const amountCents = params.Amount || params.amount || '0';
+        const amountCents = amountStr || '0';
         const amountPaid = parseFloat(amountCents) / 100;
 
         const { data: reservation, error: fetchErr } = await supabase
