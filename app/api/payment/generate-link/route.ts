@@ -10,8 +10,14 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: false }, global: { fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }) },
 });
 
-// Languages supported by our app & PayComet
-const SUPPORTED_LANGUAGES = ['es', 'en', 'fr', 'nl', 'it', 'de', 'pl', 'zh', 'uk', 'ru', 'ja'];
+// Languages supported directly by PayComet Sabadell dropdown that match our app
+function getPaycometLanguage(appLang: string): string {
+  if (appLang === 'es') return 'es';
+  const supported = ['en', 'fr', 'de', 'it', 'pl', 'ru'];
+  if (supported.includes(appLang)) return appLang;
+  // For languages not supported in PayComet dropdown (nl, uk, zh, ja, etc.), default to English ('en')
+  return 'en';
+}
 
 export async function POST(request: Request) {
   try {
@@ -22,7 +28,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Falta el código de reserva' }, { status: 400 });
     }
 
-    const selectedLang = SUPPORTED_LANGUAGES.includes(lang) ? lang : 'es';
+    const selectedLang = getPaycometLanguage(lang);
 
     // 1. Fetch reservation
     const { data: reservation, error: resError } = await supabase
@@ -151,8 +157,8 @@ export async function POST(request: Request) {
     // 6. Make request to PayComet Form API
     const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
     
-    // Set operation type: 3 for Preauthorization (Deposits), 1 for Purchase (Tax)
-    const opType = isDeposit ? 3 : 1;
+    // Set operation type: 1 for Purchase / Cobro en firme (for both deposits and taxes until Sabadell enables preauth)
+    const opType = 1;
     
     const payload = {
       operationType: opType,
@@ -190,9 +196,9 @@ export async function POST(request: Request) {
     console.log("Respuesta de PayComet:", responseData);
 
     // PayComet /v1/form response typically includes the challengeUrl or redirection URL in challengeUrl field
-    const challengeUrl = responseData.challengeUrl;
+    const rawChallengeUrl = responseData.challengeUrl;
 
-    if (!challengeUrl) {
+    if (!rawChallengeUrl) {
       console.warn("challengeUrl not found in PayComet response. Using simulated fallback.");
       const simulatedUrl = `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success&simulated=true`;
       return NextResponse.json({
@@ -203,9 +209,12 @@ export async function POST(request: Request) {
       });
     }
 
+    // Ensure the challengeUrl ending matches the mapped language
+    const localizedChallengeUrl = rawChallengeUrl.replace(/\/[a-z]{2}$/, `/${selectedLang}`);
+
     return NextResponse.json({
       success: true,
-      url: challengeUrl,
+      url: localizedChallengeUrl,
       amount: totalAmount
     });
 

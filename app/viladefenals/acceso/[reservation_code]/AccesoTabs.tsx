@@ -728,7 +728,8 @@ export default function AccesoTabs({
         body: JSON.stringify({
           reservation_code: decodedCode,
           payment_type: 'deposit',
-          payment_amount: amount
+          payment_amount: amount,
+          lang: lang
         })
       });
       const data = await res.json();
@@ -1074,6 +1075,7 @@ export default function AccesoTabs({
                       calculatedTax={calculatedTax}
                       taxPaidAmount={taxPaidAmount}
                       unregisteredPayingGuests={unregisteredPayingCount}
+                      lang={lang}
                     />
                   </div>
                 )}

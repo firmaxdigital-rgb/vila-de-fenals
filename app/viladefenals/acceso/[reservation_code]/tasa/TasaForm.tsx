@@ -12,12 +12,13 @@ interface TasaFormProps {
   calculatedTax?: number;
   taxPaidAmount?: number;
   unregisteredPayingGuests?: number;
+  lang?: string;
 }
 
-export default function TasaForm({ reservationCode, payingGuests, nights, totalAmount, calculatedTax = 0, taxPaidAmount = 0, unregisteredPayingGuests }: TasaFormProps) {
+export default function TasaForm({ reservationCode, payingGuests, nights, totalAmount, calculatedTax = 0, taxPaidAmount = 0, unregisteredPayingGuests, lang: langProp }: TasaFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const lang = searchParams.get('lang') || 'es';
+  const lang = langProp || searchParams.get('lang') || 'es';
   const isMicroCharge = searchParams.get('test_mode') === 'true' || searchParams.get('micro_charge') === 'true' || reservationCode === 'HMMR92E9DJ' || reservationCode === 'TEST7GUESTS' || reservationCode === 'TESTPROD';
 
   const [isProcessing, setIsProcessing] = useState(false);
