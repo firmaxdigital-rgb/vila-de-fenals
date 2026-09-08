@@ -86,6 +86,7 @@ const docTypeTranslations = {
   es: { DNI: 'DNI (Español)', NIE: 'NIE (Español)', PASAPORTE: 'Pasaporte', CARTA_IDENTIDAD: 'Carta de Identidad (ID Europeo/Extranjero)', OTRO: 'Otro Documento' },
   en: { DNI: 'DNI (Spanish)', NIE: 'NIE (Spanish)', PASAPORTE: 'Passport', CARTA_IDENTIDAD: 'Identity Card (European/Foreign ID)', OTRO: 'Other Document' },
   fr: { DNI: 'DNI (Espagnol)', NIE: 'NIE (Espagnol)', PASAPORTE: 'Passeport', CARTA_IDENTIDAD: "Carte d'identité (ID européen/étranger)", OTRO: 'Autre document' },
+  it: { DNI: "Carta d'Identità (Nazionale)", NIE: "NIE (Spagna)", PASAPORTE: "Passaporto", CARTA_IDENTIDAD: "Carta d'Identità", OTRO: "Altro" },
   de: { DNI: 'DNI (Spanisch)', NIE: 'NIE (Spanisch)', PASAPORTE: 'Reisepass', CARTA_IDENTIDAD: 'Personalausweis (Europäischer/Ausländischer Ausweis)', OTRO: 'Anderes Dokument' },
   pl: { DNI: 'DNI (Hiszpański)', NIE: 'NIE (Hiszpański)', PASAPORTE: 'Paszport', CARTA_IDENTIDAD: 'Dowód tożsamości (Europejski/Zagraniczny ID)', OTRO: 'Inny document' },
   zh: { DNI: 'DNI (西班牙)', NIE: 'NIE (西班牙)', PASAPORTE: '护照', CARTA_IDENTIDAD: '身份证 (欧洲/外国身份证)', OTRO: '其他文件' },
@@ -128,6 +129,17 @@ const supportHelperTranslations = {
     nie_card_desc: "Apparaît sur le recto comme 'NUM SOPORT'. Composé de la lettre 'E' suivie de 8 chiffres. S'il y a moins de chiffres, complétez avec des zéros à gauche (ex. E87654321).",
     nie_paper_title: "NIE (Certificat papier)",
     nie_paper_desc: "Le numéro de certificat de la feuille verte. Écrivez la lettre 'C' suivie du numéro. S'il comporte moins de 8 chiffres, complétez avec des zéros à gauche (ex. C01234567)."
+  },
+  it: {
+    btn_help: "Dove trovarlo?",
+    title: "Documenti Accettati",
+    close: "Chiudi",
+    dni_title: "Cittadini Spagnoli (DNI)",
+    dni_desc: "Seleziona 'DNI' e inserisci il numero.",
+    nie_card_title: "Residenti Stranieri (TIE)",
+    nie_card_desc: "Usa il numero sulla carta.",
+    nie_paper_title: "Stranieri con NIE Verde",
+    nie_paper_desc: "Usa Passaporto.",
   },
   de: {
     btn_help: "Wo zu finden?",

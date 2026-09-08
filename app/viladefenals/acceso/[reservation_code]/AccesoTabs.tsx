@@ -31,6 +31,12 @@ const recyclingTranslations: Record<Lang, { title: string; desc: string; room: s
     room: "Local à Poubelles",
     instructions: "Instructions de Recyclage"
   },
+  it: {
+    title: "Riciclaggio e rifiuti",
+    desc: "Ti preghiamo di classificare correttamente i tuoi rifiuti e di depositarli nei contenitori comunitari situati vicino all'edificio principale.",
+    room: "Stanza dei rifiuti",
+    instructions: "Consulta la Guida al riciclaggio"
+  },
   de: {
     title: "Recycling & Müll",
     desc: "Bitte trennen Sie Ihren Abfall ordnungsgemäß und entsorgen Sie ihn in den Gemeinschaftscontainern. Unten finden Sie den Standort des Müllraums und die Recyclinganweisungen:",
@@ -190,6 +196,35 @@ const accesoTranslations: Record<Lang, {
     syncing_lock: "Synchronisation de la serrure...",
     check_in_completed_success: "Enregistrement réussi !",
     check_in_completed_success_desc: "Votre enregistrement a été effectué correctement. Cependant, vos clés virtuelles et codes d'accès seront activés automatiquement à partir de l'heure d'enregistrement prévue le jour de votre arrivée [date]."
+  },
+  it: {
+    fianza_title: "3. Cauzione",
+    fianza_desc: "Per motivi di sicurezza è richiesta una cauzione temporanea che verrà restituita manualmente previa verifica dello stato dell'appartamento al termine del soggiorno.",
+    fianza_success_title: "Deposito depositato correttamente.",
+    fianza_success_desc: "Importo totale garantito in modo sicuro.",
+    fianza_split_label: "La tua carta ha un limite di pagamento inferiore a questo importo?",
+    fianza_split_hint: "Se lo selezioni potrai definire il limite per transazione e divideremo il pagamento totale in più link di importo inferiore.",
+    fianza_limit_label: "Limite di pagamento con carta (€)",
+    fianza_parts_label: "Tranche di pagamento richieste:",
+    fianza_part: "Stirata",
+    fianza_paid: "Pagato",
+    fianza_pay: "Paga",
+    fianza_pay_remaining: "Paga il resto",
+    fianza_remaining_label: "Cauzione rimanente totale:",
+    fianza_pay_full: "Paga l'intero deposito",
+    fianza_link_generating: "Generazione collegamento pagamento in corso...",
+    check_in_label: "Entrata:",
+    check_out_label: "Uscita:",
+    whatsapp_btn: "Contatta l'host",
+    whatsapp_message: "Ciao! Ho una domanda sulla mia prenotazione [codice] a Vila de Fenals.",
+    fianza_partial: "Parziale",
+    payment_received_success: "PAGAMENTO RICEVUTO CORRETTAMENTE!",
+    payment_received_success_desc: "Abbiamo elaborato il pagamento della tua tassa di soggiorno in modo sicuro. In pochi istanti la Fase 3 sarà sincronizzata con il tuo codice di accesso Nuki.",
+    tax_paid_success: "PAGAMENTO QUOTA REGISTRATO CON SUCCESSO!",
+    tax_paid_success_desc: "Abbiamo registrato correttamente il pagamento della tua Tassa di Soggiorno. Tuttavia, per sbloccare le chiavi virtuali ed accedere all'appartamento, è comunque necessario completare la registrazione obbligatoria di tutti i viaggiatori sulla prenotazione (Fase 1).",
+    syncing_lock: "Sincronizzazione del blocco...",
+    check_in_completed_success: "Check-in completato con successo!",
+    check_in_completed_success_desc: "Il tuo check-in è stato completato con successo. Tuttavia, le chiavi virtuali e i codici di accesso verranno attivati ​​automaticamente dall'orario di check-in previsto il giorno di arrivo [data].",
   },
   de: {
     fianza_title: "3. Kaution",
@@ -732,6 +767,42 @@ export default function AccesoTabs({
     );
   };
 
+
+  const LocationAndVideoCards = () => (
+    <div className="space-y-4 pt-2">
+      {/* Maps Location Button */}
+              <div className="pt-2">
+                <a
+                  href="https://maps.app.goo.gl/CtqNXCuE8TGzQCwcA?g_st=aw"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2.5 w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold py-3.5 px-4 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] text-sm shadow-md"
+                >
+                  <MapIcon size={18} className="shrink-0 text-cyan-400" />
+                  <span>{(dict as any).maps_btn || 'Ubicación en Maps'}</span>
+                </a>
+              </div>
+
+              {/* YouTube App Access Video Guide Card */}
+              <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-3">
+                <h3 className="font-semibold text-base flex items-center gap-2">
+                  <ExternalLink size={18} className="text-cyan-400" /> {(dict as any).app_access_video_title || 'Acceso desde la App'}
+                </h3>
+                <div className="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black shadow-inner">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="https://www.youtube.com/embed/GyKgu-haTAo?rel=0"  
+                    title="App Access Video"
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+    </div>
+  );
+
   return (
     <div className="w-full space-y-6">
       {/* Dynamic Payment Status Alerts */}
@@ -1203,36 +1274,7 @@ export default function AccesoTabs({
                 </div>
               </div>
 
-              {/* Maps Location Button */}
-              <div className="pt-2">
-                <a
-                  href="https://maps.app.goo.gl/CtqNXCuE8TGzQCwcA?g_st=aw"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-center gap-2.5 w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-bold py-3.5 px-4 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99] text-sm shadow-md"
-                >
-                  <MapIcon size={18} className="shrink-0 text-cyan-400" />
-                  <span>{(dict as any).maps_btn || 'Ubicación en Maps'}</span>
-                </a>
-              </div>
-
-              {/* YouTube App Access Video Guide Card */}
-              <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-3">
-                <h3 className="font-semibold text-base flex items-center gap-2">
-                  <ExternalLink size={18} className="text-cyan-400" /> {(dict as any).app_access_video_title || 'Acceso desde la App'}
-                </h3>
-                <div className="aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black shadow-inner">
-                  <iframe 
-                    width="100%" 
-                    height="100%" 
-                    src="https://www.youtube.com/embed/GyKgu-haTAo?rel=0"  
-                    title="App Access Video"
-                    frameBorder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowFullScreen
-                  />
-                </div>
-              </div>
+              <LocationAndVideoCards />
 
               {/* Nuki Keypad Code Reveal Card */}
               {reservation.nuki_pin && (
@@ -1382,6 +1424,8 @@ export default function AccesoTabs({
                   </p>
                 </div>
               </div>
+
+              <LocationAndVideoCards />
 
               {/* WiFi Details Card */}
               <div className="bg-black/20 border border-white/10 rounded-2xl p-5 space-y-3">

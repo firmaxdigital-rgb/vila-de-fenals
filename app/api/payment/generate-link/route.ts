@@ -11,7 +11,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 // Languages supported by our app & PayComet
-const SUPPORTED_LANGUAGES = ['es', 'en', 'fr', 'de', 'pl', 'zh', 'uk', 'ru'];
+const SUPPORTED_LANGUAGES = ['es', 'en', 'fr', 'nl', 'it', 'de', 'pl', 'zh', 'uk', 'ru', 'ja'];
 
 export async function POST(request: Request) {
   try {

@@ -28,6 +28,11 @@ const pendingActivationTranslations: Record<string, { title: string; desc1: stri
     desc1: "Bedankt voor uw reservering! Het beheer van Vila de Fenals is momenteel bezig met het toewijzen van de capaciteit en het afronden van de details voor uw verblijf.",
     desc2: "Het portaal voor de registratie van reizigers en de betaling van de toeristenbelasting wordt binnenkort automatisch geactiveerd. Neem bij spoed of vragen contact met ons op."
   },
+  it: {
+    title: "Check-in in attesa di attivazione",
+    desc1: "Grazie per la prenotazione! L'amministrazione di Vila de Fenals sta configurando i dettagli e l'assegnazione dei posti per il tuo soggiorno.",
+    desc2: "A breve verrà attivato automaticamente il portale di registrazione dei viaggiatori e di liquidazione delle imposte di soggiorno. Se hai qualche urgenza o domanda, contattaci."
+  },
   de: {
     title: "Check-in wartet auf Aktivierung",
     desc1: "Vielen Dank für Ihre Reservierung! Die Verwaltung von Vila de Fenals konfiguriert derzeit die Details und die Zuweisung der Plätze für Ihren Aufenthalt.",
@@ -83,7 +88,7 @@ function Background() {
 }
 
 function LanguageSelector({ currentLang }: { currentLang: string }) {
-  const langs = ['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'];
+  const langs = ['es', 'en', 'fr', 'nl', 'it', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'];
   return (
     <div className="flex flex-wrap justify-center gap-3 mb-6 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 w-fit mx-auto">
       {langs.map((l) => (
@@ -111,7 +116,7 @@ export default async function AccesoPage({
 
   const resolvedSearchParams = await searchParams;
   const langQuery = resolvedSearchParams?.lang as string;
-  const lang: Lang = (['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
+  const lang: Lang = (['es', 'en', 'fr', 'nl', 'it', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
   const paymentStatus = resolvedSearchParams?.payment_status as string;
   const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD' || decodedCode === 'TEST7GUESTS' || decodedCode === 'TEST250526';
@@ -316,8 +321,8 @@ export default async function AccesoPage({
 
           {/* Footer with platforms details */}
           <div className="pt-4 border-t border-white/10 flex justify-between items-center text-[10px] text-white/50 uppercase font-bold tracking-wider">
-            <span>Reserva: {platformName}</span>
-            <span>Salida: {displayCheckOut.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'short', day: 'numeric' })} a las {checkOutTime}</span>
+            <span>{(translations[lang] || translations['es']).reserva_label} {platformName}</span>
+            <span>{(translations[lang] || translations['es']).salida_label} {displayCheckOut.toLocaleDateString(lang === 'en' ? 'en-US' : 'es-ES', { month: 'short', day: 'numeric' })} {(translations[lang] || translations['es']).a_las} {checkOutTime}</span>
           </div>
         </div>
       </div>
