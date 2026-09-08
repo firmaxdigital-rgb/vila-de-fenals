@@ -88,7 +88,11 @@ export async function POST(request: Request) {
       }
     } else {
       const rate = 1.75;
-      totalAmount = parseFloat((payingGuests * nights * rate).toFixed(2));
+      const calculatedTax = parseFloat((payingGuests * nights * rate).toFixed(2));
+      const alreadyPaidTax = parseFloat(reservation.tax_paid || '0');
+      
+      // Subtract what is already paid to get the pending balance
+      totalAmount = parseFloat((calculatedTax - alreadyPaidTax).toFixed(2));
 
       // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
       if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD' || reservation_code === 'TEST250526') {
@@ -146,8 +150,12 @@ export async function POST(request: Request) {
 
     // 6. Make request to PayComet Form API
     const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
+    
+    // Set operation type: 3 for Preauthorization (Deposits), 1 for Purchase (Tax)
+    const opType = isDeposit ? 3 : 1;
+    
     const payload = {
-      operationType: 1,
+      operationType: opType,
       language: selectedLang,
       payment: {
         terminal: parseInt(paycometTerminal),
