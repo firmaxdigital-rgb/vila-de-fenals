@@ -38,18 +38,19 @@ const uploadBtnTranslations: Record<string, { search: string; take: string }> = 
   es: { search: 'Buscar Archivos', take: 'Hacer Foto' },
   en: { search: 'Search Files', take: 'Take Photo' },
   fr: { search: 'Chercher des fichiers', take: 'Prendre une photo' },
+  nl: { search: 'Bestanden Zoeken', take: 'Foto Maken' },
+  it: { search: 'Cerca File', take: 'Scatta Foto' },
   de: { search: 'Dateien durchsuchen', take: 'Foto aufnehmen' },
   pl: { search: 'Wyszukaj pliki', take: 'Zrób zdjęcie' },
   zh: { search: '浏览文件', take: '拍照' },
   uk: { search: 'Шукати файли', take: 'Зробити фото' },
   ru: { search: 'Поиск файлов', take: 'Сделать фото' },
-  nl: { search: 'Bestanden Zoeken', take: 'Foto Maken' },
   ja: { search: 'ファイルを選択', take: '写真を撮影' }
 };
 
 function LanguageSelector({ currentLang, editId }: { currentLang: string; editId: string | null }) {
   const router = useRouter();
-  const langs = ['es', 'en', 'fr', 'nl', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'];
+  const langs = ['es', 'en', 'fr', 'nl', 'it', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'];
   
   const handleLangChange = (newLang: string) => {
     const params = new URLSearchParams();
@@ -132,14 +133,14 @@ const supportHelperTranslations = {
   },
   it: {
     btn_help: "Dove trovarlo?",
-    title: "Documenti Accettati",
-    close: "Chiudi",
-    dni_title: "Cittadini Spagnoli (DNI)",
-    dni_desc: "Seleziona 'DNI' e inserisci il numero.",
-    nie_card_title: "Residenti Stranieri (TIE)",
-    nie_card_desc: "Usa il numero sulla carta.",
-    nie_paper_title: "Stranieri con NIE Verde",
-    nie_paper_desc: "Usa Passaporto.",
+    title: "Numero di Supporto",
+    close: "Ho capito",
+    dni_title: "DNI (Spagnolo)",
+    dni_desc: "Appare sul fronte come 'NUM SOPORT'. È composto da 3 lettere e 6 numeri (es. AAA123456).",
+    nie_card_title: "NIE (Tessera fisica)",
+    nie_card_desc: "Appare sul fronte come 'NUM SOPORT'. È composto dalla lettera 'E' seguita da 8 numeri. Se ha meno numeri, aggiungi zeri a sinistra (es. E87654321).",
+    nie_paper_title: "NIE (Certificato cartaceo)",
+    nie_paper_desc: "È il numero di certificato sul foglio verde. Scrivi la lettera 'C' seguita dal numero. Se ha meno di 8 cifre, aggiungi zeri a sinistra (es. se è 1234567, scrivi C01234567)."
   },
   de: {
     btn_help: "Wo zu finden?",
@@ -439,6 +440,40 @@ const legalConsentTranslations: Record<string, LegalTranslation> = {
       }
     ]
   },
+  it: {
+    consent_title: "Consenso e Termini Legali",
+    consent_desc: "Per completare la registrazione del viaggiatore e abilitare la consegna delle chiavi, è obbligatorio accettare le nostre politiche.",
+    consent_accept_prefix: "Accetto le ",
+    consent_link_text: "Condizioni d'Uso e l'Informativa sulla Privacy",
+    consent_accept_suffix: " di Vila de Fenals.",
+    btn_cancel: "Annulla",
+    btn_confirm: "Conferma e Invia",
+    btn_sending: "Invio in corso...",
+    terms_title: "Condizioni d'Uso e Informativa sulla Privacy",
+    close_btn: "Chiudi",
+    clauses: [
+      {
+        title: "1. Obbligatorietà della Registrazione (RD 933/2021)",
+        body: "In conformità con il Regio Decreto spagnolo 933/2021, del 26 ottobre, tutti gli ospiti di età superiore ai 14 anni sono legalmente obbligati a fornire informazioni di identità veritiere per la registrazione ufficiale dell'alloggio presso le autorità competenti."
+      },
+      {
+        title: "2. Conservazione dei Dati per Obblighi di Legge",
+        body: "I tuoi dati personali (inclusi nome, documento d'identità, indirizzo e firma) saranno conservati in modo sicuro al solo fine di adempiere alla registrazione ufficiale presso le Forze dell'Ordine (Mossos d'Esquadra). Questi dati saranno conservati sotto rigorose misure di sicurezza per il periodo legale di 3 anni, dopodiché verranno completamente distrutti."
+      },
+      {
+        title: "3. Consenso per Comunicazioni Commerciali",
+        body: "Accettando queste condizioni, autorizzi espressamente Vila de Fenals a conservare i tuoi dati di contatto di base (nome ed e-mail) per informarti in futuro su offerte esclusive e promozioni personalizzate sui nostri alloggi. Non condivideremo mai questi dati con terze parti."
+      },
+      {
+        title: "4. Nessuna Cessione a Terzi",
+        body: "Ci impegniamo fermamente a non vendere, noleggiare, cedere o condividere i tuoi dati personali con alcuna azienda o terza parte esterna a Vila de Fenals, salvo su richiesta obbligatoria delle autorità di polizia o giudiziarie."
+      },
+      {
+        title: "5. Diritti di Privacy (Diritti ARCO)",
+        body: "In qualsiasi momento puoi esercitare i tuoi diritti di accesso, rettifica, cancellazione, limitazione e opposizione inviando una richiesta diretta all'host."
+      }
+    ]
+  },
   uk: {
     consent_title: "Згода та юридичні умови",
     consent_desc: "Для завершення реєстрації мандрівника та отримання ключів необхідно прийняти наші правила.",
@@ -625,11 +660,14 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     es: { checkin: 'Hora estimada de llegada (Entrada)', checkout: 'Hora estimada de salida (Salida)' },
     en: { checkin: 'Estimated Arrival (Check-in)', checkout: 'Estimated Departure (Check-out)' },
     fr: { checkin: "Heure d'arrivée estimée (Check-in)", checkout: 'Heure de départ estimée (Check-out)' },
+    nl: { checkin: 'Verwachte aankomsttijd (Check-in)', checkout: 'Verwachte vertrektijd (Check-out)' },
+    it: { checkin: 'Orario stimato di arrivo (Check-in)', checkout: 'Orario stimato di partenza (Check-out)' },
     de: { checkin: 'Voraussichtliche Ankunftszeit (Check-in)', checkout: 'Voraussichtliche Abreisezeit (Check-out)' },
     pl: { checkin: 'Planowana godzina przyjazdu (Check-in)', checkout: 'Planowana godzina wyjazdu (Check-out)' },
     zh: { checkin: '预计抵达时间 (入住)', checkout: '预计离店时间 (退房)' },
     uk: { checkin: 'Очікуваний час прибуття (Заїзд)', checkout: 'Очікуваний час виїзду (Виїзд)' },
-    ru: { checkin: 'Ожидаемое время прибытия (Заезд)', checkout: 'Ожидаемое время выезда (Выезд)' }
+    ru: { checkin: 'Ожидаемое время прибытия (Заезд)', checkout: 'Ожидаемое время выезда (Выезд)' },
+    ja: { checkin: '到着予定時刻 (チェックイン)', checkout: '出発予定時刻 (チェックアウト)' }
   };
   const currentLabels = timeLabels[lang] || timeLabels['es'];
 
@@ -1155,53 +1193,53 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
 
     // Validate Expedicion Date (Must be present or past)
     if (!formData.fecha_expedicion) {
-      setError(lang === 'en' ? 'Document issue date is mandatory.' : 'La fecha de expedición del documento es obligatoria.');
+      setError(lang === 'en' ? 'Document issue date is mandatory.' : lang === 'it' ? 'La data di rilascio del documento è obbligatoria.' : 'La fecha de expedición del documento es obligatoria.');
       return;
     }
     if (formData.fecha_expedicion > todayStr) {
-      setError(lang === 'en' ? 'Invalid issue date. It must be a present or past date.' : 'Fecha de expedición no válida. Debe ser una fecha presente o pasada.');
+      setError(lang === 'en' ? 'Invalid issue date. It must be a present or past date.' : lang === 'it' ? 'Data di rilascio non valida. Deve essere una data presente o passata.' : 'Fecha de expedición no válida. Debe ser una fecha presente o pasada.');
       return;
     }
 
     // Validate Caducidad Date (Must be present or future, unless no expiry)
     if (!formData.sin_caducidad) {
       if (!formData.fecha_caducidad) {
-        setError(lang === 'en' ? 'Document expiration date is mandatory. If it has no expiration, check the "No expiration" box.' : 'La fecha de caducidad es obligatoria. Si no tiene, marque la casilla "Sin caducidad".');
+        setError(lang === 'en' ? 'Document expiration date is mandatory. If it has no expiration, check the "No expiration" box.' : lang === 'it' ? 'La data di scadenza è obbligatoria. Se non ha scadenza, seleziona la casella "Senza scadenza".' : 'La fecha de caducidad es obligatoria. Si no tiene, marque la casilla "Sin caducidad".');
         return;
       }
       if (formData.fecha_caducidad < todayStr) {
-        setError(lang === 'en' ? 'Document has expired. Expiration date must be present or future.' : 'El documento ha caducado. La fecha de caducidad debe ser presente o futura.');
+        setError(lang === 'en' ? 'Document has expired. Expiration date must be present or future.' : lang === 'it' ? 'Il documento è scaduto. La data di scadenza deve essere presente o futura.' : 'El documento ha caducado. La fecha de caducidad debe ser presente o futura.');
         return;
       }
     }
 
     if (!isUnder14 && !formData.numero_documento) {
-      setError(lang === 'en' ? 'Document number is mandatory for guests older than 14.' : 'El número de documento es obligatorio para mayores de 14 años.');
+      setError(lang === 'en' ? 'Document number is mandatory for guests older than 14.' : lang === 'it' ? 'Il numero di documento è obbligatorio per gli ospiti di età superiore ai 14 anni.' : 'El número de documento es obligatorio para mayores de 14 años.');
       return;
     }
 
     // Validate Second Surname for DNI (mandatory if DNI and Spanish national)
     const isEsp = formData.nacionalidad === 'ES';
     if (formData.tipo_documento === 'DNI' && !isUnder14 && !formData.segundo_apellido && isEsp) {
-      setError(lang === 'en' ? 'Second surname is mandatory for document type DNI/NIF.' : 'El segundo apellido es obligatorio para el tipo de documento DNI/NIF.');
+      setError(lang === 'en' ? 'Second surname is mandatory for document type DNI/NIF.' : lang === 'it' ? 'Il secondo cognome è obbligatorio per il tipo di documento DNI/NIF.' : 'El segundo apellido es obligatorio para el tipo de documento DNI/NIF.');
       return;
     }
 
     // Validate Support Number for DNI or NIE
     const isSpanishDniOrNie = (formData.tipo_documento === 'DNI' && isEsp) || formData.tipo_documento === 'NIE';
     if (isSpanishDniOrNie && !isUnder14 && !formData.numero_soporte) {
-      setError(lang === 'en' ? 'Document support number (NUM SOPORT) is mandatory for DNI or NIE.' : 'El número de soporte del documento (NUM SOPORT) es obligatorio para tipo DNI o NIE.');
+      setError(lang === 'en' ? 'Document support number (NUM SOPORT) is mandatory for DNI or NIE.' : lang === 'it' ? 'Il numero di supporto del documento (NUM SOPORT) è obbligatorio per DNI o NIE.' : 'El número de soporte del documento (NUM SOPORT) es obligatorio para tipo DNI o NIE.');
       return;
     }
 
     // Validate Minor parent links
     if (isUnder18) {
       if (!formData.parentesco) {
-        setError(lang === 'en' ? 'Relationship status is mandatory for guests under 18.' : 'El Grado de Parentesco es obligatorio para menores de 18 años.');
+        setError(lang === 'en' ? 'Relationship status is mandatory for guests under 18.' : lang === 'it' ? 'Il grado di parentela è obbligatorio per i minori di 18 anni.' : 'El Grado de Parentesco es obligatorio para menores de 18 años.');
         return;
       }
       if (!formData.adulto_responsable_id) {
-        setError(lang === 'en' ? 'You must select a registered adult responsible for the minor.' : 'Debe seleccionar un adulto registrado como responsable del menor.');
+        setError(lang === 'en' ? 'You must select a registered adult responsible for the minor.' : lang === 'it' ? 'È necessario selezionare un adulto registrato responsabile del minore.' : 'Debe seleccionar un adulto registrado como responsable del menor.');
         return;
       }
     }
@@ -1216,13 +1254,13 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
         !formData.telefono || 
         !formData.email
       ) {
-        setError(lang === 'en' ? 'For adults, contact and residence address details are mandatory.' : 'Para adultos, todos los campos de dirección de contacto y residencia son obligatorios.');
+        setError(lang === 'en' ? 'For adults, contact and residence address details are mandatory.' : lang === 'it' ? 'Per gli adulti, tutti i dati di contatto e indirizzo di residenza sono obbligatori.' : 'Para adultos, todos los campos de dirección de contacto y residencia son obligatorios.');
         return;
       }
 
       // Province validation (Mandatory for Spain residents)
       if (formData.pais_residencia === 'ES' && !formData.provincia) {
-        setError(lang === 'en' ? 'Province is mandatory for residents in Spain.' : 'La provincia es obligatoria para residentes en España.');
+        setError(lang === 'en' ? 'Province is mandatory for residents in Spain.' : lang === 'it' ? 'La provincia è obbligatoria per i residenti in Spagna.' : 'La provincia es obligatoria para residentes en España.');
         return;
       }
     }
@@ -1235,7 +1273,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
     const isCanvasBlank = !pixelBuffer.some(color => color !== 0);
 
     if (isCanvasBlank) {
-      setError(lang === 'en' ? 'Traveler digital signature is strictly mandatory.' : 'La firma digital del viajero es totalmente obligatoria.');
+      setError(lang === 'en' ? 'Traveler digital signature is strictly mandatory.' : lang === 'it' ? 'La firma digitale del viaggiatore è obbligatoria.' : 'La firma digital del viajero es totalmente obligatoria.');
       return;
     }
 
@@ -1342,7 +1380,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
           <div>
             <h1 className="text-2xl md:text-3xl font-light text-white drop-shadow-md">{dict.reg_title}</h1>
             <p className="text-[10px] text-cyan-200 uppercase tracking-widest font-bold">
-              {dict.reg_subtitle} | {lang === 'en' ? `Total travelers: ${totalGuests}` : `Total viajeros: ${totalGuests}`}
+              {dict.reg_subtitle} | {lang === 'en' ? `Total travelers: ${totalGuests}` : lang === 'it' ? `Totale viaggiatori: ${totalGuests}` : `Total viajeros: ${totalGuests}`}
             </p>
           </div>
         </div>
@@ -1716,7 +1754,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
-                  {lang === 'en' ? 'Kinship / Relation' : 'Relación viajeros'}
+                  {lang === 'en' ? 'Kinship / Relation' : lang === 'it' ? 'Relazione tra viaggiatori' : 'Relación viajeros'}
                 </label>
                 <select 
                   
@@ -1725,11 +1763,11 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   onChange={handleChange} 
                   className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-white/30 [&>option]:bg-gray-900"
                 >
-                  <option value="Family">{lang === 'en' ? 'Family' : 'Familia'}</option>
-                  <option value="Friends">{lang === 'en' ? 'Friends / Group' : 'Amigos / Grupo'}</option>
-                  <option value="Business">{lang === 'en' ? 'Business' : 'Trabajo / Empresa'}</option>
-                  <option value="Individual">{lang === 'en' ? 'Individual' : 'Individual'}</option>
-                  <option value="Other">{lang === 'en' ? 'Other' : 'Otro'}</option>
+                  <option value="Family">{lang === 'en' ? 'Family' : lang === 'it' ? 'Famiglia' : 'Familia'}</option>
+                  <option value="Friends">{lang === 'en' ? 'Friends / Group' : lang === 'it' ? 'Amici / Gruppo' : 'Amigos / Grupo'}</option>
+                  <option value="Business">{lang === 'en' ? 'Business' : lang === 'it' ? 'Lavoro / Azienda' : 'Trabajo / Empresa'}</option>
+                  <option value="Individual">{lang === 'en' ? 'Individual' : lang === 'it' ? 'Individuale' : 'Individual'}</option>
+                  <option value="Other">{lang === 'en' ? 'Other' : lang === 'it' ? 'Altro' : 'Otro'}</option>
                 </select>
               </div>
               <div className="space-y-1">
@@ -1769,6 +1807,8 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                   <label htmlFor="firma_menor_16" className="text-xs text-white/90 cursor-pointer select-none">
                     {lang === 'en' 
                       ? 'Signature on behalf of a minor under 16 years of age' 
+                      : lang === 'it'
+                      ? 'Firma per conto di un minore di 16 anni'
                       : 'Firma en nombre de un menor de 16 años'}
                   </label>
                 </div>
@@ -1776,7 +1816,7 @@ export default function RegistroViajeroPage({ params }: { params: { reservation_
                 {formData.firma_menor_16 && (
                   <div className="space-y-1 p-2.5 rounded-xl bg-white/5 border border-white/10 animate-fade-in">
                     <label className="text-[10px] text-white/80 uppercase tracking-wider font-semibold block truncate h-4">
-                      {lang === 'en' ? 'Adult signing on behalf' : 'Adulto que firma en su nombre'}
+                      {lang === 'en' ? 'Adult signing on behalf' : lang === 'it' ? 'Adulto che firma per conto' : 'Adulto que firma en su nombre'}
                     </label>
                     <select 
                      
