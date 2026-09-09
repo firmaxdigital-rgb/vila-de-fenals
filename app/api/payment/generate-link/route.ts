@@ -168,8 +168,22 @@ export async function POST(request: Request) {
     // 6. Make request to PayComet Form API
     const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
     
-    // Set operation type: 3 for Preauthorization (Deposits), 1 for Purchase (Tax)
-    const opType = isDeposit ? 3 : 1;
+    // Resolve deposit operation type: preauth (3) or firm charge (1)
+    let depositType = 'preauth';
+    if (reservation.platform && reservation.platform.trim().startsWith('{')) {
+      try {
+        const parsed = JSON.parse(reservation.platform);
+        if (parsed.deposit_type) {
+          depositType = parsed.deposit_type;
+        }
+      } catch (e) {
+        console.error("Error parsing platform JSON for deposit_type:", e);
+      }
+    }
+
+    // Set operation type: 3 for Preauthorization, 1 for Purchase / Cobro en firme
+    const opType = isDeposit ? (depositType === 'charge' ? 1 : 3) : 1;
+    console.log(`[PayComet] Modalidad fianza para ${reservation_code}: ${depositType} -> operationType: ${opType}`);
     
     const payload = {
       operationType: opType,

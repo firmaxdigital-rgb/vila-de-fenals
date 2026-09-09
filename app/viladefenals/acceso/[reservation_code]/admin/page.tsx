@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { Users, Lock, Unlock, ArrowRight, ShieldAlert, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { Users, Lock, Unlock, ArrowRight, ShieldAlert, CheckCircle2, ChevronLeft, Shield, CreditCard } from 'lucide-react';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [checkOutTime, setCheckOutTime] = useState('10:00');
   const [hasDeposit, setHasDeposit] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0');
+  const [depositType, setDepositType] = useState<'preauth' | 'charge'>('preauth');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +79,9 @@ export default function AdminPage() {
               const parsed = JSON.parse(data.platform);
               setCheckInTime(parsed.check_in_time || '16:00');
               setCheckOutTime(parsed.check_out_time || '10:00');
+              if (parsed.deposit_type) {
+                setDepositType(parsed.deposit_type === 'charge' ? 'charge' : 'preauth');
+              }
               if (data.is_tax_paid && parsed.tax_payment_method) {
                 setTaxPaymentMethod(parsed.tax_payment_method);
               }
@@ -307,7 +311,8 @@ export default function AdminPage() {
           check_in_time: checkInTime,
           check_out_time: checkOutTime,
           has_deposit: hasDeposit,
-          deposit_amount: depositAmount
+          deposit_amount: depositAmount,
+          deposit_type: depositType
         })
       });
       const data = await res.json();
@@ -614,31 +619,82 @@ export default function AdminPage() {
 
                 {hasDeposit && (
                   <>
-                    <div className="space-y-1.5 animate-fade-in">
-                      <label htmlFor="deposit_amount_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
-                      Importe de la Fianza (€)
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="deposit_amount_input"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={depositAmount}
-                        onChange={(e) => setDepositAmount(e.target.value)}
-                        placeholder="Ej: 300.00"
-                        className="w-full bg-black/40 border border-white/15 rounded-xl py-2.5 pl-4 pr-10 text-sm font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
-                      />
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-white/40">
-                        EUR
+                    <div className="space-y-4 animate-fade-in">
+                      {/* Operation Type Selector (Tabs) */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
+                          Modalidad de la Operación
+                        </label>
+                        <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 border border-white/10 rounded-xl">
+                          <button
+                            type="button"
+                            onClick={() => setDepositType('preauth')}
+                            className={`py-2 px-3 rounded-lg text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
+                              depositType === 'preauth'
+                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
+                                : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <Shield size={14} className={depositType === 'preauth' ? 'text-cyan-400' : 'text-white/40'} />
+                              <span>Preautorización</span>
+                            </div>
+                            <span className="text-[9px] opacity-75 font-normal">Retención 30 días</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDepositType('charge')}
+                            className={`py-2 px-3 rounded-lg text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
+                              depositType === 'charge'
+                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
+                                : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <CreditCard size={14} className={depositType === 'charge' ? 'text-cyan-400' : 'text-white/40'} />
+                              <span>Cobro en firme</span>
+                            </div>
+                            <span className="text-[9px] opacity-75 font-normal">Cargo directo</span>
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-white/40 px-1 leading-tight">
+                          {depositType === 'preauth'
+                            ? 'ℹ️ Preautorización (Tipo 3): El banco retiene el importe durante 30 días sin cobrarlo en firme. Se cancela o libera tras la estancia.'
+                            : 'ℹ️ Cobro en firme (Tipo 1): Cargo bancario directo e inmediato en la cuenta del huésped. Requiere devolución manual si procede.'}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label htmlFor="deposit_amount_input" className="text-[10px] text-white/50 uppercase tracking-widest font-bold block">
+                          Importe de la Fianza (€)
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="deposit_amount_input"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={depositAmount}
+                            onChange={(e) => setDepositAmount(e.target.value)}
+                            placeholder="Ej: 300.00"
+                            className="w-full bg-black/40 border border-white/15 rounded-xl py-2.5 pl-4 pr-10 text-sm font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
+                          />
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono text-white/40">
+                            EUR
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
                   {/* Manual Override UI integrated directly into the deposit settings */}
                   <div className="pt-4 mt-2 border-t border-white/10 space-y-4">
                     <div className="bg-black/20 border border-white/10 rounded-xl p-3 flex justify-between items-center text-xs">
-                      <span className="text-white/60">Fianza Pagada Actual:</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white/60">Fianza Registrada:</span>
+                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border bg-cyan-500/10 text-cyan-300 border-cyan-500/30">
+                          {depositType === 'charge' ? 'Cobro en firme' : 'Preautorización (30d)'}
+                        </span>
+                      </div>
                       <span className="text-cyan-300 font-bold font-mono">{parseFloat(reservation?.deposit_paid || '0').toFixed(2)} €</span>
                     </div>
                     

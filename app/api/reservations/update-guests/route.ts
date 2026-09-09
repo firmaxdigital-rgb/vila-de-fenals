@@ -46,7 +46,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 export async function POST(request: Request) {
   try {
-    const { reservation_code, total_guests, check_in_time, check_out_time, has_deposit, deposit_amount } = await request.json();
+    const { reservation_code, total_guests, check_in_time, check_out_time, has_deposit, deposit_amount, deposit_type } = await request.json();
 
     if (!reservation_code || total_guests === undefined) {
       return NextResponse.json({ success: false, error: 'Falta reservation_code o total_guests' }, { status: 400 });
@@ -69,13 +69,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 });
     }
 
-    // 2. Resolve original platform name (preserving it)
+    // 2. Resolve original platform name (preserving existing properties)
     let platformName = 'Airbnb'; // Fallback
+    let existingPlatformObj: any = {};
     if (reservation.platform) {
       if (reservation.platform.trim().startsWith('{')) {
         try {
-          const parsed = JSON.parse(reservation.platform);
-          platformName = parsed.name || 'Airbnb';
+          existingPlatformObj = JSON.parse(reservation.platform);
+          platformName = existingPlatformObj.name || 'Airbnb';
         } catch (e) {
           console.error("Error parsing platform JSON in update-guests API:", e);
           platformName = reservation.platform;
@@ -85,14 +86,17 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Construct new platform JSON with custom hours
+    // 3. Construct new platform JSON with custom hours and deposit type
     const inTime = check_in_time || '16:00';
     const outTime = check_out_time || '10:00';
+    const depType = deposit_type === 'charge' ? 'charge' : 'preauth';
 
     const updatedPlatform = JSON.stringify({
+      ...existingPlatformObj,
       name: platformName,
       check_in_time: inTime,
-      check_out_time: outTime
+      check_out_time: outTime,
+      deposit_type: depType
     });
 
     // Deposit configuration
