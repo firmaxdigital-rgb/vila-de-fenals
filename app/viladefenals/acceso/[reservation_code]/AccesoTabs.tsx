@@ -729,7 +729,8 @@ export default function AccesoTabs({
           reservation_code: decodedCode,
           payment_type: 'deposit',
           payment_amount: amount,
-          lang: lang
+          lang: lang,
+          micro_charge: testMode
         })
       });
       const data = await res.json();

@@ -92,6 +92,17 @@ export async function POST(request: Request) {
       if (isNaN(totalAmount) || totalAmount <= 0) {
         return NextResponse.json({ success: false, error: 'Importe de fianza no válido' }, { status: 400 });
       }
+
+      // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
+      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD' || reservation_code === 'TEST250526') {
+        if (reservation_code === 'TESTPROD') {
+          console.log("TESTPROD DETECTED: Overriding deposit amount to 1.00€ for real preauth testing.");
+          totalAmount = 1.00;
+        } else {
+          console.log("TEST MODE / MICRO-CHARGE DETECTED: Overriding deposit amount to 0.10€ for real preauth testing.");
+          totalAmount = 0.10;
+        }
+      }
     } else {
       const rate = 1.75;
       const calculatedTax = parseFloat((payingGuests * nights * rate).toFixed(2));
@@ -157,8 +168,8 @@ export async function POST(request: Request) {
     // 6. Make request to PayComet Form API
     const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
     
-    // Set operation type: 1 for Purchase / Cobro en firme (for both deposits and taxes until Sabadell enables preauth)
-    const opType = 1;
+    // Set operation type: 3 for Preauthorization (Deposits), 1 for Purchase (Tax)
+    const opType = isDeposit ? 3 : 1;
     
     const payload = {
       operationType: opType,
