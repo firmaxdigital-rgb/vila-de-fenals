@@ -19,13 +19,13 @@ export default function TasaForm({ reservationCode, payingGuests, nights, totalA
   const router = useRouter();
   const searchParams = useSearchParams();
   const lang = langProp || searchParams.get('lang') || 'es';
-  const isMicroCharge = searchParams.get('test_mode') === 'true' || searchParams.get('micro_charge') === 'true' || reservationCode === 'HMMR92E9DJ' || reservationCode === 'TEST7GUESTS' || reservationCode === 'TESTPROD';
+  const isMicroCharge = searchParams.get('test_mode') === 'true' || searchParams.get('micro_charge') === 'true' || reservationCode === 'HMMR92E9DJ' || reservationCode.startsWith('TEST');
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  const totalToShow = reservationCode === 'TESTPROD' ? 1.00 : (isMicroCharge ? 0.10 : totalAmount);
+  const totalToShow = reservationCode.startsWith('TESTPROD') ? 1.00 : (isMicroCharge ? 0.10 : totalAmount);
   const formattedTotal = totalToShow.toFixed(2);
 
   const handlePaymentRedirect = async (e: React.FormEvent) => {
