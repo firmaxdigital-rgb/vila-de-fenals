@@ -479,10 +479,47 @@ export default function AccesoTabs({
 
   const depositPaidFromDB = parseFloat(reservation.deposit_paid) || 0;
   const [localDepositPaid, setLocalDepositPaid] = useState(depositPaidFromDB);
+  const rawDepositAmount = parseFloat(reservation.deposit_amount) || 0;
+  const defaultSplitLimit = rawDepositAmount > 0 
+    ? String(Math.max(0.10, parseFloat((rawDepositAmount / 2).toFixed(2)))) 
+    : '150';
+
   const [isSplitSelected, setIsSplitSelected] = useState(false);
-  const [cardLimit, setCardLimit] = useState('500');
+  const [cardLimit, setCardLimit] = useState(defaultSplitLimit);
   const [generatingLinks, setGeneratingLinks] = useState<Record<number, boolean>>({});
   const [hasConfirmedDeposit, setHasConfirmedDeposit] = useState(false);
+
+  // Restore split settings from sessionStorage on mount (if user went to PayComet and pressed Back)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem(`fianza_split_${decodedCode}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (typeof parsed.isSplit === 'boolean') {
+            setIsSplitSelected(parsed.isSplit);
+          }
+          if (parsed.limit && parseFloat(parsed.limit) > 0) {
+            setCardLimit(String(parsed.limit));
+          }
+        }
+      } catch (e) {
+        console.error("Error restoring fianza_split from sessionStorage:", e);
+      }
+    }
+  }, [decodedCode]);
+
+  // Persist split settings to sessionStorage whenever user changes them
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(`fianza_split_${decodedCode}`, JSON.stringify({
+          isSplit: isSplitSelected,
+          limit: cardLimit
+        }));
+      } catch (e) {}
+    }
+  }, [isSplitSelected, cardLimit, decodedCode]);
 
   useEffect(() => {
     setLocalDepositPaid(parseFloat(reservation.deposit_paid) || 0);
@@ -1124,8 +1161,15 @@ export default function AccesoTabs({
                         <input
                           id="split_deposit_checkbox"
                           type="checkbox"
+                          autoComplete="off"
                           checked={isSplitSelected}
-                          onChange={(e) => setIsSplitSelected(e.target.checked)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setIsSplitSelected(checked);
+                            if (checked && (!cardLimit || parseFloat(cardLimit) <= 0)) {
+                              setCardLimit(defaultSplitLimit);
+                            }
+                          }}
                           className="w-4 h-4 rounded border-white/20 bg-black/40 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 focus:outline-none cursor-pointer mt-0.5"
                         />
                         <div className="space-y-1 animate-fade-in">
@@ -1149,6 +1193,7 @@ export default function AccesoTabs({
                               type="number"
                               step="0.01"
                               min="0.10"
+                              autoComplete="off"
                               value={cardLimit}
                               onChange={(e) => setCardLimit(e.target.value)}
                               className="w-full bg-black/40 border border-white/15 rounded-xl py-2 px-3 pl-4 pr-10 text-xs font-mono text-cyan-200 focus:outline-none focus:border-cyan-400"
@@ -1163,9 +1208,18 @@ export default function AccesoTabs({
                       {/* Display the buttons */}
                       {(() => {
                         const limitVal = parseFloat(cardLimit);
-                        if (isSplitSelected && limitVal > 0) {
+                        const remainingDeposit = parseFloat((depositAmount - depositPaid).toFixed(2));
+
+                        if (isSplitSelected) {
+                          if (isNaN(limitVal) || limitVal <= 0) {
+                            return (
+                              <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300 text-xs text-center">
+                                Introduce un límite de tarjeta válido (ej. {defaultSplitLimit}€).
+                              </div>
+                            );
+                          }
+
                           // Split logic based ONLY on the remaining amount
-                          const remainingDeposit = parseFloat((depositAmount - depositPaid).toFixed(2));
                           const totalSplits: number[] = [];
                           let tempTotal = remainingDeposit;
                           

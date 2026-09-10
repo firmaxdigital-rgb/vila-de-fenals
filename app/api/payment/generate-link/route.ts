@@ -93,14 +93,24 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: 'Importe de fianza no válido' }, { status: 400 });
       }
 
-      // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
+      // Overriding for real testing purposes (safety capping for test reservations)
       if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD' || reservation_code === 'TEST250526') {
         if (reservation_code === 'TESTPROD') {
-          console.log("TESTPROD DETECTED: Overriding deposit amount to 1.00€ for real preauth testing.");
-          totalAmount = 1.00;
+          // If totalAmount is greater than 1.00€, cap it to 1.00€ for safety.
+          // If it is a partial payment / split (e.g. 0.50€), preserve the exact requested partial amount!
+          if (totalAmount > 1.00) {
+            console.log("TESTPROD DETECTED: Capping deposit amount to 1.00€ for safety.");
+            totalAmount = 1.00;
+          } else {
+            console.log(`TESTPROD DETECTED: Preserving requested partial deposit amount: ${totalAmount}€`);
+          }
         } else {
-          console.log("TEST MODE / MICRO-CHARGE DETECTED: Overriding deposit amount to 0.10€ for real preauth testing.");
-          totalAmount = 0.10;
+          if (totalAmount > 0.10) {
+            console.log("TEST MODE / MICRO-CHARGE DETECTED: Capping deposit amount to 0.10€ for safety.");
+            totalAmount = 0.10;
+          } else {
+            console.log(`TEST MODE DETECTED: Preserving requested partial deposit amount: ${totalAmount}€`);
+          }
         }
       }
     } else {
