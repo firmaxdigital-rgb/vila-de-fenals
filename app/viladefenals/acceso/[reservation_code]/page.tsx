@@ -119,7 +119,7 @@ export default async function AccesoPage({
   const lang: Lang = (['es', 'en', 'fr', 'nl', 'it', 'de', 'pl', 'uk', 'ru', 'zh', 'ja'].includes(langQuery) ? langQuery : 'es') as Lang;
   const dict = translations[lang];
   const paymentStatus = resolvedSearchParams?.payment_status as string;
-  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode === 'TESTPROD' || decodedCode === 'TEST7GUESTS' || decodedCode === 'TEST250526';
+  const testMode = resolvedSearchParams?.test_mode === 'true' || resolvedSearchParams?.micro_charge === 'true' || decodedCode.startsWith('TEST') || decodedCode === 'HMMR92E9DJ';
 
   console.log("Cargando reserva:", decodedCode, "TestMode:", testMode);
 

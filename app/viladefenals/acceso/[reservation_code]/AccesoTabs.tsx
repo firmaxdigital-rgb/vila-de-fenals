@@ -533,6 +533,12 @@ export default function AccesoTabs({
 
       setHasConfirmedDeposit(true);
 
+      // Clean the URL query params so that refreshing doesn't re-trigger confirmation!
+      if (typeof window !== 'undefined') {
+        const cleanUrl = `${window.location.pathname}?lang=${lang}`;
+        window.history.replaceState({}, '', cleanUrl);
+      }
+
       const endpointsToCall = [];
       endpointsToCall.push(
         fetch('/api/payment/confirm-deposit', {
@@ -557,7 +563,7 @@ export default function AccesoTabs({
         router.refresh();
       });
     }
-  }, [paymentStatus, hasConfirmedDeposit, decodedCode, searchParams, router]);
+  }, [paymentStatus, hasConfirmedDeposit, decodedCode, searchParams, router, lang]);
   
   // Tab navigation state
   const [activeTab, setActiveTab] = useState('acceso');
@@ -587,6 +593,12 @@ export default function AccesoTabs({
     if (paymentStatus === 'success') {
       console.log("[AccesoTabs] Successful payment landed. Storing persistent state and calling confirm API fallback...");
       
+      // Clean the URL query params so that refreshing doesn't re-trigger confirmation!
+      if (typeof window !== 'undefined') {
+        const cleanUrl = `${window.location.pathname}?lang=${lang}`;
+        window.history.replaceState({}, '', cleanUrl);
+      }
+
       // Store in localStorage immediately
       if (typeof window !== 'undefined') {
         localStorage.setItem(`paycomet_success_${decodedCode}`, 'true');

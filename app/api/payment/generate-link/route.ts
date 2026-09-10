@@ -94,15 +94,15 @@ export async function POST(request: Request) {
       }
 
       // Overriding for real testing purposes (safety capping for test reservations)
-      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD' || reservation_code === 'TEST250526') {
-        if (reservation_code === 'TESTPROD') {
+      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code.startsWith('TEST')) {
+        if (reservation_code.startsWith('TESTPROD')) {
           // If totalAmount is greater than 1.00€, cap it to 1.00€ for safety.
           // If it is a partial payment / split (e.g. 0.50€), preserve the exact requested partial amount!
           if (totalAmount > 1.00) {
-            console.log("TESTPROD DETECTED: Capping deposit amount to 1.00€ for safety.");
+            console.log(`${reservation_code} DETECTED: Capping deposit amount to 1.00€ for safety.`);
             totalAmount = 1.00;
           } else {
-            console.log(`TESTPROD DETECTED: Preserving requested partial deposit amount: ${totalAmount}€`);
+            console.log(`${reservation_code} DETECTED: Preserving requested partial deposit amount: ${totalAmount}€`);
           }
         } else {
           if (totalAmount > 0.10) {
@@ -122,9 +122,9 @@ export async function POST(request: Request) {
       totalAmount = parseFloat((calculatedTax - alreadyPaidTax).toFixed(2));
 
       // Overriding for real testing purposes (micro charge of 0.10€ or 1.00€)
-      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code === 'TEST7GUESTS' || reservation_code === 'TESTPROD' || reservation_code === 'TEST250526') {
-        if (reservation_code === 'TESTPROD') {
-          console.log("TESTPROD DETECTED: Overriding total amount to 1.00€ for real payment testing.");
+      if (micro_charge === true || micro_charge === "true" || reservation_code === 'HMMR92E9DJ' || reservation_code.startsWith('TEST')) {
+        if (reservation_code.startsWith('TESTPROD')) {
+          console.log(`${reservation_code} DETECTED: Overriding total amount to 1.00€ for real payment testing.`);
           totalAmount = 1.00;
         } else {
           console.log("TEST MODE / MICRO-CHARGE DETECTED: Overriding total amount to 0.10€ for real payment testing.");
