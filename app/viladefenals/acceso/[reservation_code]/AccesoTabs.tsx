@@ -529,7 +529,8 @@ export default function AccesoTabs({
     if (paymentStatus === 'deposit_success' && !hasConfirmedDeposit) {
       const amountStr = searchParams.get('deposit_amount') || '0';
       const parsedAmt = parseFloat(amountStr);
-      console.log(`[AccesoTabs] Deposit payment success landed. Confirming deposit amount: ${parsedAmt}€`);
+      const orderId = searchParams.get('order') || searchParams.get('r') || '';
+      console.log(`[AccesoTabs] Deposit payment success landed. Confirming deposit amount: ${parsedAmt}€ (Order: ${orderId})`);
 
       setHasConfirmedDeposit(true);
 
@@ -544,7 +545,11 @@ export default function AccesoTabs({
         fetch('/api/payment/confirm-deposit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reservation_code: decodedCode, amount: parsedAmt })
+          body: JSON.stringify({ 
+            reservation_code: decodedCode, 
+            amount: parsedAmt,
+            order_id: orderId 
+          })
         })
       );
 

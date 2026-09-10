@@ -138,18 +138,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, url: null, amount: 0 });
     }
 
-    // 5. Construct redirect URLs
+    // 5. Construct order ID and redirect URLs
+    const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
+
     const host = request.headers.get('host') || 'localhost:3000';
     const proto = request.headers.get('x-forwarded-proto') || 'http';
     const baseUrl = `${proto}://${host}`;
 
     const urlOk = isDeposit
-      ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_success&deposit_amount=${totalAmount}`
-      : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success`;
+      ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_success&deposit_amount=${totalAmount}&order=${orderId}`
+      : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success&order=${orderId}`;
 
     const urlKo = isDeposit
-      ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_error`
-      : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=error`;
+      ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_error&order=${orderId}`
+      : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=error&order=${orderId}`;
 
     const paycometApiKey = process.env.PAYCOMET_API_KEY;
     const paycometTerminal = process.env.PAYCOMET_TERMINAL;
@@ -165,8 +167,8 @@ export async function POST(request: Request) {
       console.warn("PayComet credentials missing or empty in .env.local. Returning simulated checkout URL.");
       // Return a simulated checkout link that has simulated success/error paths
       const simulatedUrl = isDeposit
-        ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_success&deposit_amount=${totalAmount}&simulated=true`
-        : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success&simulated=true`;
+        ? `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=deposit_success&deposit_amount=${totalAmount}&order=${orderId}&simulated=true`
+        : `${baseUrl}/viladefenals/acceso/${reservation_code}?lang=${selectedLang}&payment_status=success&order=${orderId}&simulated=true`;
       return NextResponse.json({
         success: true,
         url: simulatedUrl,
@@ -176,7 +178,6 @@ export async function POST(request: Request) {
     }
 
     // 6. Make request to PayComet Form API
-    const orderId = isDeposit ? `${reservation_code}_DEP_${Date.now()}` : `${reservation_code}_${Date.now()}`;
     
     // Resolve deposit operation type: preauth (3) or firm charge (1)
     let depositType = 'preauth';

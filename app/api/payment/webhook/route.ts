@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         // Fetch current reservation
         const { data: reservation, error: fetchErr } = await supabase
           .from('reservations')
-          .select('deposit_amount, deposit_paid, has_deposit, total_guests, is_tax_paid, is_registered')
+          .select('deposit_amount, deposit_paid, has_deposit, total_guests, is_tax_paid, is_registered, platform')
           .eq('reservation_code', reservationCode)
           .single();
 
@@ -113,13 +113,38 @@ export async function POST(request: Request) {
           return NextResponse.json({ success: false, error: 'Reserva no encontrada' }, { status: 404 });
         }
 
-        const currentPaid = parseFloat(reservation.deposit_paid) || 0;
-        const depositAmt = parseFloat(reservation.deposit_amount) || 0;
-        const newPaid = Math.min(currentPaid + amountPaid, depositAmt);
+        let platformObj: any = {};
+        if (reservation.platform) {
+          if (typeof reservation.platform === 'string' && reservation.platform.trim().startsWith('{')) {
+            try { platformObj = JSON.parse(reservation.platform); } catch (e) {}
+          } else if (typeof reservation.platform === 'object') {
+            platformObj = reservation.platform;
+          }
+        }
+        const processedOrders: string[] = Array.isArray(platformObj.processed_orders) ? platformObj.processed_orders : [];
+
+        if (rawOrderId && processedOrders.includes(rawOrderId)) {
+          console.log(`[Webhook] Order ${rawOrderId} already processed previously. Skipping duplicate.`);
+          return NextResponse.json({ success: true, message: 'Orden ya procesada anteriormente.' });
+        }
+
+        const currentPaid = parseFloat(reservation.deposit_paid || '0');
+        const depositAmt = parseFloat(reservation.deposit_amount || '0');
+        const newPaid = parseFloat((currentPaid + amountPaid).toFixed(2));
+        const cappedPaid = depositAmt > 0 ? Math.min(newPaid, depositAmt) : newPaid;
+
+        if (rawOrderId) {
+          processedOrders.push(rawOrderId);
+        }
+        platformObj.processed_orders = processedOrders;
 
         const { error: updateErr } = await supabase
           .from('reservations')
-          .update({ deposit_paid: newPaid })
+          .update({ 
+            deposit_paid: cappedPaid,
+            platform: JSON.stringify(platformObj),
+            updated_at: new Date().toISOString()
+          })
           .eq('reservation_code', reservationCode);
 
         if (updateErr) {
@@ -127,7 +152,7 @@ export async function POST(request: Request) {
           throw updateErr;
         }
 
-        const isDepositComplete = newPaid >= depositAmt;
+        const isDepositComplete = cappedPaid >= depositAmt;
         console.log(`[Webhook] deposit_paid actualizado: ${newPaid}€ / ${depositAmt}€. Completo: ${isDepositComplete}`);
 
         // Sync State Engine
