@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="vf-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="60%" stop-color="#0891b2"/>
+      <stop offset="100%" stop-color="#0e7490"/>
+    </linearGradient>
+    <linearGradient id="vf-sun" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="60%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="vf-wave-back" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#0369a1" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="vf-wave-front" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="vf-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- App Icon Squircle Background -->
+  <rect width="512" height="512" rx="112" fill="url(#vf-bg)"/>
+
+  <!-- Golden Mediterranean Sun -->
+  <circle cx="395" cy="115" r="68" fill="#fbbf24" opacity="0.25"/>
+  <circle cx="395" cy="115" r="50" fill="url(#vf-sun)"/>
+  <circle cx="395" cy="115" r="74" stroke="#fef08a" stroke-width="6" stroke-linecap="round" stroke-dasharray="14 18" opacity="0.6"/>
+
+  <!-- Ocean Waves (Background Layer) -->
+  <path d="M0 360 C140 320 280 390 512 340 V512 H0 Z" fill="url(#vf-wave-back)"/>
+
+  <!-- The Smart Key (Virtual Key of Vila de Fenals) -->
+  <g filter="url(#vf-glow)" transform="translate(225, 235) rotate(-45)">
+    <!-- Key Head / Bow -->
+    <circle cx="0" cy="-105" r="72" stroke="#ffffff" stroke-width="32" fill="none"/>
+    <circle cx="0" cy="-105" r="22" fill="#ffffff"/>
+    <!-- Key Shank / Shaft -->
+    <path d="M-17 -40 L-17 175 C-17 185 0 192 0 192 C0 192 17 185 17 175 L17 -40 Z" fill="#ffffff"/>
+    <!-- Key Teeth / Bit -->
+    <rect x="17" y="115" width="52" height="28" rx="10" fill="#ffffff"/>
+    <rect x="17" y="55" width="40" height="26" rx="9" fill="#ffffff"/>
+  </g>
+
+  <!-- Ocean Waves (Foreground Layer) -->
+  <path d="M0 425 C130 380 290 445 512 395 V512 H0 Z" fill="url(#vf-wave-front)" opacity="0.95"/>
+  <!-- Sea Foam Crest -->
+  <path d="M0 425 C130 380 290 445 512 395" stroke="#ffffff" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <path d="M0 470 C160 440 330 490 512 450 V512 H0 Z" fill="#0284c7" opacity="0.4"/>
+</svg>
