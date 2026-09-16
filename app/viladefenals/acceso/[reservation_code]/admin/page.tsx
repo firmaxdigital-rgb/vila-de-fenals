@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
-import { Users, Lock, Unlock, ArrowRight, ShieldAlert, CheckCircle2, ChevronLeft, Shield, CreditCard } from 'lucide-react';
+import { Users, Lock, Unlock, ArrowRight, ShieldAlert, CheckCircle2, ChevronLeft, Shield, CreditCard, RefreshCw } from 'lucide-react';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
@@ -57,6 +57,24 @@ export default function AdminPage() {
   const [showDeleteTravelerModal, setShowDeleteTravelerModal] = useState(false);
   const [travelerToDelete, setTravelerToDelete] = useState<string>('');
   const [isDeletingTraveler, setIsDeletingTraveler] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncIcal = async () => {
+    setIsSyncing(true);
+    try {
+      const res = await fetch('/api/sync-ical');
+      const data = await res.json();
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Error al sincronizar calendarios.');
+        setIsSyncing(false);
+      }
+    } catch (e) {
+      alert('Error de red al sincronizar calendarios.');
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     async function loadReservationAndTravelers() {
@@ -420,6 +438,21 @@ export default function AdminPage() {
                 No hemos podido localizar la reserva {decodedCode} en el sistema.
               </p>
             </div>
+
+            <div className="mt-6 space-y-3">
+              <button 
+                onClick={handleSyncIcal}
+                disabled={isSyncing}
+                className="w-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 font-semibold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm transition-all hover:scale-[1.01] active:scale-[0.99] shadow-md"
+              >
+                <RefreshCw size={16} className={isSyncing ? "animate-spin" : ""} />
+                <span>{isSyncing ? "Sincronizando con Airbnb/Booking..." : "🔄 Sincronizar calendarios ahora"}</span>
+              </button>
+              <p className="text-xs text-white/50 leading-relaxed">
+                ¿La reserva acaba de entrar en la plataforma? Pulsa el botón superior para forzar la sincronización inmediata con los calendarios de Airbnb, Booking y VRBO.
+              </p>
+            </div>
+
             <button 
               onClick={() => router.push(`/viladefenals/acceso/${decodedCode}`)}
               className="mt-6 text-sm text-cyan-300 hover:underline flex items-center justify-center gap-1 mx-auto"

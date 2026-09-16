@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Lock, Unlock, Key, Car, Map as MapIcon, Wifi, Copy, ExternalLink, 
-  CheckCircle2, Users, CreditCard, ShieldAlert, AlertCircle, HelpCircle
+  CheckCircle2, Users, CreditCard, ShieldAlert, AlertCircle, HelpCircle, FileText
 } from 'lucide-react';
 import OpenDoorButton from './OpenDoorButton';
 import ShareButton from './ShareButton';
@@ -854,6 +854,28 @@ export default function AccesoTabs({
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                     allowFullScreen
                   />
+                </div>
+                {/* PDF Guide for low signal */}
+                <div className="pt-1">
+                  <a
+                    href={
+                      lang === 'es' ? '/guias/Instrucciones_Acceso_Vila_de_Fenals_ES.pdf' :
+                      lang === 'fr' ? '/guias/Instructions_Acces_Vila_de_Fenals_FR.pdf' :
+                      lang === 'it' ? '/guias/Istruzioni_Accesso_Vila_de_Fenals_IT.pdf' :
+                      '/guias/Access_Instructions_Vila_de_Fenals_EN.pdf'
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-2 w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-medium py-2.5 px-3 rounded-xl transition-all text-xs shadow-sm hover:scale-[1.01]"
+                  >
+                    <FileText size={15} className="shrink-0 text-cyan-400" />
+                    <span>
+                      {lang === 'es' ? '¿Poca cobertura para el vídeo? Descargar Guía en PDF' :
+                       lang === 'fr' ? 'Faible connexion ? Télécharger le guide en PDF' :
+                       lang === 'it' ? 'Poca linea per il video? Scarica guida in PDF' :
+                       'Low mobile signal? Download PDF Access Guide'}
+                    </span>
+                  </a>
                 </div>
               </div>
     </div>
