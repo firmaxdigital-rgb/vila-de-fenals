@@ -81,6 +81,34 @@ const recyclingTranslations: Record<Lang, { title: string; desc: string; room: s
   }
 };
 
+const pdfGuides: Record<Lang, string> = {
+  es: '/guias/Instrucciones_Acceso_Vila_de_Fenals_ES.pdf',
+  en: '/guias/Access_Instructions_Vila_de_Fenals_EN.pdf',
+  fr: '/guias/Instructions_Acces_Vila_de_Fenals_FR.pdf',
+  nl: '/guias/Toegangsinstructies_Vila_de_Fenals_NL.pdf',
+  it: '/guias/Istruzioni_Accesso_Vila_de_Fenals_IT.pdf',
+  de: '/guias/Zugangsanleitung_Vila_de_Fenals_DE.pdf',
+  pl: '/guias/Instrukcja_Dostepu_Vila_de_Fenals_PL.pdf',
+  uk: '/guias/Instruktsiya_Dostupu_Vila_de_Fenals_UK.pdf',
+  ru: '/guias/Instruktsiya_Dostupa_Vila_de_Fenals_RU.pdf',
+  zh: '/guias/Vila_de_Fenals_Ruzhu_Zhinan_ZH.pdf',
+  ja: '/guias/Vila_de_Fenals_Access_Guide_JA.pdf',
+};
+
+const pdfGuideLabels: Record<Lang, string> = {
+  es: '¿Poca cobertura para el vídeo? Descargar Guía en PDF',
+  en: 'Low mobile signal? Download PDF Access Guide',
+  fr: 'Faible connexion ? Télécharger le guide en PDF',
+  nl: 'Slecht bereik voor video? Download PDF Gids',
+  it: 'Poca linea per il video? Scarica guida in PDF',
+  de: 'Schlechtes Netz fürs Video? PDF-Anleitung herunterladen',
+  pl: 'Słaby zasięg na wideo? Pobierz instrukcję PDF',
+  uk: 'Поганий звʼязок для відео? Завантажити інструкцію PDF',
+  ru: 'Плохая связь для видео? Скачать инструкцию в PDF',
+  zh: '网络较弱无法观看视频？下载PDF指南',
+  ja: '電波が弱く動画が見られない場合：PDF案内をダウンロード',
+};
+
 const accesoTranslations: Record<Lang, {
   fianza_title: string;
   fianza_desc: string;
@@ -858,22 +886,14 @@ export default function AccesoTabs({
                 {/* PDF Guide for low signal */}
                 <div className="pt-1">
                   <a
-                    href={
-                      lang === 'es' ? '/guias/Instrucciones_Acceso_Vila_de_Fenals_ES.pdf' :
-                      lang === 'fr' ? '/guias/Instructions_Acces_Vila_de_Fenals_FR.pdf' :
-                      lang === 'it' ? '/guias/Istruzioni_Accesso_Vila_de_Fenals_IT.pdf' :
-                      '/guias/Access_Instructions_Vila_de_Fenals_EN.pdf'
-                    }
+                    href={pdfGuides[lang] || pdfGuides.en}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-center gap-2 w-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-medium py-2.5 px-3 rounded-xl transition-all text-xs shadow-sm hover:scale-[1.01]"
                   >
                     <FileText size={15} className="shrink-0 text-cyan-400" />
                     <span>
-                      {lang === 'es' ? '¿Poca cobertura para el vídeo? Descargar Guía en PDF' :
-                       lang === 'fr' ? 'Faible connexion ? Télécharger le guide en PDF' :
-                       lang === 'it' ? 'Poca linea per il video? Scarica guida in PDF' :
-                       'Low mobile signal? Download PDF Access Guide'}
+                      {pdfGuideLabels[lang] || pdfGuideLabels.en}
                     </span>
                   </a>
                 </div>
